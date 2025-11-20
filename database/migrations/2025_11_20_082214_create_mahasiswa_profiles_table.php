@@ -16,15 +16,24 @@ return new class extends Migration
             // user_id : foreign key ke tabel users
             // constraint cascade, user dihapus, profil mahasiswa juga ikut kehapus
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+
+            // data akademik mahasiswa
             $table->string('nim', 12)->unique();
             $table->string('program_studi', 50);
             $table->year('angkatan');
             $table->decimal('ipk', 3, 2);
-            $table->integer('semester');
+            $table->integer('semester')->default(1);
+
+            // file upload
             $table->string('foto', 255)->nullable();
             $table->string('cv_path', 255)->nullable();
             $table->string('transkrip_path', 255)->nullable();
+
             $table->timestamps();
+
+            // up index perform
+            $table->index('nim'); // Sudah unique, tapi explicit index
+            $table->index('angkatan'); // Sering filter by angkatan
         });
     }
 
