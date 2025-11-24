@@ -37,7 +37,7 @@ class Lowongan extends Model
     ];
 
     // relasi many to one, banyak lowongan dimiliki satu divisi
-    public function divison() {
+    public function division() {
         return $this->belongsTo(Division::class);
     }
     

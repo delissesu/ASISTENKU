@@ -31,7 +31,7 @@ class Application extends Model
 
     // relasi many to one, banyak aplikasi bisa ke satu lowongan
     public function lowongan() {
-        return $this->belongsTo(Application::class);
+        return $this->belongsTo(Lowongan::class);
     }
 
     // relasi many to one ke user sebagai mahasiswa
