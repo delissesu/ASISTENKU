@@ -34,9 +34,27 @@ class MahasiswaProfile extends Model
         $updated_at => 'datetime'
     ];
 
-    // relasi
+    // relasi satu profile hanya dimiliki satu user
     public function user() {
         return $this->belongsTo(User::class);
+    }
+
+    // helper untuk mendapatkan url foto lengkap
+    public function getFotoUrlAttribute() 
+    {
+        return $this->foto ? asset('storage' .$this->foto) : asset('images/default-avatar-png');
+    }
+
+    // helper untuk mendapatkan url foto lengkap
+    public function getCvUrlAttribute() 
+    {
+        return $this->cv_path ? asset('storage' .$this->cv_path) : null;
+    }
+
+    // helper untuk mendapatkan url foto lengkap
+    public function getTranskripUrlAttribute() 
+    {
+        return $this->transkrip_path ? asset('storage/' . $this->transkrip_path) : null;
     }
 
 }
