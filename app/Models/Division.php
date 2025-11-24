@@ -36,8 +36,14 @@ class Division extends Model
         return $this->hasMany(Lowongan::class);
     }
 
-    // relasi satu divisi bisa punya banyak pertanyaan
+    // relasi satu divisi bisa punya banyak pertanyaan atau soal ujian
     public function questionBanks() {
         return $this->hasMany(QuestionBank::class);
+    }
+
+    // scoping untuk memfilter divisi yang aktif
+    public function scopeActive($query) 
+    {
+        return $query->where('is_active', true);
     }
 }
