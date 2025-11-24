@@ -28,10 +28,11 @@ class MahasiswaProfile extends Model
     // casting
     protected $casts = 
     [
-        $ipk => 'float',
-        $semester => 'integer',
-        $created_at => 'datetime',
-        $updated_at => 'datetime'
+        'ipk' => 'float',
+        'semester' => 'integer',
+        'angkatan' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     // relasi satu profile hanya dimiliki satu user
