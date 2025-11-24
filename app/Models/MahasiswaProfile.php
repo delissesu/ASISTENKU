@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class MahasiswaProfile extends Model
 {
@@ -11,9 +13,7 @@ class MahasiswaProfile extends Model
 
     protected $table = 'mahasiswa_profiles';
 
-    // bisa diisi
-    protected $fillable = 
-    [
+    protected $fillable = [
         'user_id',
         'nim',
         'program_studi',
@@ -25,37 +25,48 @@ class MahasiswaProfile extends Model
         'transkrip_path'
     ];
 
-    // casting
-    protected $casts = 
-    [
-        'ipk' => 'float',
-        'semester' => 'integer',
-        'angkatan' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
-
-    // relasi satu profile hanya dimiliki satu user
-    public function user() {
-        return $this->belongsTo(User::class);
+    protected function casts(): array
+    {
+        return [
+            'ipk' => 'float',
+            'semester' => 'integer',
+            'angkatan' => 'integer',
+        ];
     }
 
-    // helper untuk mendapatkan url foto lengkap
-    public function getFotoUrlAttribute() 
+    // relasi one to one, satu profil hanya dimiliki oleh satu user
+    public function user(): BelongsTo
     {
-        return $this->foto ? asset('storage/' .$this->foto) : asset('images/default-avatar-png');
+        return $this->belongsTo(User::class);
+    }
+    
+    // helper untuk mendapatkan url foto profil
+    protected function fotoUrl(): Attribute
+    {
+        return Attribute::get(
+            fn () => $this->foto 
+                ? asset('storage/' . $this->foto) 
+                : asset('images/default-avatar.png')
+        );
     }
 
     // helper untuk mendapatkan url cv
-    public function getCvUrlAttribute() 
+    protected function cvUrl(): Attribute
     {
-        return $this->cv_path ? asset('storage/' .$this->cv_path) : null;
+        return Attribute::get(
+            fn () => $this->cv_path 
+                ? asset('storage/' . $this->cv_path) 
+                : null
+        );
     }
 
     // helper untuk mendapatkan url transkrip
-    public function getTranskripUrlAttribute() 
+    protected function transkripUrl(): Attribute
     {
-        return $this->transkrip_path ? asset('storage/' . $this->transkrip_path) : null;
+        return Attribute::get(
+            fn () => $this->transkrip_path 
+                ? asset('storage/' . $this->transkrip_path) 
+                : null
+        );
     }
-
 }
