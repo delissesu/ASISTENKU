@@ -11,6 +11,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+    protected $table = 'users';
 
     /**
      * The attributes that are mass assignable.
@@ -21,7 +22,18 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+
+        // mahasiswa atau recruiter
+        'role',
+
+        // hanya untuk mahasiswa
+        'nim',
+        
+        'phone',
+        'is_active',
     ];
+
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -33,16 +45,43 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'is_active' => 'boolean',
+    ];
+
+    // relasi one to one ke mahasiswa profile
+    public function mahasiswaProfile() {
+        return $this->hasOne(MahasiswaProfile::class);
+    }
+
+    // relasi one to many ke lowongan
+    public function applications() {
+        return $this->hasMany(Application::class, 'mahasiswa_id');
+    }
+
+    // relasi one to many as recruiter, bisa buat banyak lowongan
+    public function lowongans()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasMany(Lowongan::class, 'recruiter_id');
+    }
+
+    // scoping untuk memfilter user dengan role mahasiswa
+    public function scopeMahasiswa($query)
+    {
+        return $query->where('role', 'mahasiswa');
+    }
+
+    // scoping untuk memfilter user dengan role recruiter
+    public function scopeRecruiter($query)
+    {
+        return $query->where('role', 'recruiter');
+    }
+
+    // scoping untuk filter user yang aktif saja
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
     }
 }
