@@ -43,13 +43,13 @@ class MahasiswaProfile extends Model
     // helper untuk mendapatkan url foto lengkap
     public function getFotoUrlAttribute() 
     {
-        return $this->foto ? asset('storage' .$this->foto) : asset('images/default-avatar-png');
+        return $this->foto ? asset('storage/' .$this->foto) : asset('images/default-avatar-png');
     }
 
     // helper untuk mendapatkan url foto lengkap
     public function getCvUrlAttribute() 
     {
-        return $this->cv_path ? asset('storage' .$this->cv_path) : null;
+        return $this->cv_path ? asset('storage/' .$this->cv_path) : null;
     }
 
     // helper untuk mendapatkan url foto lengkap
