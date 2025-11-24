@@ -36,7 +36,7 @@ class Division extends Model
         return $this->hasMany(Lowongan::class);
     }
 
-    // relasi satu divisi bisa punya banyak pertanyaan atau soal ujian
+    // relasi one yo many, satu divisi bisa punya banyak pertanyaan atau soal ujian
     public function questionBanks() {
         return $this->hasMany(QuestionBank::class);
     }
