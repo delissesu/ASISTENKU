@@ -4,18 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Division extends Model
 {
     use HasFactory;
+
     protected $table = 'divisions';
 
-    // pk id default, tp eksplisit aja
-    protected $primaryKey = 'id';
-
-    // bisa diisi
-    protected $fillable = 
-    [
+    protected $fillable = [
         'name',
         'slug',
         'description',
@@ -23,26 +20,27 @@ class Division extends Model
         'is_active'
     ];
 
-    // casting
-    protected $casts = 
-    [
-        'is_active' => 'boolean',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
 
-    // relasi satu divisi bisa punya banyak lowongan
-    public function lowongans() {
+    // relasi one to many, satu divisi bisa punya banyak lowongan
+    public function lowongans(): HasMany
+    {
         return $this->hasMany(Lowongan::class);
     }
 
     // relasi one to many, satu divisi bisa punya banyak pertanyaan atau soal ujian
-    public function questionBanks() {
+    public function questionBanks(): HasMany
+    {
         return $this->hasMany(QuestionBank::class);
     }
 
     // scoping untuk memfilter divisi yang aktif
-    public function scopeActive($query) 
+    public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
