@@ -27,8 +27,8 @@ class Division extends Model
     protected $casts = 
     [
         'is_active' => 'boolean',
-        'created_at' => 'datettime',
-        'updated_at' => 'datettime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     // relasi satu divisi bisa punya banyak lowongan
