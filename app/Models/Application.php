@@ -48,12 +48,6 @@ class Application extends Model
         return $this->hasOne(Test::class);
     }
 
-    // relasi one to one, satu lamaran hanya punya satu hasil ujian
-    public function testResult(): HasOne
-    {
-        return $this->hasOne(TestResult::class);
-    }
-
     // scoping untuk memfilter lamaran berdasarkan status
     public function scopeByStatus($query, string $status)
     {

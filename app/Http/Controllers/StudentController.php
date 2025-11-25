@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Lowongan;
+use App\Models\Application;
+use Illuminate\Support\Facades\Auth;
+
+class StudentController extends Controller
+{
+    public function dashboard()
+    {
+        // Mock data for now, replace with actual queries when Auth is ready
+        // $user = Auth::user();
+        
+        $applications = Application::with(['lowongan.division'])
+            // ->where('mahasiswa_id', $user->id)
+            ->latest()
+            ->get();
+
+        $availableJobs = Lowongan::with(['division', 'recruiter'])
+            ->open()
+            ->latest()
+            ->get();
+
+        return view('student.dashboard', compact('applications', 'availableJobs'));
+    }
+
+    public function exam()
+    {
+        return view('student.exam');
+    }
+}
