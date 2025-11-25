@@ -11,11 +11,10 @@ class StudentController extends Controller
 {
     public function dashboard()
     {
-        // Mock data for now, replace with actual queries when Auth is ready
-        // $user = Auth::user();
+        $user = Auth::user();
         
         $applications = Application::with(['lowongan.division'])
-            // ->where('mahasiswa_id', $user->id)
+            ->where('mahasiswa_id', $user->id)
             ->latest()
             ->get();
 

@@ -46,7 +46,7 @@ class Test extends Model
         return $this->hasMany(TestAnswer::class);
     }
 
-    // Method to calculate and save score after test completion
+    // method untuk menghitung dan menyimpan nilai setelah tes selesai
     public function calculateScore(): void
     {
         $answers = $this->testAnswers()->with('question')->get();
@@ -98,7 +98,7 @@ class Test extends Model
         });
     }
 
-    // Accessor attributes untuk kompatibilitas dengan struktur lama
+    // accessor attribute untuk kompatibilitas dengan struktur lama
     protected function totalQuestions(): Attribute
     {
         return Attribute::get(fn () => $this->testAnswers()->count());

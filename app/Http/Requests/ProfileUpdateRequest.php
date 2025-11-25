@@ -11,7 +11,7 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // User can update their own profile
+        return true; // user diizinkan untuk mengupdate profil mereka sendiri
     }
 
     /**

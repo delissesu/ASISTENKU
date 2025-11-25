@@ -11,9 +11,7 @@ use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
-    /**
-     * Handle login request
-     */
+    // menangani permintaan login dari user
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -26,7 +24,7 @@ class AuthController extends Controller
 
             $user = Auth::user();
             
-            // Redirect based on role
+            // alihkan pengguna berdasarkan role yang dimiliki
             if ($user->role === 'mahasiswa') {
                 return redirect()->intended(route('student.dashboard'));
             } elseif ($user->role === 'recruiter') {
@@ -41,9 +39,7 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
-    /**
-     * Handle register request
-     */
+    // menangani permintaan registrasi user baru
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -52,12 +48,12 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', Password::min(8)],
             'role' => 'required|in:mahasiswa,recruiter',
             
-            // Mahasiswa specific fields
+            // validasi field khusus untuk role mahasiswa
             'nim' => 'required_if:role,mahasiswa|nullable|string|unique:mahasiswa_profiles,nim',
             'program_studi' => 'required_if:role,mahasiswa|nullable|string|max:255',
         ]);
 
-        // Create user
+        // membuat data user baru di database
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -65,7 +61,7 @@ class AuthController extends Controller
             'role' => $validated['role'],
         ]);
 
-        // Create mahasiswa profile if role is mahasiswa
+        // membuat profil mahasiswa jika role yang dipilih adalah mahasiswa
         if ($validated['role'] === 'mahasiswa') {
             MahasiswaProfile::create([
                 'user_id' => $user->id,
@@ -74,10 +70,10 @@ class AuthController extends Controller
             ]);
         }
 
-        // Log the user in
+        // login user secara otomatis setelah registrasi
         Auth::login($user);
 
-        // Redirect based on role
+        // alihkan pengguna ke dashboard sesuai role
         if ($user->role === 'mahasiswa') {
             return redirect()->route('student.dashboard')->with('success', 'Registrasi berhasil! Silakan lengkapi profil Anda.');
         } elseif ($user->role === 'recruiter') {
@@ -87,9 +83,7 @@ class AuthController extends Controller
         return redirect('/');
     }
 
-    /**
-     * Handle logout request
-     */
+    // menangani permintaan logout user
     public function logout(Request $request)
     {
         Auth::logout();

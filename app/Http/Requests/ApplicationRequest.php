@@ -11,7 +11,7 @@ class ApplicationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Only mahasiswa can apply
+        // otorisasi, hanya user dengan role mahasiswa yang boleh melamar
         return $this->user() && $this->user()->role === 'mahasiswa';
     }
 

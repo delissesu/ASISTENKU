@@ -70,7 +70,7 @@ class Lowongan extends Model
         return $query->where('status', $status);
     }
 
-    // helper untuk cek apakah lowongan sedang dibuka
+    // helper untuk mengecek apakah lowongan sedang dibuka
     public function isOpen(): bool
     {
         return $this->status === 'open'
