@@ -20,6 +20,7 @@ class MahasiswaProfile extends Model
         'angkatan',
         'ipk',
         'semester',
+        'phone',
         'foto',
         'cv_path',
         'transkrip_path'

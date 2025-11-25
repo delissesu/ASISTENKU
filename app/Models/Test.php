@@ -21,6 +21,8 @@ class Test extends Model
         'end_time',
         'duration_minutes',
         'status',
+        'score',
+        'passed',
     ];
 
     protected function casts(): array
@@ -44,10 +46,25 @@ class Test extends Model
         return $this->hasMany(TestAnswer::class);
     }
 
-    // relasi one to one, satu sesi tes hanya punya satu hasil
-    public function testResult(): HasOne
+    // method untuk menghitung dan menyimpan nilai setelah tes selesai
+    public function calculateScore(): void
     {
-        return $this->hasOne(TestResult::class);
+        $answers = $this->testAnswers()->with('question')->get();
+        
+        if ($answers->isEmpty()) {
+            $this->score = 0;
+            $this->passed = false;
+            $this->save();
+            return;
+        }
+        
+        $totalPoints = $answers->sum(fn($a) => $a->question->points);
+        $correctPoints = $answers->where('is_correct', true)
+                                 ->sum(fn($a) => $a->question->points);
+        
+        $this->score = $totalPoints > 0 ? round(($correctPoints / $totalPoints) * 100, 2) : 0;
+        $this->passed = $this->score >= 70; // Passing threshold 70%
+        $this->save();
     }
 
     // scoping untuk memfilter tes yang sedang berlangsung
@@ -79,5 +96,21 @@ class Test extends Model
             $remaining = now()->diffInMinutes($this->end_time, false);
             return max(0, $remaining);
         });
+    }
+
+    // accessor attribute untuk kompatibilitas dengan struktur lama
+    protected function totalQuestions(): Attribute
+    {
+        return Attribute::get(fn () => $this->testAnswers()->count());
+    }
+
+    protected function correctAnswers(): Attribute
+    {
+        return Attribute::get(fn () => $this->testAnswers()->where('is_correct', true)->count());
+    }
+
+    protected function wrongAnswers(): Attribute
+    {
+        return Attribute::get(fn () => $this->testAnswers()->where('is_correct', false)->count());
     }
 }

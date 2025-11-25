@@ -11,31 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('test_results', function (Blueprint $table) {
-            $table->id();
-
-            // test_id: foreign key ke tests.id
-            // relasinya one to one
-            $table->foreignId('test_id')->unique()->constrained('tests')->onDelete('cascade');
-
-            // application_id: foreign key ke applications.id
-            $table->foreignId('application_id')->constrained('applications')->onDelete('cascade');
-
-            // hasil nilai
-            $table->decimal('score', 5, 2); // misalnya 100.00 atau 85.50
-
-            $table->integer('total_questions');
-            $table->integer('correct_answers');
-            $table->integer('wrong_answers');
-
-            // lulus atau tidak
-            $table->boolean('passed');
-
-            $table->timestamps();
-
-            // memastikan hasil hanya ada satu per pendaftaran
-            $table->unique('application_id');
+        // Add score columns to tests table
+        Schema::table('tests', function (Blueprint $table) {
+            $table->decimal('score', 5, 2)->nullable()->after('status');
+            $table->boolean('passed')->default(false)->after('score');
         });
+        
+        // Drop test_results table (redundant)
+        Schema::dropIfExists('test_results');
     }
 
     /**
@@ -43,6 +26,27 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('test_results');
+        // Recreate test_results table
+        Schema::create('test_results', function (Blueprint $table) {
+            $table->id();
+            
+            $table->foreignId('test_id')->unique()->constrained('tests')->onDelete('cascade');
+            $table->foreignId('application_id')->constrained('applications')->onDelete('cascade');
+            
+            $table->decimal('score', 5, 2);
+            $table->integer('total_questions');
+            $table->integer('correct_answers');
+            $table->integer('wrong_answers');
+            $table->boolean('passed');
+            
+            $table->timestamps();
+            
+            $table->unique('application_id');
+        });
+        
+        // Remove columns from tests table
+        Schema::table('tests', function (Blueprint $table) {
+            $table->dropColumn(['score', 'passed']);
+        });
     }
 };
