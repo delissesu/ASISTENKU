@@ -4,13 +4,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\RecruiterController;
+use App\Http\Controllers\AuthController;
 
 // route untuk halaman publik
 Route::get('/', [PageController::class, 'index'])->name('landing');
 Route::get('/auth', [PageController::class, 'auth'])->name('auth');
-
-// route untuk autentikasi
-use App\Http\Controllers\AuthController;
 
 Route::get('/login', function() {
     return redirect()->route('auth');

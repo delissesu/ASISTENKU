@@ -6,20 +6,12 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ApplicationRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        // otorisasi, hanya user dengan role mahasiswa yang boleh melamar
+        // hanya user dengan role mahasiswa yang boleh melamar
         return $this->user() && $this->user()->role === 'mahasiswa';
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
@@ -29,11 +21,6 @@ class ApplicationRequest extends FormRequest
         ];
     }
 
-    /**
-     * Get custom messages for validator errors.
-     *
-     * @return array<string, string>
-     */
     public function messages(): array
     {
         return [
