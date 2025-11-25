@@ -66,7 +66,7 @@ class RecruiterController extends Controller
 
         $announcements = Announcement::latest()->get();
 
-        return view('recruiter.dashboard', compact(
+        return view('pages.recruiter.dashboard', compact(
             'activeTab',
             'stats',
             'recentActivity',

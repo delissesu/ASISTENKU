@@ -23,11 +23,11 @@ class StudentController extends Controller
             ->latest()
             ->get();
 
-        return view('student.dashboard', compact('applications', 'availableJobs'));
+        return view('pages.student.dashboard', compact('applications', 'availableJobs'));
     }
 
     public function exam()
     {
-        return view('student.exam');
+        return view('pages.student.exam');
     }
 }

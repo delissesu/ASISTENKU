@@ -8,11 +8,11 @@ class PageController extends Controller
 {
     public function index()
     {
-        return view('landing-page');
+        return view('pages.landing');
     }
 
     public function auth()
     {
-        return view('auth-page');
+        return view('pages.auth');
     }
 }
