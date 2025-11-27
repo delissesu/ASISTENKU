@@ -34,19 +34,19 @@ class Test extends Model
         ];
     }
 
-    // relasi one to one, satu ujian hanya untuk satu lamaran
+    // satu ujian buat satu lamaran
     public function application(): BelongsTo
     {
         return $this->belongsTo(Application::class);
     }
 
-    // relasi one to many, satu sesi tes bisa punya banyak jawaban
+    // satu tes banyak jawaban
     public function testAnswers(): HasMany
     {
         return $this->hasMany(TestAnswer::class);
     }
 
-    // method untuk menghitung dan menyimpan nilai setelah tes selesai
+    // itung nilai abis tes kelar
     public function calculateScore(): void
     {
         $answers = $this->testAnswers()->with('question')->get();
@@ -67,26 +67,26 @@ class Test extends Model
         $this->save();
     }
 
-    // scoping untuk memfilter tes yang sedang berlangsung
+    // filter tes yang lagi jalan
     public function scopeInProgress($query)
     {
         return $query->where('status', 'in_progress');
     }
 
-    // scoping untuk memfilter tes yang sudah selesai
+    // filter tes yang udah kelar
     public function scopeCompleted($query)
     {
         return $query->where('status', 'completed');
     }
 
 
-    // helper untuk cek apakah waktu tes sudah habis
+    // cek waktu abis ga
     public function isExpired(): bool
     {
         return now()->greaterThan($this->end_time);
     }
 
-    // helper untuk menghitung sisa waktu tes dalam menit
+    // itung sisa waktu (menit)
     protected function remainingTime(): Attribute
     {
         return Attribute::get(function () {
@@ -98,7 +98,7 @@ class Test extends Model
         });
     }
 
-    // accessor attribute untuk kompatibilitas dengan struktur lama
+    // biar support struktur lama
     protected function totalQuestions(): Attribute
     {
         return Attribute::get(fn () => $this->testAnswers()->count());

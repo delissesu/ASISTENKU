@@ -3,7 +3,7 @@
 <div class="grid lg:grid-cols-12 gap-8">
     <!-- Kolom Kiri - Form -->
     <div class="lg:col-span-8 space-y-6">
-        <!-- Header -->
+        <!-- Kepala -->
         <div>
             <h1 class="text-slate-900 mb-2 text-2xl font-bold">Profil Saya</h1>
             <p class="text-slate-600">

@@ -1,15 +1,15 @@
 @extends('layouts.guest')
 
 @section('content')
-    {{-- Hero Section --}}
+    {{-- Bagian Hero --}}
     @include('partials.landing.hero')
 
-    {{-- Divisions Section --}}
+    {{-- Bagian Divisi --}}
     @include('partials.landing.divisions')
 
-    {{-- Process Section --}}
+    {{-- Bagian Proses --}}
     @include('partials.landing.process')
 
-    {{-- CTA Section --}}
+    {{-- Bagian CTA --}}
     @include('partials.landing.cta')
 @endsection

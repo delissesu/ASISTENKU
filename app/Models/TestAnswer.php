@@ -26,13 +26,13 @@ class TestAnswer extends Model
         ];
     }
 
-    // relasi many to one, banyak jawaban dalam satu sesi tes
+    // banyak jawaban di satu tes
     public function test(): BelongsTo
     {
         return $this->belongsTo(Test::class);
     }
 
-    // relasi many to one, banyak jawaban bisa untuk satu soal
+    // banyak jawaban buat satu soal
     public function question(): BelongsTo
     {
         return $this->belongsTo(QuestionBank::class, 'question_id');

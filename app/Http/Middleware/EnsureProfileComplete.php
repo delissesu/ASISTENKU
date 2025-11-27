@@ -12,17 +12,17 @@ class EnsureProfileComplete
     {
         $user = $request->user();
 
-        // hanya lakukan pengecekan untuk user dengan role mahasiswa
+        // cek cuma buat mahasiswa doang
         if ($user && $user->role === 'mahasiswa') {
             $profile = $user->mahasiswaProfile;
 
-            // cek apakah profil mahasiswa ada dan field yang dibutuhkan sudah terisi
+            // cek profil ada ga, isinya lengkap ga
             if (!$profile) {
                 return redirect()->route('student.dashboard')
                     ->with('warning', 'Silakan lengkapi profil Anda terlebih dahulu.');
             }
 
-            // cek kelengkapan field wajib pada profil
+            // cek kolom wajib di profil
             $requiredFields = ['nim', 'program_studi', 'ipk', 'semester', 'phone'];
             foreach ($requiredFields as $field) {
                 if (empty($profile->$field)) {

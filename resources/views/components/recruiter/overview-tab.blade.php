@@ -1,7 +1,7 @@
 @props(['divisionStats', 'recentActivity'])
 
 <div class="space-y-6">
-    <!-- Welcome Section -->
+    <!-- Bagian Sambutan -->
     <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-6 text-white">
         <h1 class="mb-2 text-2xl font-bold">Dashboard Recruiter</h1>
         <p class="text-green-100">
@@ -9,7 +9,7 @@
         </p>
     </div>
 
-    <!-- Division Overview -->
+    <!-- Ringkasan Divisi -->
     <div class="grid md:grid-cols-3 gap-6">
         @forelse($divisionStats as $division)
             @php
@@ -26,7 +26,7 @@
                 <div class="flex flex-col space-y-1.5 p-6">
                     <div class="flex items-center justify-between">
                         <div class="{{ $color['bg'] }} p-2 rounded-lg">
-                            <!-- FileText Icon -->
+                            <!-- Ikon Dokumen -->
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6 {{ $color['text'] }}"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
                         </div>
                         <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 {{ $color['badge'] }}">{{ $division->name }}</div>
@@ -51,7 +51,7 @@
                     </div>
                     <x-ui.button variant="outline" class="w-full mt-4">
                         Lihat Detail
-                        <!-- ArrowRight Icon -->
+                        <!-- Ikon Panah Kanan -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 ml-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                     </x-ui.button>
                 </div>
@@ -65,7 +65,7 @@
         @endforelse
     </div>
 
-    <!-- Recent Activity -->
+    <!-- Aktivitas Terakhir -->
     <div class="rounded-xl border bg-card text-card-foreground shadow">
         <div class="flex flex-col space-y-1.5 p-6">
             <div class="flex items-center justify-between">
@@ -89,7 +89,7 @@
                             $color = $statusColors[$activity->status] ?? 'text-slate-600';
                         @endphp
                         
-                        <!-- User Icon -->
+                        <!-- Ikon User -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5 {{ $color }} flex-shrink-0 mt-0.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                         
                         <div class="flex-1">

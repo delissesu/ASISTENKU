@@ -1,4 +1,4 @@
-{{-- Footer untuk halaman publik --}}
+{{-- Kaki buat halaman publik --}}
 <footer class="bg-slate-900 text-slate-400 py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row justify-between items-center">

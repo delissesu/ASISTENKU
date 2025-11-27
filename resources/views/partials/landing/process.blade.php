@@ -1,4 +1,4 @@
-{{-- Process Section --}}
+{{-- Bagian Proses --}}
 <section class="py-20 bg-slate-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">

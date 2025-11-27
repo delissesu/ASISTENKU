@@ -1,4 +1,4 @@
-{{-- Divisions Section --}}
+{{-- Bagian Divisi --}}
 <section class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
@@ -9,7 +9,7 @@
         </div>
 
         <div class="grid md:grid-cols-3 gap-8">
-            {{-- Asisten Praktikum --}}
+            {{-- Asprak --}}
             @include('partials.landing.division-card', [
                 'color' => 'blue',
                 'icon' => 'book-open',
@@ -27,7 +27,7 @@
                 'features' => ['Bantuan riset dosen', 'Analisis & pengolahan data', 'Penulisan jurnal/paper']
             ])
 
-            {{-- Media Kreatif --}}
+            {{-- Medkreat --}}
             @include('partials.landing.division-card', [
                 'color' => 'purple',
                 'icon' => 'trending-up',

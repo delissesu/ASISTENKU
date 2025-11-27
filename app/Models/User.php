@@ -39,37 +39,37 @@ class User extends Authenticatable
         ];
     }
 
-    // relasi one to one, satu user hanya punya satu profil mahasiswa
+    // satu user cuma satu profil mhs
     public function mahasiswaProfile(): HasOne
     {
         return $this->hasOne(MahasiswaProfile::class);
     }
 
-    // relasi one to many, satu mahasiswa bisa punya banyak lamaran
+    // satu mhs banyak lamaran
     public function applications(): HasMany
     {
         return $this->hasMany(Application::class, 'mahasiswa_id');
     }
 
-    // relasi one to many, satu recruiter bisa membuat banyak lowongan
+    // satu recruiter banyak lowongan
     public function lowongans(): HasMany
     {
         return $this->hasMany(Lowongan::class, 'recruiter_id');
     }
 
-    // scoping untuk memfilter user dengan role mahasiswa
+    // filter user mahasiswa
     public function scopeMahasiswa($query)
     {
         return $query->where('role', 'mahasiswa');
     }
 
-    // scoping untuk memfilter user dengan role recruiter
+    // filter user recruiter
     public function scopeRecruiter($query)
     {
         return $query->where('role', 'recruiter');
     }
 
-    // scoping untuk memfilter user yang aktif
+    // filter user aktif
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
