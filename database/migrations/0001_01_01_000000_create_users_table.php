@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('password');
             $table->enum('role', ['mahasiswa', 'recruiter']);
 
-            // $table->string('nim', 12)->nullable();
-            // $table->string('phone', 20);
+            $table->string('nim', 12)->nullable();
+            $table->string('phone', 20);
             
             $table->boolean('is_active')->default(true);
             $table->timestamp('email_verified_at')->nullable();

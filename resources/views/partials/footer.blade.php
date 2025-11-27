@@ -6,9 +6,9 @@
                 @include('partials.icons.graduation-cap', ['class' => 'size-6 text-blue-400'])
                 <span class="text-white font-medium">Sistem Rekrutmen Asisten Lab</span>
             </div>
-            <p class="text-sm">
+            {{-- <p class="text-sm">
                 &copy; {{ date('Y') }} Fakultas Ilmu Komputer. All rights reserved.
-            </p>
+            </p> --}}
         </div>
     </div>
 </footer>

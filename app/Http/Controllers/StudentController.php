@@ -27,7 +27,7 @@ class StudentController extends Controller
     }
 
     public function exam()
-    {
+    {   
         return view('pages.student.exam');
     }
 }
