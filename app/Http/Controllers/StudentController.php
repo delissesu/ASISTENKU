@@ -35,7 +35,6 @@ class StudentController extends Controller
             'email' => 'required|email|unique:users,email,' . auth()->id(),
             'phone' => 'nullable|string|max:20',
             'skills' => 'nullable|string',
-            'organization' => 'nullable|string',
         ]);
 
         try {
@@ -52,7 +51,6 @@ class StudentController extends Controller
                 $user->mahasiswaProfile->update([
                     'phone' => $validated['phone'] ?? null,
                     'skills' => $validated['skills'] ?? null,
-                    'organization' => $validated['organization'] ?? null,
                 ]);
             }
             
