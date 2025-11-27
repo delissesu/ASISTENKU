@@ -68,8 +68,20 @@
                 <div class="grid md:grid-cols-2 gap-4">
                     <div class="space-y-2">
                         <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="email">Email</label>
-                        <input class="flex h-10 w-full rounded-md border border-input bg-slate-100 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" id="email" name="email" type="email" value="{{ old('email', Auth::user()->email) }}" readonly />
-                        <p class="text-[10px] text-slate-500">Hubungi admin jika ingin mengubah email</p>
+                        {{-- Kode Lama: Email Read-only --}}
+                        {{-- <input class="flex h-10 w-full rounded-md border border-input bg-slate-100 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" id="email" name="email" type="email" value="{{ old('email', Auth::user()->email) }}" readonly /> --}}
+                        {{-- <p class="text-[10px] text-slate-500">Hubungi admin jika ingin mengubah email</p> --}}
+
+                        {{-- Kode Baru: Email Bisa Diedit --}}
+                        <input 
+                            class="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                            :class="isEditing ? 'bg-background' : 'bg-slate-50 text-slate-500'"
+                            id="email" 
+                            name="email" 
+                            type="email"
+                            value="{{ old('email', Auth::user()->email) }}" 
+                            :disabled="!isEditing"
+                        />
                     </div>
                     <div class="space-y-2">
                         <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="phone">Nomor HP</label>
