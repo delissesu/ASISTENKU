@@ -21,6 +21,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 Route::middleware(['auth', 'role:mahasiswa'])->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
     Route::put('/profile', [StudentController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/jobs/{lowongan}/apply', [StudentController::class, 'apply'])->name('jobs.apply');
     
     // route untuk ujian (memerlukan profil lengkap)
     Route::middleware('profile.complete')->group(function () {

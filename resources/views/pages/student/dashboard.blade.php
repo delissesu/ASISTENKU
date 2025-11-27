@@ -4,7 +4,7 @@
 
 @section('content')
     <div x-show="activeTab === 'overview'">
-        @include('partials.student.tabs.overview', ['applications' => $applications, 'availableJobs' => $availableJobs])
+        @include('partials.student.tabs.overview', ['applications' => $applications, 'availableJobs' => $availableJobs, 'appliedJobIds' => $appliedJobIds])
     </div>
     <div x-show="activeTab === 'openings'" style="display: none;">
         @include('partials.student.tabs.job-openings', ['jobs' => $availableJobs])

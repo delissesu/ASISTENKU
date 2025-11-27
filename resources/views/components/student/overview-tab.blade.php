@@ -1,4 +1,17 @@
-<div class="space-y-6">
+<div class="space-y-6" x-data="{ 
+    showJobModal: false, 
+    selectedJob: null, 
+    jobs: {{ $availableJobs->toJson() }},
+    formatDate(date) { 
+        if (!date) return '';
+        return new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }); 
+    },
+    openModal(jobId) {
+        this.selectedJob = this.jobs.find(j => j.id === jobId);
+        this.showJobModal = true;
+        console.log('Opening modal for job:', this.selectedJob);
+    }
+}">
     <!-- Welcome Section -->
     <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
         <h1 class="mb-2 text-2xl font-bold">Selamat Datang, {{ Auth::user()->name }}!</h1>
@@ -155,10 +168,27 @@
                             <span>{{ $job->quota }} posisi</span>
                             <span>• Deadline: {{ $job->close_date->format('d M') }}</span>
                         </div>
-                        <x-ui.button size="sm" class="w-full mt-3 bg-blue-600 hover:bg-blue-700">
-                            Lamar Sekarang
-                        </x-ui.button>
-                    </div>
+                        
+                        @php
+                            $isApplied = in_array($job->id, $appliedJobIds ?? []);
+                        @endphp
+                        
+                        @if($isApplied)
+                            <x-ui.button 
+                                size="sm" 
+                                class="w-full mt-3 bg-slate-200 text-slate-500 cursor-not-allowed hover:bg-slate-200"
+                                disabled>
+                                Sudah Dilamar
+                            </x-ui.button>
+                        @else
+                            <x-ui.button 
+                                size="sm" 
+                                class="w-full mt-3 bg-blue-600 hover:bg-blue-700"
+                                @click="openModal({{ $job->id }})">
+                                Lamar Sekarang
+                            </x-ui.button>
+                        @endif  
+                    </div>  
                 @empty
                     <div class="col-span-3 text-center py-8">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-12 text-slate-300 mx-auto mb-3"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
@@ -169,4 +199,7 @@
             </div>
         </div>
     </div>
+
+    <!-- Job Detail Modal -->
+    @include('components.student.job-detail-modal')
 </div>
