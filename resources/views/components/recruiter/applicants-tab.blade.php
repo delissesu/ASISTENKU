@@ -5,7 +5,103 @@
     selectedApplicant: null,
     showDetailDialog: false,
     activeDetailTab: 'info',
-    applicants: @json($applicants)
+    applicants: @json($applicants),
+    interviewForm: {
+        date: '',
+        time: '',
+        location: '',
+        notes: ''
+    },
+    showInterviewModal: false,
+
+    async updateStatus(status) {
+        if (!this.selectedApplicant) return;
+        
+        if (status === 'interview') {
+            this.showInterviewModal = true;
+            return;
+        }
+
+        if (!confirm('Apakah Anda yakin ingin mengubah status pelamar ini menjadi ' + status + '?')) return;
+
+        try {
+            const response = await fetch(`/recruiter/applications/${this.selectedApplicant.id}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ status: status })
+            });
+
+            if (response.ok) {
+                this.selectedApplicant.status = status.charAt(0).toUpperCase() + status.slice(1);
+                // Update local list
+                const index = this.applicants.findIndex(a => a.id === this.selectedApplicant.id);
+                if (index !== -1) {
+                    this.applicants[index].status = this.selectedApplicant.status;
+                    // Update color logic locally for immediate feedback
+                    this.applicants[index].statusColor = this.getStatusColor(status);
+                    this.selectedApplicant.statusColor = this.applicants[index].statusColor;
+                }
+                alert('Status berhasil diperbarui!');
+            } else {
+                alert('Gagal memperbarui status.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat memperbarui status.');
+        }
+    },
+
+    async submitInterview() {
+        if (!this.selectedApplicant) return;
+
+        try {
+            const response = await fetch(`/recruiter/applications/${this.selectedApplicant.id}/interview`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    interview_date: `${this.interviewForm.date} ${this.interviewForm.time}`,
+                    interview_location: this.interviewForm.location,
+                    interview_notes: this.interviewForm.notes
+                })
+            });
+
+            if (response.ok) {
+                this.selectedApplicant.status = 'Interview';
+                const index = this.applicants.findIndex(a => a.id === this.selectedApplicant.id);
+                if (index !== -1) {
+                    this.applicants[index].status = 'Interview';
+                    this.applicants[index].statusColor = this.getStatusColor('interview');
+                }
+                this.showInterviewModal = false;
+                this.showDetailDialog = false;
+                alert('Jadwal interview berhasil disimpan!');
+                // Reset form
+                this.interviewForm = { date: '', time: '', location: '', notes: '' };
+            } else {
+                alert('Gagal menyimpan jadwal interview.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan.');
+        }
+    },
+
+    getStatusColor(status) {
+        const colors = {
+            'pending': 'bg-slate-100 text-slate-700',
+            'verified': 'bg-blue-100 text-blue-700',
+            'accepted': 'bg-green-100 text-green-700',
+            'rejected': 'bg-red-100 text-red-700',
+            'interview': 'bg-purple-100 text-purple-700'
+        };
+        return colors[status.toLowerCase()] || 'bg-slate-100 text-slate-700';
+    }
 }">
     <!-- Kepala -->
     <div>
@@ -200,6 +296,29 @@
                                 <p class="text-slate-900" x-text="selectedApplicant.semester"></p>
                             </div>
                         </div>
+
+                        <template x-if="selectedApplicant.interview && selectedApplicant.interview.date">
+                            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 mt-4">
+                                <h4 class="font-semibold text-purple-900 mb-2 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                                    Jadwal Interview
+                                </h4>
+                                <div class="grid md:grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <p class="text-purple-700 font-medium">Waktu</p>
+                                        <p class="text-slate-700" x-text="new Date(selectedApplicant.interview.date).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-purple-700 font-medium">Lokasi</p>
+                                        <p class="text-slate-700" x-text="selectedApplicant.interview.location"></p>
+                                    </div>
+                                    <div class="col-span-2" x-show="selectedApplicant.interview.notes">
+                                        <p class="text-purple-700 font-medium">Catatan</p>
+                                        <p class="text-slate-700" x-text="selectedApplicant.interview.notes"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
                     </div>
 
                     <div x-show="activeDetailTab === 'documents'" class="space-y-3" style="display: none;">
@@ -235,20 +354,32 @@
                         <div class="space-y-3">
                             <div>
                                 <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Status Aplikasi</label>
-                                <select class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-2" x-model="selectedApplicant.status">
+                                <select 
+                                    class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-2" 
+                                    x-model="selectedApplicant.status"
+                                    @change="updateStatus($event.target.value)"
+                                >
                                     <option value="Pending">Menunggu Verifikasi</option>
                                     <option value="Verified">Terverifikasi</option>
+                                    <option value="Interview">Interview</option>
                                     <option value="Accepted">Diterima</option>
                                     <option value="Rejected">Ditolak</option>
                                 </select>
                             </div>
 
                             <div class="flex gap-3">
-                                <x-ui.button class="flex-1 bg-green-600 hover:bg-green-700">
+                                <x-ui.button class="flex-1 bg-green-600 hover:bg-green-700" @click="updateStatus('accepted')">
                                     Terima
                                 </x-ui.button>
-                                <x-ui.button variant="destructive" class="flex-1">
+                                <x-ui.button variant="destructive" class="flex-1" @click="updateStatus('rejected')">
                                     Tolak
+                                </x-ui.button>
+                            </div>
+                            
+                            <div class="pt-2 border-t">
+                                <x-ui.button variant="outline" class="w-full" @click="showInterviewModal = true">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                                    Jadwalkan Interview
                                 </x-ui.button>
                             </div>
                         </div>
@@ -258,6 +389,44 @@
             
             <div class="mt-4 flex justify-end">
                 <x-ui.button variant="outline" @click="showDetailDialog = false">Tutup</x-ui.button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Jadwal Interview -->
+    <div x-show="showInterviewModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50" style="display: none;">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6" @click.away="showInterviewModal = false">
+            <div class="flex flex-col space-y-1.5 mb-4">
+                <h3 class="text-lg font-semibold leading-none tracking-tight">Jadwalkan Interview</h3>
+                <p class="text-sm text-muted-foreground">Tentukan waktu dan lokasi interview</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium">Tanggal</label>
+                        <input type="date" x-model="interviewForm.date" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium">Waktu</label>
+                        <input type="time" x-model="interviewForm.time" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                    </div>
+                </div>
+                
+                <div class="space-y-2">
+                    <label class="text-sm font-medium">Lokasi / Link Meeting</label>
+                    <input type="text" x-model="interviewForm.location" placeholder="Ruang Lab 1 atau Google Meet Link" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                </div>
+                
+                <div class="space-y-2">
+                    <label class="text-sm font-medium">Catatan Tambahan</label>
+                    <textarea x-model="interviewForm.notes" placeholder="Instruksi khusus untuk pelamar..." class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"></textarea>
+                </div>
+                
+                <div class="flex justify-end gap-3 pt-2">
+                    <x-ui.button variant="outline" @click="showInterviewModal = false">Batal</x-ui.button>
+                    <x-ui.button class="bg-blue-600 hover:bg-blue-700 text-white" @click="submitInterview">Simpan Jadwal</x-ui.button>
+                </div>
             </div>
         </div>
     </div>

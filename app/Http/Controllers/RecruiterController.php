@@ -73,7 +73,12 @@ class RecruiterController extends Controller
                         'transcript' => !empty($app->mahasiswa->mahasiswaProfile->transkrip_path),
                         'portfolio' => !empty($app->portofolio_url)
                     ],
-                    'examScore' => $app->test->score ?? null
+                    'examScore' => $app->test->score ?? null,
+                    'interview' => [
+                        'date' => $app->interview_date ? $app->interview_date->format('Y-m-d\TH:i') : null,
+                        'location' => $app->interview_location,
+                        'notes' => $app->interview_notes
+                    ]
                 ];
             });
 
@@ -93,5 +98,33 @@ class RecruiterController extends Controller
             'exams',
             'announcements'
         ));
+    }
+    public function updateStatus(Request $request, Application $application)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:pending,verified,test,interview,accepted,rejected',
+        ]);
+
+        $application->update(['status' => $validated['status']]);
+
+        return response()->json(['message' => 'Status updated successfully']);
+    }
+
+    public function scheduleInterview(Request $request, Application $application)
+    {
+        $validated = $request->validate([
+            'interview_date' => 'required|date',
+            'interview_location' => 'required|string',
+            'interview_notes' => 'nullable|string',
+        ]);
+
+        $application->update([
+            'status' => 'interview',
+            'interview_date' => $validated['interview_date'],
+            'interview_location' => $validated['interview_location'],
+            'interview_notes' => $validated['interview_notes'],
+        ]);
+
+        return response()->json(['message' => 'Interview scheduled successfully']);
     }
 }

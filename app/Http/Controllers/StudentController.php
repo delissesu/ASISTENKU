@@ -24,8 +24,10 @@ class StudentController extends Controller
             ->get();
 
         $appliedJobIds = $applications->pluck('lowongan_id')->toArray();
+        
+        $activeTab = request('tab', 'overview');
 
-        return view('pages.student.dashboard', compact('applications', 'availableJobs', 'appliedJobIds'));
+        return view('pages.student.dashboard', compact('applications', 'availableJobs', 'appliedJobIds', 'activeTab'));
     }
 
     public function updateProfile(Request $request)
@@ -48,39 +50,44 @@ class StudentController extends Controller
                 'email' => $validated['email'],
             ]);
             
-            // Update tabel profil mahasiswa kalo ada
-            if ($user->mahasiswaProfile) {
-                $dataToUpdate = [
-                    'phone' => $validated['phone'] ?? null,
-                    'skills' => $validated['skills'] ?? null,
-                ];
+            // Update tabel profil mahasiswa (create if not exists)
+            $mahasiswaProfile = $user->mahasiswaProfile()->firstOrCreate([
+                'user_id' => $user->id
+            ], [
+                // Default values if creating new
+                'nim' => $request->input('nim', '-'), // Should be from registration, but fallback just in case
+            ]);
 
-                // Handle upload CV
-                if ($request->hasFile('cv')) {
-                    // Hapus file lama kalo ada
-                    if ($user->mahasiswaProfile->cv_path && \Storage::exists($user->mahasiswaProfile->cv_path)) {
-                        \Storage::delete($user->mahasiswaProfile->cv_path);
-                    }
-                    $cvPath = $request->file('cv')->store('documents/cv', 'public');
-                    $dataToUpdate['cv_path'] = $cvPath;
+            $dataToUpdate = [
+                'phone' => $validated['phone'] ?? $mahasiswaProfile->phone,
+                'skills' => $validated['skills'] ?? $mahasiswaProfile->skills,
+            ];
+
+            // Handle upload CV
+            if ($request->hasFile('cv')) {
+                // Hapus file lama kalo ada
+                if ($mahasiswaProfile->cv_path && \Storage::exists($mahasiswaProfile->cv_path)) {
+                    \Storage::delete($mahasiswaProfile->cv_path);
                 }
-
-                // Handle upload Transkrip
-                if ($request->hasFile('transkrip')) {
-                    // Hapus file lama kalo ada
-                    if ($user->mahasiswaProfile->transkrip_path && \Storage::exists($user->mahasiswaProfile->transkrip_path)) {
-                        \Storage::delete($user->mahasiswaProfile->transkrip_path);
-                    }
-                    $transkripPath = $request->file('transkrip')->store('documents/transkrip', 'public');
-                    $dataToUpdate['transkrip_path'] = $transkripPath;
-                }
-
-                $user->mahasiswaProfile->update($dataToUpdate);
+                $cvPath = $request->file('cv')->store('documents/cv', 'public');
+                $dataToUpdate['cv_path'] = $cvPath;
             }
+
+            // Handle upload Transkrip
+            if ($request->hasFile('transkrip')) {
+                // Hapus file lama kalo ada
+                if ($mahasiswaProfile->transkrip_path && \Storage::exists($mahasiswaProfile->transkrip_path)) {
+                    \Storage::delete($mahasiswaProfile->transkrip_path);
+                }
+                $transkripPath = $request->file('transkrip')->store('documents/transkrip', 'public');
+                $dataToUpdate['transkrip_path'] = $transkripPath;
+            }
+
+            $mahasiswaProfile->update($dataToUpdate);
             
-            return redirect()->back()->with('success', 'Profil berhasil diperbarui!');
+            return redirect()->route('student.dashboard', ['tab' => 'profile'])->with('success', 'Profil berhasil diperbarui!');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal memperbarui profil. Silakan coba lagi.');
+            return redirect()->route('student.dashboard', ['tab' => 'profile'])->with('error', 'Gagal memperbarui profil. Silakan coba lagi.');
         }
     }
 

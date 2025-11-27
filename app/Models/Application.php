@@ -20,13 +20,17 @@ class Application extends Model
         'motivation_letter',
         'admin_notes',
         'status',
-        'applied_at'
+        'applied_at',
+        'interview_date',
+        'interview_location',
+        'interview_notes'
     ];
 
     protected function casts(): array
     {
         return [
             'applied_at' => 'datetime',
+            'interview_date' => 'datetime',
         ];
     }
 
