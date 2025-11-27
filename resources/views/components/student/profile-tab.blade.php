@@ -12,15 +12,28 @@
         </div>
 
         <!-- Info Pribadi -->
-        <div class="rounded-xl border bg-card text-card-foreground shadow">
+        <div class="rounded-xl border bg-card text-card-foreground shadow" x-data="{ isEditing: false }">
             <div class="flex flex-col space-y-1.5 p-6">
                 <div class="flex items-center justify-between">
                     <h3 class="font-semibold leading-none tracking-tight">Informasi Pribadi</h3>
-                    <x-ui.button variant="ghost" size="sm">
-                        <!-- Ikon Edit -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-                        Edit
-                    </x-ui.button>
+                    <button 
+                        @click="isEditing = !isEditing" 
+                        class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-9 px-3"
+                        :class="isEditing ? 'text-red-600 hover:text-red-700 hover:bg-red-50' : 'text-slate-600 hover:text-slate-900'"
+                    >
+                        <template x-if="!isEditing">
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                                Edit
+                            </div>
+                        </template>
+                        <template x-if="isEditing">
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                                Batal
+                            </div>
+                        </template>
+                    </button>
                 </div>
             </div>
             
@@ -60,7 +73,15 @@
                     </div>
                     <div class="space-y-2">
                         <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="phone">Nomor HP</label>
-                        <input class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" id="phone" name="phone" value="{{ old('phone', Auth::user()->mahasiswaProfile->phone ?? '') }}" placeholder="08xxxxxxxxxx" />
+                        <input 
+                            class="flex h-10 w-full rounded-md border border-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                            :class="isEditing ? 'bg-background' : 'bg-slate-50 text-slate-500'"
+                            id="phone" 
+                            name="phone" 
+                            value="{{ old('phone', Auth::user()->mahasiswaProfile->phone ?? '') }}" 
+                            placeholder="08xxxxxxxxxx"
+                            :disabled="!isEditing"
+                        />
                     </div>
                 </div>
 
@@ -80,11 +101,13 @@
                     </div>
                 </div>
 
-                <x-ui.button type="submit" class="bg-blue-600 hover:bg-blue-700 w-full md:w-auto">
-                    <!-- Ikon Simpen -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                    Simpan Perubahan
-                </x-ui.button>
+                <div x-show="isEditing" x-transition class="flex justify-end pt-2">
+                    <x-ui.button type="submit" class="bg-blue-600 hover:bg-blue-700 w-full md:w-auto">
+                        <!-- Ikon Simpen -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        Simpan Perubahan
+                    </x-ui.button>
+                </div>
             </div>
         </div>
 
@@ -130,7 +153,10 @@
                 <div class="grid md:grid-cols-2 gap-6">
                     <!-- Upload CV -->
                     <div class="space-y-2">
-                        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="cv">CV / Resume</label>
+                        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2" for="cv">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 text-blue-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                            CV / Resume
+                        </label>
                         <input 
                             class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             id="cv"
@@ -148,7 +174,10 @@
 
                     <!-- Upload Transkrip -->
                     <div class="space-y-2">
-                        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="transkrip">Transkrip Nilai</label>
+                        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2" for="transkrip">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 text-blue-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                            Transkrip Nilai
+                        </label>
                         <input 
                             class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             id="transkrip"
@@ -245,70 +274,6 @@
             </div>
         </div>
 
-        <!-- Dokumen -->
-        <div class="rounded-xl border bg-card text-card-foreground shadow">
-            <div class="p-6">
-                <h3 class="font-semibold mb-2">Dokumen</h3>
-                <p class="text-sm text-slate-500 mb-4">Upload dan kelola dokumen Anda</p>
-                
-                <div class="space-y-3">
-                    <!-- CV -->
-                    <div class="border border-slate-200 rounded-lg p-3">
-                        <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 text-blue-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
-                                <span class="text-sm font-medium text-slate-900">CV / Resume</span>
-                            </div>
-                            @if(Auth::user()->mahasiswaProfile->cv_path)
-                                <div class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-green-100 text-green-700">
-                                    Uploaded
-                                </div>
-                            @else
-                                <div class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-slate-100 text-slate-700">
-                                    Missing
-                                </div>
-                            @endif
-                        </div>
-                        <p class="text-xs text-slate-500 truncate">
-                            {{ Auth::user()->mahasiswaProfile->cv_path ? basename(Auth::user()->mahasiswaProfile->cv_path) : 'Belum ada file' }}
-                        </p>
-                    </div>
 
-                    <!-- Transkrip -->
-                    <div class="border border-slate-200 rounded-lg p-3">
-                        <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 text-blue-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
-                                <span class="text-sm font-medium text-slate-900">Transkrip Nilai</span>
-                            </div>
-                            @if(Auth::user()->mahasiswaProfile->transkrip_path)
-                                <div class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-green-100 text-green-700">
-                                    Uploaded
-                                </div>
-                            @else
-                                <div class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-slate-100 text-slate-700">
-                                    Missing
-                                </div>
-                            @endif
-                        </div>
-                        <p class="text-xs text-slate-500 truncate">
-                            {{ Auth::user()->mahasiswaProfile->transkrip_path ? basename(Auth::user()->mahasiswaProfile->transkrip_path) : 'Belum ada file' }}
-                        </p>
-                    </div>
-
-                    <!-- Kotak Upload Portofolio -->
-                    <div class="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors cursor-pointer bg-slate-50/50">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6 text-slate-400 mx-auto mb-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                        <p class="text-sm text-slate-600 mb-1">Upload Portofolio</p>
-                        <p class="text-[10px] text-slate-500">PDF, DOC, atau ZIP (Max 10MB)</p>
-                    </div>
-
-                    <x-ui.button variant="outline" class="w-full text-xs h-9">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                        Upload Dokumen Baru
-                    </x-ui.button>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
