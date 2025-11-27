@@ -20,6 +20,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 // route untuk mahasiswa (dilindungi middleware auth dan role mahasiswa)
 Route::middleware(['auth', 'role:mahasiswa'])->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
+    Route::put('/profile', [StudentController::class, 'updateProfile'])->name('profile.update');
     
     // route untuk ujian (memerlukan profil lengkap)
     Route::middleware('profile.complete')->group(function () {

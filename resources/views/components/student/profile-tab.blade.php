@@ -22,6 +22,9 @@
                         </x-ui.button>
                     </div>
                 </div>
+                <form action="{{ route('student.profile.update') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
                 <div class="p-6 pt-0 space-y-4">
                     <div class="grid md:grid-cols-2 gap-4">
                         <div class="space-y-2">
@@ -67,6 +70,7 @@
                         Simpan Perubahan
                     </x-ui.button>
                 </div>
+                </form>
             </div>
 
             <!-- Academic Information -->
@@ -81,9 +85,10 @@
                         <textarea 
                             class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             id="skills"
+                            name="skills"
                             placeholder="Contoh: HTML, CSS, JavaScript, React, Python, Machine Learning..."
                             rows="3"
-                        >HTML, CSS, JavaScript, React, Vue.js, Node.js, Python, Git</textarea>
+                        >{{ old('skills', Auth::user()->mahasiswaProfile->skills ?? '') }}</textarea>
                     <div class="border border-slate-200 rounded-lg p-3 hover:border-blue-300 transition-colors">
                         <div class="flex items-center justify-between mb-2">
                             <div class="flex items-center gap-2">
