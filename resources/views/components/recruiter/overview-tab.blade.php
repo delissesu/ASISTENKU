@@ -1,127 +1,66 @@
 <div class="space-y-6">
     <!-- Welcome Section -->
     <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-6 text-white">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="flex-1">
-                        <p class="text-slate-900 mb-1 font-medium">5 Ujian Perlu Dijadwalkan</p>
-                        <p class="text-sm text-slate-600">
-                            Tentukan jadwal ujian untuk pelamar yang lolos seleksi administrasi
-                        </p>
-                    </div>
-                    <x-ui.button size="sm" variant="outline">
-                        Jadwalkan
-                    </x-ui.button>
-                </div>
-            </div>
-        </div>
+        <h1 class="mb-2 text-2xl font-bold">Dashboard Recruiter</h1>
+        <p class="text-green-100">
+            Kelola rekrutmen asisten laboratorium dengan mudah
+        </p>
     </div>
 
     <!-- Division Overview -->
     <div class="grid md:grid-cols-3 gap-6">
-        <div class="rounded-xl border bg-card text-card-foreground shadow">
-            <div class="flex flex-col space-y-1.5 p-6">
-                <div class="flex items-center justify-between">
-                    <div class="bg-blue-100 p-2 rounded-lg">
-                        <!-- FileText Icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6 text-blue-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+        @forelse($divisionStats as $division)
+            @php
+                $colors = [
+                    0 => ['bg' => 'bg-blue-100', 'text' => 'text-blue-600', 'badge' => 'bg-blue-100 text-blue-700'],
+                    1 => ['bg' => 'bg-green-100', 'text' => 'text-green-600', 'badge' => 'bg-green-100 text-green-700'],
+                    2 => ['bg' => 'bg-purple-100', 'text' => 'text-purple-600', 'badge' => 'bg-purple-100 text-purple-700'],
+                ];
+                $color = $colors[$loop->index % 3] ?? $colors[0];
+                $totalApplicants = $division->lowongans->sum('total_applicants');
+                $totalAccepted = $division->lowongans->sum('accepted_count');
+            @endphp
+            <div class="rounded-xl border bg-card text-card-foreground shadow">
+                <div class="flex flex-col space-y-1.5 p-6">
+                    <div class="flex items-center justify-between">
+                        <div class="{{ $color['bg'] }} p-2 rounded-lg">
+                            <!-- FileText Icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6 {{ $color['text'] }}"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                        </div>
+                        <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 {{ $color['badge'] }}">{{ $division->name }}</div>
                     </div>
-                    <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-blue-100 text-blue-700">Praktikum</div>
+                    <h3 class="font-semibold leading-none tracking-tight mt-4">{{ $division->name }}</h3>
+                    <p class="text-sm text-muted-foreground">{{ $division->description ?? 'Divisi Asisten Laboratorium' }}</p>
                 </div>
-                <h3 class="font-semibold leading-none tracking-tight mt-4">Asisten Praktikum</h3>
-                <p class="text-sm text-muted-foreground">Lab Pemrograman & Database</p>
-            </div>
-            <div class="p-6 pt-0">
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-slate-600">Lowongan</span>
-                        <span class="text-slate-900 font-medium">5 posisi</span>
+                <div class="p-6 pt-0">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-slate-600">Lowongan</span>
+                            <span class="text-slate-900 font-medium">{{ $division->active_jobs_count }} posisi</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-slate-600">Pelamar</span>
+                            <span class="text-slate-900 font-medium">{{ $totalApplicants }} orang</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-slate-600">Diterima</span>
+                            <span class="text-green-600 font-medium">{{ $totalAccepted }} orang</span>
+                        </div>
                     </div>
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-slate-600">Pelamar</span>
-                        <span class="text-slate-900 font-medium">58 orang</span>
-                    </div>
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-slate-600">Diterima</span>
-                        <span class="text-green-600 font-medium">12 orang</span>
-                    </div>
+                    <x-ui.button variant="outline" class="w-full mt-4">
+                        Lihat Detail
+                        <!-- ArrowRight Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 ml-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </x-ui.button>
                 </div>
-                <x-ui.button variant="outline" class="w-full mt-4">
-                    Lihat Detail
-                    <!-- ArrowRight Icon -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 ml-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                </x-ui.button>
             </div>
-        </div>
-
-        <div class="rounded-xl border bg-card text-card-foreground shadow">
-            <div class="flex flex-col space-y-1.5 p-6">
-                <div class="flex items-center justify-between">
-                    <div class="bg-green-100 p-2 rounded-lg">
-                        <!-- Award Icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6 text-green-600"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
-                    </div>
-                    <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-green-100 text-green-700">Penelitian</div>
-                </div>
-                <h3 class="font-semibold leading-none tracking-tight mt-4">Asisten Penelitian</h3>
-                <p class="text-sm text-muted-foreground">AI & Computer Vision</p>
+        @empty
+            <div class="col-span-3 text-center py-12">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-12 text-slate-300 mx-auto mb-3"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <p class="text-slate-500 text-sm">Belum ada divisi terdaftar</p>
+                <p class="text-slate-400 text-xs mt-1">Tambahkan divisi untuk mulai mengelola lowongan</p>
             </div>
-            <div class="p-6 pt-0">
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-slate-600">Lowongan</span>
-                        <span class="text-slate-900 font-medium">3 posisi</span>
-                    </div>
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-slate-600">Pelamar</span>
-                        <span class="text-slate-900 font-medium">42 orang</span>
-                    </div>
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-slate-600">Diterima</span>
-                        <span class="text-green-600 font-medium">8 orang</span>
-                    </div>
-                </div>
-                <x-ui.button variant="outline" class="w-full mt-4">
-                    Lihat Detail
-                    <!-- ArrowRight Icon -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 ml-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                </x-ui.button>
-            </div>
-        </div>
-
-        <div class="rounded-xl border bg-card text-card-foreground shadow">
-            <div class="flex flex-col space-y-1.5 p-6">
-                <div class="flex items-center justify-between">
-                    <div class="bg-purple-100 p-2 rounded-lg">
-                        <!-- TrendingUp Icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6 text-purple-600"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                    </div>
-                    <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-purple-100 text-purple-700">Media</div>
-                </div>
-                <h3 class="font-semibold leading-none tracking-tight mt-4">Media Kreatif</h3>
-                <p class="text-sm text-muted-foreground">Desain & Social Media</p>
-            </div>
-            <div class="p-6 pt-0">
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-slate-600">Lowongan</span>
-                        <span class="text-slate-900 font-medium">4 posisi</span>
-                    </div>
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-slate-600">Pelamar</span>
-                        <span class="text-slate-900 font-medium">47 orang</span>
-                    </div>
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-slate-600">Diterima</span>
-                        <span class="text-green-600 font-medium">25 orang</span>
-                    </div>
-                </div>
-                <x-ui.button variant="outline" class="w-full mt-4">
-                    Lihat Detail
-                    <!-- ArrowRight Icon -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 ml-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                </x-ui.button>
-            </div>
-        </div>
+        @endforelse
     </div>
 
     <!-- Recent Activity -->
@@ -136,7 +75,7 @@
         </div>
         <div class="p-6 pt-0">
             <div class="space-y-4">
-                @foreach($recentActivity as $activity)
+                @forelse($recentActivity as $activity)
                     <div class="flex items-start gap-4 p-3 bg-slate-50 rounded-lg">
                         @php
                             $statusColors = [
@@ -162,7 +101,13 @@
                             </div>
                         </div>
                     </div>
-                @endforeach
+                @empty
+                    <div class="text-center py-8">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-12 text-slate-300 mx-auto mb-3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <p class="text-slate-500 text-sm">Belum ada aktivitas terbaru</p>
+                        <p class="text-slate-400 text-xs mt-1">Aktivitas pelamar akan muncul di sini</p>
+                    </div>
+                @endforelse
             </div>
         </div>
     </div>

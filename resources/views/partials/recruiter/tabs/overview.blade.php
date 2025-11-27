@@ -1,2 +1,2 @@
 {{-- Recruiter Overview Tab --}}
-<x-recruiter.overview-tab :stats="$stats" :recent-activity="$recentActivity" />
+<x-recruiter.overview-tab :stats="$stats" :division-stats="$divisionStats" :recent-activity="$recentActivity" />

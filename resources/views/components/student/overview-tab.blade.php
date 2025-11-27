@@ -107,7 +107,7 @@
         </div>
         <div class="p-6 pt-0">
             <div class="space-y-3">
-                @foreach($applications->take(3) as $app)
+                @forelse($applications->take(3) as $app)
                     <div class="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
                         <div class="flex items-center gap-4">
                             <div class="bg-white p-2 rounded-lg">
@@ -122,7 +122,13 @@
                             {{ ucfirst($app->status) }}
                         </div>
                     </div>
-                @endforeach
+                @empty
+                    <div class="text-center py-8">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-12 text-slate-300 mx-auto mb-3"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        <p class="text-slate-500 text-sm">Belum ada aplikasi yang dikirim</p>
+                        <p class="text-slate-400 text-xs mt-1">Mulai lamar posisi yang tersedia</p>
+                    </div>
+                @endforelse
             </div>
         </div>
     </div>
@@ -142,7 +148,7 @@
         </div>
         <div class="p-6 pt-0">
             <div class="grid md:grid-cols-3 gap-4">
-                @foreach($availableJobs->take(3) as $job)
+                @forelse($availableJobs->take(3) as $job)
                     <div class="border border-slate-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all">
                         <h4 class="text-slate-900 mb-2 font-medium">{{ $job->title }}</h4>
                         <div class="flex items-center justify-between text-sm text-slate-600">
@@ -153,7 +159,13 @@
                             Lamar Sekarang
                         </x-ui.button>
                     </div>
-                @endforeach
+                @empty
+                    <div class="col-span-3 text-center py-8">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-12 text-slate-300 mx-auto mb-3"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                        <p class="text-slate-500 text-sm">Tidak ada lowongan tersedia saat ini</p>
+                        <p class="text-slate-400 text-xs mt-1">Cek kembali nanti untuk lowongan baru</p>
+                    </div>
+                @endforelse
             </div>
         </div>
     </div>
