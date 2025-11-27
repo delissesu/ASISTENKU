@@ -81,7 +81,7 @@
             </x-ui.button>
             
             <form :action="`/student/jobs/${selectedJob?.id}/apply`" method="POST">
-                @csrf
+                <input type="hidden" name="_token" :value="document.querySelector('meta[name=\'csrf-token\']').getAttribute('content')">
                 <x-ui.button type="submit" class="bg-blue-600 hover:bg-blue-700">
                     Kirim Lamaran
                 </x-ui.button>
