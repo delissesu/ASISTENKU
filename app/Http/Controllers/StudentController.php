@@ -27,40 +27,36 @@ class StudentController extends Controller
         return view('pages.student.dashboard', compact('applications', 'availableJobs'));
     }
 
-    public function updateProfile(ProfileUpdateRequest $request)
+    public function updateProfile(Request $request)
     {
-        $user = Auth::user();
-        
-        // update data user
-        $user->update([
-            'name' => $request->name,
-            'phone' => $request->phone,
+        $validated = $request->validate([
+            // 'name' => 'required|string|max:255', // Disabled: Name tied to NIM, cannot be changed
+            'email' => 'required|email|unique:users,email,' . auth()->id(),
+            'phone' => 'nullable|string|max:20',
+            'skills' => 'nullable|string',
         ]);
-        
-        // update data profil mahasiswa
-        $profileData = [
-            'program_studi' => $request->program_studi,
-            'semester' => $request->semester,
-            'ipk' => $request->ipk,
-        ];
-        
-        // handle file uploads
-        if ($request->hasFile('foto')) {
-            $profileData['foto'] = $request->file('foto')->store('photos', 'public');
+
+        try {
+            $user = Auth::user();
+            
+            // Update user table (email only, name is tied to NIM and cannot be changed)
+            $user->update([
+                // 'name' => $validated['name'], // Disabled: Name tied to NIM
+                'email' => $validated['email'],
+            ]);
+            
+            // Update mahasiswa_profile table if exists
+            if ($user->mahasiswaProfile) {
+                $user->mahasiswaProfile->update([
+                    'phone' => $validated['phone'] ?? null,
+                    'skills' => $validated['skills'] ?? null,
+                ]);
+            }
+            
+            return redirect()->back()->with('success', 'Profil berhasil diperbarui!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal memperbarui profil. Silakan coba lagi.');
         }
-        
-        if ($request->hasFile('cv')) {
-            $profileData['cv_path'] = $request->file('cv')->store('cvs', 'public');
-        }
-        
-        if ($request->hasFile('transkrip')) {
-            $profileData['transkrip_path'] = $request->file('transkrip')->store('transcripts', 'public');
-        }
-        
-        $user->mahasiswaProfile()->update($profileData);
-        
-        return redirect()->route('student.dashboard')
-            ->with('success', 'Profil berhasil diperbarui!');
     }
 
     public function exam()

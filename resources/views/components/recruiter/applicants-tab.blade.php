@@ -70,6 +70,14 @@
         </div>
         <div class="p-6 pt-0">
             <div class="space-y-3">
+                <template x-if="applicants.filter(app => statusFilter === 'all' || app.status === statusFilter).length === 0">
+                    <div class="text-center py-12">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-12 text-slate-300 mx-auto mb-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <p class="text-slate-500 text-sm mt-3">Tidak ada pelamar ditemukan</p>
+                        <p class="text-slate-400 text-xs mt-1">Filter atau kriteria pencarian tidak menghasilkan data</p>
+                    </div>
+                </template>
+                
                 <template x-for="applicant in applicants.filter(app => statusFilter === 'all' || app.status === statusFilter)" :key="applicant.id">
                     <div class="border border-slate-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all">
                         <div class="flex items-start justify-between gap-4">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Lowongan;
 use App\Models\Application;
+use App\Models\Division;
 use App\Models\Announcement;
 use App\Models\Test;
 
@@ -26,7 +27,29 @@ class RecruiterController extends Controller
             ->take(5)
             ->get();
 
-        $jobs = Lowongan::with('division')->latest()->get();
+
+        // Get division statistics for overview cards
+        try {
+            $divisionStats = Division::withCount([
+                'lowongans as active_jobs_count' => function($q) {
+                    $q->where('status', 'open');
+                }
+            ])->with(['lowongans' => function($q) {
+                $q->where('status', 'open')->withCount([
+                    'applications as total_applicants',
+                    'applications as accepted_count' => function($query) {
+                        $query->where('status', 'accepted');
+                    }
+                ]);
+            }])->get();
+        } catch (\Exception $e) {
+            // Fallback to empty collection if query fails
+            $divisionStats = collect([]);
+            \Log::error('Division stats query failed: ' . $e->getMessage());
+        }
+
+
+        $jobs = Lowongan::with('division')->withCount('applications')->latest()->get();
         
         $applicants = Application::with(['mahasiswa.mahasiswaProfile', 'lowongan.division', 'test'])
             ->latest()
@@ -69,6 +92,7 @@ class RecruiterController extends Controller
         return view('pages.recruiter.dashboard', compact(
             'activeTab',
             'stats',
+            'divisionStats',
             'recentActivity',
             'jobs',
             'applicants',
