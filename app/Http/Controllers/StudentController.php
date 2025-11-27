@@ -6,11 +6,14 @@ use Illuminate\Http\Request;
 use App\Models\Lowongan;
 use App\Models\Application;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;        
+use App\Models\MahasiswaProfile;
 
 class StudentController extends Controller
 {
     public function dashboard()
     {
+        /** @var User $user **/
         $user = Auth::user();
         
         $applications = Application::with(['lowongan.division'])
@@ -42,6 +45,9 @@ class StudentController extends Controller
         ]);
 
         try {
+            // typehinting, gtw buat apa tp suruh nambahin
+            /** @var User $user **/
+
             $user = Auth::user();
             
             // Update tabel user (email doang, nama gabisa diubah soalnya ngikut NIM)
