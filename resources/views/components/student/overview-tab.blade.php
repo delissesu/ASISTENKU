@@ -156,7 +156,7 @@
                     <h3 class="font-semibold leading-none tracking-tight">Lowongan Tersedia</h3>
                     <p class="text-sm text-muted-foreground">Posisi terbaru yang bisa Anda lamar</p>
                 </div>
-                <x-ui.button variant="outline" size="sm">
+                <x-ui.button variant="outline" size="sm" @click="activeTab = 'openings'">
                     Lihat Semua
                 </x-ui.button>
             </div>

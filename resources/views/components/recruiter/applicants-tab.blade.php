@@ -1,4 +1,4 @@
-@props(['applicants'])
+    @props(['applicants'])
 
 <div class="space-y-6" x-data="{ 
     statusFilter: 'all', 
