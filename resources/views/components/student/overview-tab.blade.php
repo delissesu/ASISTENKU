@@ -1,3 +1,5 @@
+@props(['applications', 'availableJobs', 'appliedJobIds' => []])
+
 <div class="space-y-6" x-data="{ 
     showJobModal: false, 
     selectedJob: null, 
@@ -12,7 +14,7 @@
         console.log('Opening modal for job:', this.selectedJob);
     }
 }">
-    <!-- Welcome Section -->
+    <!-- Bagian Sambutan -->
     <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
         <h1 class="mb-2 text-2xl font-bold">Selamat Datang, {{ Auth::user()->name }}!</h1>
         <p class="text-blue-100">
@@ -20,7 +22,7 @@
         </p>
     </div>
 
-    <!-- Stats -->
+    <!-- Statistik -->
     <div class="grid md:grid-cols-4 gap-4">
         <div class="rounded-xl border bg-card text-card-foreground shadow">
             <div class="p-6 pt-6">
@@ -29,7 +31,7 @@
                         <p class="text-sm text-slate-600">Lowongan Aktif</p>
                         <p class="text-slate-900 mt-1 font-bold">{{ $availableJobs->count() }}</p>
                     </div>
-                    <!-- Briefcase Icon -->
+                    <!-- Ikon Tas -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-8 text-blue-600"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
                 </div>
             </div>
@@ -42,7 +44,7 @@
                         <p class="text-sm text-slate-600">Aplikasi Saya</p>
                         <p class="text-slate-900 mt-1 font-bold">{{ $applications->count() }}</p>
                     </div>
-                    <!-- FileText Icon -->
+                    <!-- Ikon Dokumen -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-8 text-green-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
                 </div>
             </div>
@@ -55,7 +57,7 @@
                         <p class="text-sm text-slate-600">Diterima</p>
                         <p class="text-slate-900 mt-1 font-bold">{{ $applications->where('status', 'accepted')->count() }}</p>
                     </div>
-                    <!-- CheckCircle Icon -->
+                    <!-- Ikon Centang -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-8 text-emerald-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m22 4-12 12-4-4"/></svg>
                 </div>
             </div>
@@ -68,18 +70,18 @@
                         <p class="text-sm text-slate-600">Dalam Proses</p>
                         <p class="text-slate-900 mt-1 font-bold">{{ $applications->whereIn('status', ['pending', 'verified', 'interview'])->count() }}</p>
                     </div>
-                    <!-- Clock Icon -->
+                    <!-- Ikon Jam -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-8 text-orange-600"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Important Notifications -->
+    <!-- Notifikasi Penting -->
     <div class="rounded-xl border bg-card text-card-foreground shadow border-l-4 border-l-orange-500">
         <div class="flex flex-col space-y-1.5 p-6">
             <div class="flex items-center gap-2">
-                <!-- AlertCircle Icon -->
+                <!-- Ikon Peringatan -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5 text-orange-600"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
                 <h3 class="font-semibold leading-none tracking-tight">Pemberitahuan Penting</h3>
             </div>
@@ -93,12 +95,12 @@
                             Anda dijadwalkan mengikuti ujian online pada tanggal 15 November 2025, pukul 14:00 WIB
                         </p>
                         <p class="text-sm text-orange-600 mt-2 flex items-center">
-                            <!-- Clock Icon -->
+                            <!-- Ikon Jam -->
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3 inline mr-1"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                             Tersisa 2 hari lagi
                         </p>
                     </div>
-                    <x-ui.button size="sm" class="bg-orange-600 hover:bg-orange-700" onclick="window.location.href='/student/exam'">
+                    <x-ui.button size="sm" class="bg-orange-600 hover:bg-orange-700 text-white" onclick="window.location.href='{{ route('student.exam') }}'">
                         Mulai Ujian
                     </x-ui.button>
                 </div>
@@ -106,14 +108,14 @@
         </div>
     </div>
 
-    <!-- Recent Applications -->
+    <!-- Aplikasi Terakhir -->
     <div class="rounded-xl border bg-card text-card-foreground shadow">
         <div class="flex flex-col space-y-1.5 p-6">
             <div class="flex items-center justify-between">
                 <h3 class="font-semibold leading-none tracking-tight">Aplikasi Terbaru</h3>
                 <x-ui.button variant="ghost" size="sm" @click="activeTab = 'applications'">
                     Lihat Semua
-                    <!-- ArrowRight Icon -->
+                    <!-- Ikon Panah Kanan -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 ml-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </x-ui.button>
             </div>
@@ -146,7 +148,7 @@
         </div>
     </div>
 
-    <!-- Available Positions -->
+    <!-- Posisi Tersedia -->
     <div class="rounded-xl border bg-card text-card-foreground shadow">
         <div class="flex flex-col space-y-1.5 p-6">
             <div class="flex items-center justify-between">
@@ -183,7 +185,7 @@
                         @else
                             <x-ui.button 
                                 size="sm" 
-                                class="w-full mt-3 bg-blue-600 hover:bg-blue-700"
+                                class="w-full mt-3 text-white bg-blue-600 hover:bg-blue-700"
                                 @click="openModal({{ $job->id }})">
                                 Lamar Sekarang
                             </x-ui.button>
@@ -200,6 +202,6 @@
         </div>
     </div>
 
-    <!-- Job Detail Modal -->
+    <!-- Modal Detail Lowongan -->
     @include('components.student.job-detail-modal')
 </div>

@@ -1,5 +1,7 @@
+@props(['announcements'])
+
 <div class="space-y-6" x-data="{ showCreateDialog: false }">
-    <!-- Header -->
+    <!-- Kepala -->
     <div class="flex items-center justify-between">
         <div>
             <h1 class="text-slate-900 mb-2 text-2xl font-bold">Pengumuman & Notifikasi</h1>
@@ -9,19 +11,19 @@
         </div>
 
         <x-ui.button class="bg-green-600 hover:bg-green-700" @click="showCreateDialog = true">
-            <!-- Plus Icon -->
+            <!-- Ikon Tambah -->
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
             Buat Pengumuman
         </x-ui.button>
     </div>
 
-    <!-- Quick Actions -->
+    <!-- Aksi Cepet -->
     <div class="grid md:grid-cols-3 gap-4">
         <div class="rounded-xl border bg-card text-card-foreground shadow cursor-pointer hover:shadow-lg transition-shadow">
             <div class="p-6 pt-6">
                 <div class="flex items-center gap-4">
                     <div class="bg-green-100 p-3 rounded-lg">
-                        <!-- CheckCircle Icon -->
+                        <!-- Ikon Centang -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6 text-green-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m22 4-12 12-4-4"/></svg>
                     </div>
                     <div>
@@ -36,7 +38,7 @@
             <div class="p-6 pt-6">
                 <div class="flex items-center gap-4">
                     <div class="bg-red-100 p-3 rounded-lg">
-                        <!-- XCircle Icon -->
+                        <!-- Ikon Silang -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6 text-red-600"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
                     </div>
                     <div>
@@ -51,7 +53,7 @@
             <div class="p-6 pt-6">
                 <div class="flex items-center gap-4">
                     <div class="bg-blue-100 p-3 rounded-lg">
-                        <!-- Clock Icon -->
+                        <!-- Ikon Jam -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6 text-blue-600"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     </div>
                     <div>
@@ -63,7 +65,7 @@
         </div>
     </div>
 
-    <!-- Recent Announcements -->
+    <!-- Pengumuman Terakhir -->
     <div class="rounded-xl border bg-card text-card-foreground shadow">
         <div class="flex flex-col space-y-1.5 p-6">
             <h3 class="font-semibold leading-none tracking-tight">Riwayat Pengumuman</h3>
@@ -99,7 +101,7 @@
         </div>
     </div>
 
-    <!-- Templates -->
+    <!-- Templat -->
     <div class="rounded-xl border bg-card text-card-foreground shadow">
         <div class="flex flex-col space-y-1.5 p-6">
             <h3 class="font-semibold leading-none tracking-tight">Template Pengumuman</h3>
@@ -152,7 +154,7 @@
         </div>
     </div>
 
-    <!-- Create Announcement Dialog -->
+    <!-- Dialog Buat Pengumuman -->
     <div x-show="showCreateDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" style="display: none;">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6" @click.away="showCreateDialog = false">
             <div class="flex flex-col space-y-1.5 text-center sm:text-left mb-4">
@@ -196,7 +198,7 @@
 
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <div class="flex items-start gap-3">
-                        <!-- Bell Icon -->
+                        <!-- Ikon Lonceng -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5 text-blue-600 flex-shrink-0"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
                         <div class="text-sm">
                             <p class="text-slate-900 mb-1 font-medium">Pengumuman akan dikirim melalui:</p>
@@ -211,7 +213,7 @@
 
                 <div class="flex gap-3 pt-4">
                     <x-ui.button class="flex-1 bg-green-600 hover:bg-green-700" @click="showCreateDialog = false">
-                        <!-- Send Icon -->
+                        <!-- Ikon Kirim -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
                         Kirim Pengumuman
                     </x-ui.button>

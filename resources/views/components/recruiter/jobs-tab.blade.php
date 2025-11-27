@@ -1,21 +1,23 @@
+@props(['jobs'])
+
 <div class="space-y-6" x-data="{ searchQuery: '', selectedDivision: 'all' }">
-    <!-- Header & Actions -->
+    <!-- Header sama Aksi -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <h2 class="text-2xl font-bold text-slate-900">Kelola Lowongan</h2>
             <p class="text-slate-600">Buat dan kelola lowongan asisten laboratorium</p>
         </div>
         <x-ui.button>
-            <!-- Plus Icon -->
+            <!-- Ikon Tambah -->
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             Buat Lowongan Baru
         </x-ui.button>
     </div>
 
-    <!-- Filters -->
+    <!-- Filter-filteran -->
     <div class="flex flex-col md:flex-row gap-4">
         <div class="relative flex-1">
-            <!-- Search Icon -->
+            <!-- Ikon Cari -->
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             <input 
                 type="text" 
@@ -56,7 +58,7 @@
         </div>
     </div>
 
-    <!-- Job List -->
+    <!-- Daftar Lowongan -->
     <div class="grid gap-4">
         @forelse($jobs as $job)
             <div 
@@ -88,11 +90,11 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <x-ui.button variant="ghost" size="icon">
-                                <!-- Edit Icon -->
+                                <!-- Ikon Edit -->
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                             </x-ui.button>
                             <x-ui.button variant="ghost" size="icon" class="text-red-600 hover:text-red-700 hover:bg-red-50">
-                                <!-- Trash Icon -->
+                                <!-- Ikon Sampah -->
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                             </x-ui.button>
                         </div>
@@ -100,26 +102,26 @@
                 </div>
                 <div class="p-6 pt-0">
                     <div class="space-y-4">
-                        <!-- Info Grid -->
+                        <!-- Grid Info -->
                         <div class="grid md:grid-cols-4 gap-4 text-sm">
                             <div class="flex items-center gap-2 text-slate-600">
-                                <!-- Users Icon -->
+                                <!-- Ikon User -->
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                                 <span>{{ $job->quota }} posisi</span>
                             </div>
                             <div class="flex items-center gap-2 text-slate-600">
-                                <!-- Clock Icon -->
+                                <!-- Ikon Jam -->
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                                 <span>{{ $job->applications_count ?? 0 }} pelamar</span>
                             </div>
                             <div class="flex items-center gap-2 text-slate-600">
-                                <!-- Calendar Icon -->
+                                <!-- Ikon Kalender -->
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
                                 <span>{{ $job->open_date->format('d M') }} - {{ $job->close_date->format('d M Y') }}</span>
                             </div>
                         </div>
 
-                        <!-- Requirements -->
+                        <!-- Syarat-syarat -->
                         <div>
                             <p class="text-sm text-slate-700 mb-2 font-medium">Persyaratan:</p>
                             <div class="flex flex-wrap gap-2">
@@ -132,7 +134,7 @@
                             </div>
                         </div>
 
-                        <!-- Actions -->
+                        <!-- Aksi-aksi -->
                         <div class="flex items-center gap-3 pt-2 border-t border-slate-100 mt-4">
                             <x-ui.button size="sm" variant="outline" class="w-full">
                                 Lihat Pelamar

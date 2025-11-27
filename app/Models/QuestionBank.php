@@ -32,32 +32,32 @@ class QuestionBank extends Model
         ];
     }
 
-    // relasi many to one, banyak soal bisa dimiliki satu divisi
+    // banyak soal di satu divisi
     public function division(): BelongsTo
     {
         return $this->belongsTo(Division::class);
     }
 
-    // relasi one to many, satu soal bisa dijawab banyak kali oleh mahasiswa berbeda
+    // satu soal dijawab banyak mahasiswa
     public function testAnswers(): HasMany
     {
         return $this->hasMany(TestAnswer::class, 'question_id');
     }
 
 
-    // scoping untuk memfilter soal yang aktif
+    // filter soal aktif
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
-    // scoping untuk memfilter soal berdasarkan divisi
+    // filter soal per divisi
     public function scopeForDivision($query, int $divisionId)
     {
         return $query->where('division_id', $divisionId);
     }
 
-    // helper untuk mendapatkan semua pilihan jawaban dalam bentuk array
+    // ambil semua opsi jawaban
     protected function options(): Attribute
     {
         return Attribute::get(fn () => [

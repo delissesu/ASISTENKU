@@ -1,4 +1,4 @@
-{{-- Nav items untuk recruiter (desktop) --}}
+{{-- Menu navigasi recruiter (versi desktop) --}}
 <button
     @click="activeTab = 'overview'"
     :class="activeTab === 'overview' ? 'bg-green-50 text-green-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"

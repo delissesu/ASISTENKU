@@ -19,7 +19,7 @@
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
     >
-        <!-- Header -->
+        <!-- Kepala -->
         <div class="p-6 border-b flex items-start justify-between bg-slate-50">
             <div>
                 <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-blue-100 text-blue-700 mb-2" x-text="selectedJob?.division?.name">
@@ -34,9 +34,9 @@
             </button>
         </div>
 
-        <!-- Body -->
+        <!-- Isi -->
         <div class="p-6 overflow-y-auto flex-1 space-y-6">
-            <!-- Info Grid -->
+            <!-- Grid Info -->
             <div class="grid grid-cols-2 gap-4">
                 <div class="p-4 bg-slate-50 rounded-lg border border-slate-100">
                     <p class="text-xs text-slate-500 uppercase font-semibold mb-1">Kuota</p>
@@ -56,13 +56,13 @@
                 </div>
             </div>
 
-            <!-- Description -->
+            <!-- Deskripsi -->
             <div>
                 <h3 class="font-semibold text-slate-900 mb-2">Deskripsi Pekerjaan</h3>
                 <p class="text-slate-600 leading-relaxed whitespace-pre-line" x-text="selectedJob?.description"></p>
             </div>
 
-            <!-- Requirements Warning -->
+            <!-- Peringatan Syarat -->
             <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex gap-3">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5 text-yellow-600 shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                 <div>
@@ -74,14 +74,14 @@
             </div>
         </div>
 
-        <!-- Footer -->
+        <!-- Kaki -->
         <div class="p-6 border-t bg-slate-50 flex justify-end gap-3">
             <x-ui.button variant="outline" @click="showJobModal = false">
                 Batal
             </x-ui.button>
             
             <form :action="`/student/jobs/${selectedJob?.id}/apply`" method="POST">
-                @csrf
+                <input type="hidden" name="_token" :value="document.querySelector('meta[name=\'csrf-token\']').getAttribute('content')">
                 <x-ui.button type="submit" class="bg-blue-600 hover:bg-blue-700">
                     Kirim Lamaran
                 </x-ui.button>

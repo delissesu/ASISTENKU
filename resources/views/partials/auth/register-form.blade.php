@@ -9,7 +9,7 @@
                 @csrf
                 <input type="hidden" name="role" value="mahasiswa">
                 
-                {{-- Nama Lengkap --}}
+                {{-- Nama Lengkap user --}}
                 <div class="space-y-2">
                     <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="reg-name">Nama Lengkap</label>
                     <div class="relative">
@@ -47,7 +47,7 @@
                     @enderror
                 </div>
 
-                {{-- Program Studi --}}
+                {{-- Prodi --}}
                 <div class="space-y-2">
                     <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="reg-prodi">Program Studi</label>
                     <div class="relative">
@@ -131,7 +131,7 @@
                     @enderror
                 </div>
 
-                {{-- Nomor HP --}}
+                {{-- No HP --}}
                 <div class="space-y-2">
                     <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="reg-phone">Nomor HP</label>
                     <div class="relative">
@@ -185,7 +185,7 @@
                     </div>
                 </div>
 
-                {{-- Syarat dan Ketentuan --}}
+                {{-- Syarat & Ketentuan --}}
                 <div class="flex items-start gap-2">
                     <input type="checkbox" id="terms" class="mt-1 rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required />
                     <label for="terms" class="text-sm text-slate-600">

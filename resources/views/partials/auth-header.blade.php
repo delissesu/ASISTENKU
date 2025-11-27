@@ -1,4 +1,4 @@
-{{-- Header untuk halaman autentikasi --}}
+{{-- Kepala buat halaman login/register --}}
 <div class="bg-white border-b border-slate-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center gap-4 h-16">

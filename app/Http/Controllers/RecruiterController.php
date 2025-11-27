@@ -28,25 +28,19 @@ class RecruiterController extends Controller
             ->get();
 
 
-        // Get division statistics for overview cards
-        try {
-            $divisionStats = Division::withCount([
-                'lowongans as active_jobs_count' => function($q) {
-                    $q->where('status', 'open');
+        // Ambil statistik divisi buat kartu di atas
+        $divisionStats = Division::withCount([
+            'lowongans as active_jobs_count' => function($q) {
+                $q->where('status', 'open');
+            }
+        ])->with(['lowongans' => function($q) {
+            $q->where('status', 'open')->withCount([
+                'applications as total_applicants',
+                'applications as accepted_count' => function($query) {
+                    $query->where('status', 'accepted');
                 }
-            ])->with(['lowongans' => function($q) {
-                $q->where('status', 'open')->withCount([
-                    'applications as total_applicants',
-                    'applications as accepted_count' => function($query) {
-                        $query->where('status', 'accepted');
-                    }
-                ]);
-            }])->get();
-        } catch (\Exception $e) {
-            // Fallback to empty collection if query fails
-            $divisionStats = collect([]);
-            \Log::error('Division stats query failed: ' . $e->getMessage());
-        }
+            ]);
+        }])->get();
 
 
         $jobs = Lowongan::with('division')->withCount('applications')->latest()->get();

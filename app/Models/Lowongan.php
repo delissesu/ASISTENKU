@@ -38,25 +38,25 @@ class Lowongan extends Model
         ];
     }
 
-    // relasi many to one, banyak lowongan bisa dimiliki satu divisi
+    // banyak lowongan di satu divisi
     public function division(): BelongsTo
     {
         return $this->belongsTo(Division::class);
     }
 
-    // relasi many to one, banyak lowongan bisa dibuat oleh satu recruiter
+    // banyak lowongan dari satu recruiter
     public function recruiter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recruiter_id');
     }
 
-    // relasi one to many, satu lowongan bisa punya banyak lamaran
+    // satu lowongan banyak pelamar
     public function applications(): HasMany
     {
         return $this->hasMany(Application::class);
     }
 
-    // scoping untuk memfilter lowongan yang sedang dibuka
+    // filter lowongan yang lagi buka
     public function scopeOpen($query)
     {
         return $query->where('status', 'open')
@@ -64,13 +64,13 @@ class Lowongan extends Model
                      ->where('close_date', '>=', now());
     }
 
-    // scoping untuk memfilter lowongan berdasarkan status
+    // filter lowongan pake status
     public function scopeByStatus($query, string $status)
     {
         return $query->where('status', $status);
     }
 
-    // helper untuk mengecek apakah lowongan sedang dibuka
+    // cek lowongan buka ga
     public function isOpen(): bool
     {
         return $this->status === 'open'
@@ -78,7 +78,7 @@ class Lowongan extends Model
             && $this->close_date >= now();
     }
 
-    // helper untuk menghitung sisa kuota lowongan
+    // itung sisa kuota
     protected function remainingQuota(): Attribute
     {
         return Attribute::get(function () {

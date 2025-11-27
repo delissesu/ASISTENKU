@@ -1,4 +1,4 @@
-{{-- CTA Section --}}
+{{-- Bagian CTA --}}
 <section class="py-20 bg-blue-600 text-white">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="mb-4 text-3xl font-bold">Siap Bergabung dengan Kami?</h2>

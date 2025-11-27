@@ -94,7 +94,7 @@
     }
 }" x-init="setInterval(() => { if(timeLeft > 0) timeLeft--; }, 1000)">
 
-    {{-- Header --}}
+    {{-- Header Ujian --}}
     <div class="bg-slate-800 border-b border-slate-700 py-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-4">
@@ -109,10 +109,10 @@
         </div>
     </div>
 
-    {{-- Main Content --}}
+    {{-- Isi Utama --}}
     <div class="max-w-4xl mx-auto py-8">
         <div class="grid grid-cols-12 gap-6">
-            {{-- Question Navigation --}}
+            {{-- Navigasi Soal --}}
             <div class="col-span-3">
                 <div class="bg-slate-800 rounded-xl p-4 sticky top-4">
                     <h3 class="text-slate-400 text-sm mb-4">Navigasi Soal</h3>
@@ -138,7 +138,7 @@
                 </div>
             </div>
 
-            {{-- Question Content --}}
+            {{-- Konten Soal --}}
             <div class="col-span-9">
                 <div class="bg-slate-800 rounded-xl p-6">
                     <div class="mb-6">
@@ -176,7 +176,7 @@
                         </div>
                     </template>
 
-                    {{-- Navigation Buttons --}}
+                    {{-- Tombol Navigasi --}}
                     <div class="flex items-center justify-between mt-8 pt-6 border-t border-slate-700">
                         <button 
                             @click="prevQuestion"
@@ -210,7 +210,7 @@
         </div>
     </div>
 
-    {{-- Warning Modal --}}
+    {{-- Modal Peringatan --}}
     <div 
         x-show="showWarning" 
         x-transition

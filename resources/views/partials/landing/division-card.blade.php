@@ -1,4 +1,4 @@
-{{-- Division Card Component --}}
+{{-- Komponen Kartu Divisi --}}
 @php
     $colors = [
         'blue' => ['bg' => 'bg-blue-50', 'border' => 'border-blue-100', 'icon-bg' => 'bg-blue-600', 'check' => 'text-blue-600'],

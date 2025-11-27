@@ -23,7 +23,8 @@ class MahasiswaProfile extends Model
         'phone',
         'foto',
         'cv_path',
-        'transkrip_path'
+        'transkrip_path',
+        'skills'
     ];
 
     protected function casts(): array
@@ -35,13 +36,13 @@ class MahasiswaProfile extends Model
         ];
     }
 
-    // relasi one to one, satu profil hanya dimiliki oleh satu user
+    // relasi one to one, satu profil cuma punya satu user
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
     
-    // helper untuk mendapatkan url foto profil
+    // helper buat dapetin url foto profil
     protected function fotoUrl(): Attribute
     {
         return Attribute::get(
@@ -51,7 +52,7 @@ class MahasiswaProfile extends Model
         );
     }
 
-    // helper untuk mendapatkan url cv
+    // helper buat dapetin url cv
     protected function cvUrl(): Attribute
     {
         return Attribute::get(
@@ -61,7 +62,7 @@ class MahasiswaProfile extends Model
         );
     }
 
-    // helper untuk mendapatkan url transkrip
+    // helper buat dapetin url transkrip
     protected function transkripUrl(): Attribute
     {
         return Attribute::get(

@@ -1,4 +1,4 @@
-{{-- Nav items untuk student (desktop) --}}
+{{-- Menu navigasi mahasiswa (versi desktop) --}}
 <button
     @click="activeTab = 'overview'"
     :class="activeTab === 'overview' ? 'bg-blue-50 text-blue-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"

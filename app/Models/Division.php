@@ -27,19 +27,19 @@ class Division extends Model
         ];
     }
 
-    // relasi one to many, satu divisi bisa punya banyak lowongan
+    // satu divisi banyak lowongan
     public function lowongans(): HasMany
     {
         return $this->hasMany(Lowongan::class);
     }
 
-    // relasi one to many, satu divisi bisa punya banyak pertanyaan atau soal ujian
+    // satu divisi banyak soal
     public function questionBanks(): HasMany
     {
         return $this->hasMany(QuestionBank::class);
     }
 
-    // scoping untuk memfilter divisi yang aktif
+    // filter divisi yang aktif
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
