@@ -1,3 +1,5 @@
+@props(['applicants'])
+
 <div class="space-y-6" x-data="{ 
     statusFilter: 'all', 
     selectedApplicant: null,
@@ -5,7 +7,7 @@
     activeDetailTab: 'info',
     applicants: @json($applicants)
 }">
-    <!-- Header -->
+    <!-- Kepala -->
     <div>
         <h1 class="text-slate-900 mb-2 text-2xl font-bold">Data Pelamar</h1>
         <p class="text-slate-600">
@@ -13,13 +15,13 @@
         </p>
     </div>
 
-    <!-- Filters -->
+    <!-- Filter-filteran -->
     <div class="rounded-xl border bg-card text-card-foreground shadow">
         <div class="p-6 pt-6">
             <div class="grid md:grid-cols-3 gap-4">
                 <div class="md:col-span-2">
                     <div class="relative">
-                        <!-- Search Icon -->
+                        <!-- Ikon Cari -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                         <input class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-10" placeholder="Cari berdasarkan nama, NIM, atau posisi..." />
                     </div>
@@ -35,7 +37,7 @@
         </div>
     </div>
 
-    <!-- Stats -->
+    <!-- Statistik -->
     <div class="grid md:grid-cols-4 gap-4">
         <div class="rounded-xl border bg-card text-card-foreground shadow">
             <div class="p-6 pt-6 text-center">
@@ -63,7 +65,7 @@
         </div>
     </div>
 
-    <!-- Applicants Table -->
+    <!-- Tabel Pelamar -->
     <div class="rounded-xl border bg-card text-card-foreground shadow">
         <div class="flex flex-col space-y-1.5 p-6">
             <h3 class="font-semibold leading-none tracking-tight">Daftar Pelamar</h3>
@@ -118,17 +120,17 @@
 
                                 <div class="flex items-center gap-3 text-sm text-slate-600">
                                     <span class="flex items-center gap-1">
-                                        <!-- Mail Icon -->
+                                        <!-- Ikon Surat -->
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                                         <span x-text="applicant.email"></span>
                                     </span>
                                     <span class="flex items-center gap-1">
-                                        <!-- Phone Icon -->
+                                        <!-- Ikon Hape -->
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                                         <span x-text="applicant.phone"></span>
                                     </span>
                                     <span class="flex items-center gap-1">
-                                        <!-- Clock Icon -->
+                                        <!-- Ikon Jam -->
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                                         <span x-text="applicant.appliedDate"></span>
                                     </span>
@@ -137,12 +139,12 @@
 
                             <div class="flex flex-col gap-2">
                                 <x-ui.button variant="outline" size="sm" @click="selectedApplicant = applicant; showDetailDialog = true">
-                                    <!-- Eye Icon -->
+                                    <!-- Ikon Mata -->
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                                     Detail
                                 </x-ui.button>
                                 <x-ui.button size="sm" class="bg-green-600 hover:bg-green-700">
-                                    <!-- CheckCircle Icon -->
+                                    <!-- Ikon Centang -->
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m22 4-12 12-4-4"/></svg>
                                     Verifikasi
                                 </x-ui.button>
@@ -154,7 +156,7 @@
         </div>
     </div>
 
-    <!-- Detail Dialog -->
+    <!-- Dialog Detail -->
     <div x-show="showDetailDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" style="display: none;">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6" @click.away="showDetailDialog = false">
             <div class="flex flex-col space-y-1.5 text-center sm:text-left mb-4">
@@ -164,7 +166,7 @@
 
             <template x-if="selectedApplicant">
                 <div>
-                    <!-- Tabs -->
+                    <!-- Tab-tab -->
                     <div class="grid w-full grid-cols-3 mb-4 p-1 bg-slate-100 rounded-lg">
                         <button @click="activeDetailTab = 'info'" :class="activeDetailTab === 'info' ? 'bg-white shadow-sm' : 'hover:bg-slate-200'" class="py-1.5 text-sm font-medium rounded-md transition-all">Informasi</button>
                         <button @click="activeDetailTab = 'documents'" :class="activeDetailTab === 'documents' ? 'bg-white shadow-sm' : 'hover:bg-slate-200'" class="py-1.5 text-sm font-medium rounded-md transition-all">Dokumen</button>

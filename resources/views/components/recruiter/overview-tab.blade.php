@@ -1,3 +1,5 @@
+@props(['divisionStats', 'recentActivity'])
+
 <div class="space-y-6">
     <!-- Welcome Section -->
     <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-6 text-white">

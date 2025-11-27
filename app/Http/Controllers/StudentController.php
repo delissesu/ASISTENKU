@@ -31,26 +31,28 @@ class StudentController extends Controller
     public function updateProfile(Request $request)
     {
         $validated = $request->validate([
-            // 'name' => 'required|string|max:255', // Disabled: Name tied to NIM, cannot be changed
+            // 'name' => 'required|string|max:255', // Dimatiin dulu: Nama ngikut NIM, gabisa diubah
             'email' => 'required|email|unique:users,email,' . auth()->id(),
             'phone' => 'nullable|string|max:20',
             'skills' => 'nullable|string',
+            'organization' => 'nullable|string',
         ]);
 
         try {
             $user = Auth::user();
             
-            // Update user table (email only, name is tied to NIM and cannot be changed)
+            // Update tabel user (email doang, nama gabisa diubah soalnya ngikut NIM)
             $user->update([
-                // 'name' => $validated['name'], // Disabled: Name tied to NIM
+                // 'name' => $validated['name'], // Dimatiin dulu: Nama ngikut NIM
                 'email' => $validated['email'],
             ]);
             
-            // Update mahasiswa_profile table if exists
+            // Update tabel profil mahasiswa kalo ada
             if ($user->mahasiswaProfile) {
                 $user->mahasiswaProfile->update([
                     'phone' => $validated['phone'] ?? null,
                     'skills' => $validated['skills'] ?? null,
+                    'organization' => $validated['organization'] ?? null,
                 ]);
             }
             
@@ -64,12 +66,12 @@ class StudentController extends Controller
     {
         $user = Auth::user();
 
-        // 1. Cek apakah lowongan masih buka
+        // 1. Cek lowongannya masih buka ga
         if (!$lowongan->isOpen()) {
             return redirect()->back()->with('error', 'Lowongan ini sudah ditutup.');
         }
 
-        // 2. Cek apakah sudah pernah melamar
+        // 2. Cek udah pernah ngelamar belom
         $existingApplication = Application::where('mahasiswa_id', $user->id)
             ->where('lowongan_id', $lowongan->id)
             ->exists();
@@ -78,7 +80,7 @@ class StudentController extends Controller
             return redirect()->back()->with('error', 'Anda sudah melamar di lowongan ini.');
         }
 
-        // 3. Cek kelengkapan profil (CV & Transkrip)
+        // 3. Cek profil lengkap ga (CV sama Transkrip)
         $profile = $user->mahasiswaProfile;
         if (!$profile || empty($profile->cv_path) || empty($profile->transkrip_path)) {
             return redirect()->route('student.dashboard')
@@ -86,7 +88,7 @@ class StudentController extends Controller
         }
 
         try {
-            // Create application
+            // Bikin lamaran baru
             Application::create([
                 'mahasiswa_id' => $user->id,
                 'lowongan_id' => $lowongan->id,

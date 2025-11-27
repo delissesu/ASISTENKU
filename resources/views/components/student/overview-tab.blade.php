@@ -1,3 +1,5 @@
+@props(['applications', 'availableJobs', 'appliedJobIds' => []])
+
 <div class="space-y-6" x-data="{ 
     showJobModal: false, 
     selectedJob: null, 
@@ -98,7 +100,7 @@
                             Tersisa 2 hari lagi
                         </p>
                     </div>
-                    <x-ui.button size="sm" class="bg-orange-600 hover:bg-orange-700" onclick="window.location.href='/student/exam'">
+                    <x-ui.button size="sm" class="bg-orange-600 hover:bg-orange-700" onclick="window.location.href='{{ route('student.exam') }}'">
                         Mulai Ujian
                     </x-ui.button>
                 </div>

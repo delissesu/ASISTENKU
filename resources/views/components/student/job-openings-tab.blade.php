@@ -1,3 +1,5 @@
+@props(['jobs', 'appliedJobIds' => []])
+
 <div class="space-y-6" x-data="{ selectedDivision: 'all', searchQuery: '' }">
     <!-- Header -->
     <div>

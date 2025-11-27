@@ -1,3 +1,5 @@
+@props(['exams'])
+
 <div class="space-y-6" x-data="{ 
     activeTab: 'exams',
     showCreateDialog: false

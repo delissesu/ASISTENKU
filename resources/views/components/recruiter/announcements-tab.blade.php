@@ -1,3 +1,5 @@
+@props(['announcements'])
+
 <div class="space-y-6" x-data="{ showCreateDialog: false }">
     <!-- Header -->
     <div class="flex items-center justify-between">

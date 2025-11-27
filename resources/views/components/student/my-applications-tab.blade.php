@@ -1,3 +1,5 @@
+@props(['applications'])
+
 <div class="space-y-6">
     <!-- Header -->
     <div>
