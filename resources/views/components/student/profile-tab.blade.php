@@ -117,10 +117,57 @@
                         @endforeach
                     </div>
                 @endif
+            </div>
+        </div>
+
+        <!-- Dokumen Pendukung -->
+        <div class="rounded-xl border bg-card text-card-foreground shadow">
+            <div class="flex flex-col space-y-1.5 p-6">
+                <h3 class="font-semibold leading-none tracking-tight">Dokumen Pendukung</h3>
+                <p class="text-sm text-muted-foreground">Upload CV dan Transkrip Nilai terbaru (PDF, Max 2MB)</p>
+            </div>
+            <div class="p-6 pt-0 space-y-4">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Upload CV -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="cv">CV / Resume</label>
+                        <input 
+                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            id="cv"
+                            name="cv"
+                            type="file"
+                            accept=".pdf"
+                        />
+                        @if(Auth::user()->mahasiswaProfile->cv_path)
+                            <div class="flex items-center gap-2 text-xs text-green-600 mt-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3"><path d="M20 6 9 17l-5-5"/></svg>
+                                <span>File tersimpan: {{ basename(Auth::user()->mahasiswaProfile->cv_path) }}</span>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Upload Transkrip -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="transkrip">Transkrip Nilai</label>
+                        <input 
+                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            id="transkrip"
+                            name="transkrip"
+                            type="file"
+                            accept=".pdf"
+                        />
+                        @if(Auth::user()->mahasiswaProfile->transkrip_path)
+                            <div class="flex items-center gap-2 text-xs text-green-600 mt-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3"><path d="M20 6 9 17l-5-5"/></svg>
+                                <span>File tersimpan: {{ basename(Auth::user()->mahasiswaProfile->transkrip_path) }}</span>
+                            </div>
+                        @endif
+                    </div>
+                </div>
                 
-                <div class="flex justify-end">
-                    <x-ui.button type="submit" form="profile-form" class="bg-slate-900 text-white hover:bg-slate-800" onclick="document.querySelector('form').submit()">
-                        Update Skill
+                <div class="flex justify-end pt-4">
+                    <x-ui.button type="submit" class="bg-slate-900 text-white hover:bg-slate-800">
+                        Simpan Perubahan
                     </x-ui.button>
                 </div>
             </div>

@@ -35,6 +35,8 @@ class StudentController extends Controller
             'email' => 'required|email|unique:users,email,' . auth()->id(),
             'phone' => 'nullable|string|max:20',
             'skills' => 'nullable|string',
+            'cv' => 'nullable|file|mimes:pdf|max:2048', // Max 2MB
+            'transkrip' => 'nullable|file|mimes:pdf|max:2048', // Max 2MB
         ]);
 
         try {
@@ -48,10 +50,32 @@ class StudentController extends Controller
             
             // Update tabel profil mahasiswa kalo ada
             if ($user->mahasiswaProfile) {
-                $user->mahasiswaProfile->update([
+                $dataToUpdate = [
                     'phone' => $validated['phone'] ?? null,
                     'skills' => $validated['skills'] ?? null,
-                ]);
+                ];
+
+                // Handle upload CV
+                if ($request->hasFile('cv')) {
+                    // Hapus file lama kalo ada
+                    if ($user->mahasiswaProfile->cv_path && \Storage::exists($user->mahasiswaProfile->cv_path)) {
+                        \Storage::delete($user->mahasiswaProfile->cv_path);
+                    }
+                    $cvPath = $request->file('cv')->store('documents/cv', 'public');
+                    $dataToUpdate['cv_path'] = $cvPath;
+                }
+
+                // Handle upload Transkrip
+                if ($request->hasFile('transkrip')) {
+                    // Hapus file lama kalo ada
+                    if ($user->mahasiswaProfile->transkrip_path && \Storage::exists($user->mahasiswaProfile->transkrip_path)) {
+                        \Storage::delete($user->mahasiswaProfile->transkrip_path);
+                    }
+                    $transkripPath = $request->file('transkrip')->store('documents/transkrip', 'public');
+                    $dataToUpdate['transkrip_path'] = $transkripPath;
+                }
+
+                $user->mahasiswaProfile->update($dataToUpdate);
             }
             
             return redirect()->back()->with('success', 'Profil berhasil diperbarui!');
