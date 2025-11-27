@@ -100,7 +100,7 @@
                             Tersisa 2 hari lagi
                         </p>
                     </div>
-                    <x-ui.button size="sm" class="bg-orange-600 hover:bg-orange-700" onclick="window.location.href='{{ route('student.exam') }}'">
+                    <x-ui.button size="sm" class="bg-orange-600 hover:bg-orange-700 text-white" onclick="window.location.href='{{ route('student.exam') }}'">
                         Mulai Ujian
                     </x-ui.button>
                 </div>
@@ -185,7 +185,7 @@
                         @else
                             <x-ui.button 
                                 size="sm" 
-                                class="w-full mt-3 bg-blue-600 hover:bg-blue-700"
+                                class="w-full mt-3 text-white bg-blue-600 hover:bg-blue-700"
                                 @click="openModal({{ $job->id }})">
                                 Lamar Sekarang
                             </x-ui.button>
