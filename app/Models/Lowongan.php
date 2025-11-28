@@ -57,7 +57,7 @@ class Lowongan extends Model
     }
 
     // filter lowongan yang lagi buka
-    public function scopeOpen($query)
+    public function scopeOpen($query) // filter scope di database
     {
         return $query->where('status', 'open')
                      ->where('open_date', '<=', now())

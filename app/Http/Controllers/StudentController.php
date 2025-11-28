@@ -14,20 +14,25 @@ class StudentController extends Controller
     public function dashboard()
     {
         /** @var User $user **/
+        // minta data user yang login
         $user = Auth::user();
         
+        // minta data aplikasi yang pernah di lamar
         $applications = Application::with(['lowongan.division'])
             ->where('mahasiswa_id', $user->id)
             ->latest()
             ->get();
 
+        // minta data lowongan yang masih terbuka
         $availableJobs = Lowongan::with(['division', 'recruiter'])
-            ->open()
-            ->latest()
-            ->get();
+            ->open() // ini scope di model Lowongan
+            ->latest() // urutan terbaru dulu
+            ->get(); // ambil data
 
+        // minta data lowongan yang pernah di lamar
         $appliedJobIds = $applications->pluck('lowongan_id')->toArray();
         
+        // minta data tab yang aktif
         $activeTab = request('tab', 'overview');
 
         return view('pages.student.dashboard', compact('applications', 'availableJobs', 'appliedJobIds', 'activeTab'));
@@ -35,6 +40,7 @@ class StudentController extends Controller
 
     public function updateProfile(Request $request)
     {
+        // validasi update profile
         $validated = $request->validate([
             // 'name' => 'required|string|max:255', // Dimatiin dulu: Nama ngikut NIM, gabisa diubah
             'email' => 'required|email|unique:users,email,' . auth()->id(),

@@ -22,6 +22,12 @@
         </p>
     </div>
 
+    <!-- aduh malas -->
+    <!-- <div class="rounded-xl border bg-card text-card-foreground shadow">
+        <h1>Selamat Datang di ASISTENKU, {{ Auth::user()->name }}</h1>
+        <p>Saat ini Kamu sedang ada di halaman dashboard lho, kak {{ Auth:user()->name }} - {{ Auth:user()->mahasiswaProfile->nim }} - {{ Auth::user()->mahasiswaProfile->program_studi}} </p>
+    </div> -->
+
     <!-- Statistik -->
     <div class="grid md:grid-cols-4 gap-4">
         <div class="rounded-xl border bg-card text-card-foreground shadow">
@@ -70,18 +76,18 @@
                         <p class="text-sm text-slate-600">Dalam Proses</p>
                         <p class="text-slate-900 mt-1 font-bold">{{ $applications->whereIn('status', ['pending', 'verified', 'interview'])->count() }}</p>
                     </div>
-                    <!-- Ikon Jam -->
+                    <!-- icon jam -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-8 text-orange-600"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Notifikasi Penting -->
+    <!-- notif -->
     <div class="rounded-xl border bg-card text-card-foreground shadow border-l-4 border-l-orange-500">
         <div class="flex flex-col space-y-1.5 p-6">
             <div class="flex items-center gap-2">
-                <!-- Ikon Peringatan -->
+                <!--  warning icon -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5 text-orange-600"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
                 <h3 class="font-semibold leading-none tracking-tight">Pemberitahuan Penting</h3>
             </div>
@@ -95,7 +101,7 @@
                             Anda dijadwalkan mengikuti ujian online pada tanggal 15 November 2025, pukul 14:00 WIB
                         </p>
                         <p class="text-sm text-orange-600 mt-2 flex items-center">
-                            <!-- Ikon Jam -->
+                            <!-- icon jam -->
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3 inline mr-1"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                             Tersisa 2 hari lagi
                         </p>
