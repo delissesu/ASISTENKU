@@ -41,6 +41,7 @@ class StudentController extends Controller
     public function updateProfile(Request $request)
     {
         // validasi update profile
+        // apa nanti validasi di request ya, tp belakangan
         $validated = $request->validate([
             // 'name' => 'required|string|max:255', // Dimatiin dulu: Nama ngikut NIM, gabisa diubah
             'email' => 'required|email|unique:users,email,' . auth()->id(),
