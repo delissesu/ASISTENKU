@@ -22,12 +22,6 @@
         </p>
     </div>
 
-    <!-- aduh malas -->
-    <!-- <div class="rounded-xl border bg-card text-card-foreground shadow">
-        <h1>Selamat Datang di ASISTENKU, {{ Auth::user()->name }}</h1>
-        <p>Saat ini Kamu sedang ada di halaman dashboard lho, kak {{ Auth:user()->name }} - {{ Auth:user()->mahasiswaProfile->nim }} - {{ Auth::user()->mahasiswaProfile->program_studi}} </p>
-    </div> -->
-
     <!-- Statistik -->
     <div class="grid md:grid-cols-4 gap-4">
         <div class="rounded-xl border bg-card text-card-foreground shadow">

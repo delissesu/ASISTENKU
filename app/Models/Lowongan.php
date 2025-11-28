@@ -64,7 +64,7 @@ class Lowongan extends Model
                      ->where('close_date', '>=', now());
     }
 
-    // filter lowongan pake status
+    // filter lowongan pake status, nyusul nanti ajah
     public function scopeByStatus($query, string $status)
     {
         return $query->where('status', $status);

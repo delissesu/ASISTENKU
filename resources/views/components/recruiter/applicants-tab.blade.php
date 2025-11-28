@@ -1,6 +1,6 @@
-    @props(['applicants'])
+@props(['applicants'])
 
-<div class="space-y-6" x-data="{ 
+<div class="space-y-6" x-data='{ 
     statusFilter: 'all', 
     selectedApplicant: null,
     showDetailDialog: false,
@@ -102,7 +102,7 @@
         };
         return colors[status.toLowerCase()] || 'bg-slate-100 text-slate-700';
     }
-}">
+}'>
     <!-- Kepala -->
     <div>
         <h1 class="text-slate-900 mb-2 text-2xl font-bold">Data Pelamar</h1>

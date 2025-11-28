@@ -57,6 +57,7 @@ class User extends Authenticatable
         return $this->hasMany(Lowongan::class, 'recruiter_id');
     }
 
+    // buat recruiter, tp nyusul aja
     // filter user mahasiswa
     public function scopeMahasiswa($query)
     {

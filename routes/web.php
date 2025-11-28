@@ -17,7 +17,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
-// route buat mahasiswa (dipagerin middleware auth sama role mahasiswa)
+// route buat mahasiswa (group bareng middleware auth sama role mahasiswa)
 Route::middleware(['auth', 'role:mahasiswa'])->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
     Route::put('/profile', [StudentController::class, 'updateProfile'])->name('profile.update');
