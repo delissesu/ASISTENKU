@@ -1,5 +1,5 @@
 {{-- Bagian Hero --}}
-<section class="bg-gradient-to-br from-blue-600 to-blue-800 text-white py-20">
+<section class="bg-linear-to-br from-blue-600 to-blue-800 text-white py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="max-w-3xl">
             <h1 class="mb-6 text-4xl font-bold">

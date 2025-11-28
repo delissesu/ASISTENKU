@@ -394,7 +394,7 @@
     </div>
 
     <!-- Modal Jadwal Interview -->
-    <div x-show="showInterviewModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50" style="display: none;">
+    <div x-show="showInterviewModal" class="fixed inset-0 z-60 flex items-center justify-center bg-black/50" style="display: none;">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6" @click.away="showInterviewModal = false">
             <div class="flex flex-col space-y-1.5 mb-4">
                 <h3 class="text-lg font-semibold leading-none tracking-tight">Jadwalkan Interview</h3>
@@ -420,7 +420,7 @@
                 
                 <div class="space-y-2">
                     <label class="text-sm font-medium">Catatan Tambahan</label>
-                    <textarea x-model="interviewForm.notes" placeholder="Instruksi khusus untuk pelamar..." class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"></textarea>
+                    <textarea x-model="interviewForm.notes" placeholder="Instruksi khusus untuk pelamar..." class="flex min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"></textarea>
                 </div>
                 
                 <div class="flex justify-end gap-3 pt-2">

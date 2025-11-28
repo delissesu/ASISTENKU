@@ -15,7 +15,7 @@
     }
 }">
     <!-- Bagian Sambutan -->
-    <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
+    <div class="bg-linear-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
         <h1 class="mb-2 text-2xl font-bold">Selamat Datang, {{ Auth::user()->name }}!</h1>
         <p class="text-blue-100">
             NIM: {{ Auth::user()->mahasiswaProfile->nim ?? '-' }} • {{ Auth::user()->mahasiswaProfile->program_studi ?? '-' }}

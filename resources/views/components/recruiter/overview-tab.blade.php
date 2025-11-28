@@ -2,7 +2,7 @@
 
 <div class="space-y-6">
     <!-- Bagian Sambutan -->
-    <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-6 text-white">
+    <div class="bg-linear-to-r from-green-600 to-green-700 rounded-xl p-6 text-white">
         <h1 class="mb-2 text-2xl font-bold">Dashboard Recruiter</h1>
         <p class="text-green-100">
             Kelola rekrutmen asisten laboratorium dengan mudah
@@ -90,7 +90,7 @@
                         @endphp
                         
                         <!-- Ikon User -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5 {{ $color }} flex-shrink-0 mt-0.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5 {{ $color }} shrink-0 mt-0.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                         
                         <div class="flex-1">
                             <p class="text-slate-900 font-medium">{{ $activity->mahasiswa->name }}</p>
