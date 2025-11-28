@@ -23,7 +23,7 @@ class EnsureProfileComplete
             }
 
             // cek kolom wajib di profil
-            $requiredFields = ['nim', 'program_studi', 'ipk', 'semester', 'phone'];
+            $requiredFields = ['nim', 'program_studi', 'ipk', 'semester'];
             foreach ($requiredFields as $field) {
                 if (empty($profile->$field)) {
                     return redirect()->route('student.dashboard')

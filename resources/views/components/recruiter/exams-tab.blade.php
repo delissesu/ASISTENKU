@@ -54,7 +54,7 @@
                                 <div class="flex-1">
                                     <div class="flex items-start justify-between mb-2">
                                         <h3 class="font-semibold leading-none tracking-tight text-slate-900">
-                                            Ujian {{ $exam->lowongan->title }} - {{ $exam->application->mahasiswa->name }}
+                                            Ujian {{ $exam->application->lowongan->title }} - {{ $exam->application->mahasiswa->name }}
                                         </h3>
                                         <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 {{ $exam->status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
                                             {{ ucfirst($exam->status) }}
@@ -62,7 +62,7 @@
                                     </div>
                                     <div class="text-sm text-muted-foreground">
                                         <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground">
-                                            {{ $exam->lowongan->division->name ?? 'Divisi' }}
+                                            {{ $exam->application->lowongan->division->name ?? 'Divisi' }}
                                         </div>
                                     </div>
                                 </div>

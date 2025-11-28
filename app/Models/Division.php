@@ -16,7 +16,6 @@ class Division extends Model
         'name',
         'slug',
         'description',
-        'requirements',
         'is_active'
     ];
 

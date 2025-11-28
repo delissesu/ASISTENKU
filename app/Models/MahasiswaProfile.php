@@ -24,7 +24,8 @@ class MahasiswaProfile extends Model
         'foto',
         'cv_path',
         'transkrip_path',
-        'skills'
+        'skills',
+        'organization'
     ];
 
     protected function casts(): array

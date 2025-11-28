@@ -152,9 +152,9 @@
                         </div>
 
                         <!-- View Mode Tags (Always visible if exists, but styled differently in edit mode maybe? No, just keep them visible) -->
-                        @if(Auth::user()->mahasiswaProfile->skills)
+                        @if(Auth::user()->mahasiswaProfile?->skills)
                             <div class="flex flex-wrap gap-2">
-                                @foreach(explode(',', Auth::user()->mahasiswaProfile->skills) as $skill)
+                                @foreach(explode(',', Auth::user()->mahasiswaProfile?->skills ?? '') as $skill)
                                     <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors border-transparent bg-blue-50 text-blue-700">
                                         {{ trim($skill) }}
                                     </span>
@@ -200,10 +200,10 @@
                                 </div>
 
                                 <!-- View Mode / Status -->
-                                @if(Auth::user()->mahasiswaProfile->cv_path)
+                                @if(Auth::user()->mahasiswaProfile?->cv_path)
                                     <div class="flex items-center gap-2 text-xs text-green-600 bg-green-50 px-3 py-2 rounded-md border border-green-100">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3"><path d="M20 6 9 17l-5-5"/></svg>
-                                        <span class="truncate font-medium">File tersimpan: {{ basename(Auth::user()->mahasiswaProfile->cv_path) }}</span>
+                                        <span class="truncate font-medium">File tersimpan: {{ basename(Auth::user()->mahasiswaProfile?->cv_path ?? '') }}</span>
                                     </div>
                                 @else
                                     <div x-show="!isEditing" class="text-sm text-slate-500 italic">Belum ada file CV.</div>
@@ -234,10 +234,10 @@
                                 </div>
 
                                 <!-- View Mode / Status -->
-                                @if(Auth::user()->mahasiswaProfile->transkrip_path)
+                                @if(Auth::user()->mahasiswaProfile?->transkrip_path)
                                     <div class="flex items-center gap-2 text-xs text-green-600 bg-green-50 px-3 py-2 rounded-md border border-green-100">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3"><path d="M20 6 9 17l-5-5"/></svg>
-                                        <span class="truncate font-medium">File tersimpan: {{ basename(Auth::user()->mahasiswaProfile->transkrip_path) }}</span>
+                                        <span class="truncate font-medium">File tersimpan: {{ basename(Auth::user()->mahasiswaProfile?->transkrip_path ?? '') }}</span>
                                     </div>
                                 @else
                                     <div x-show="!isEditing" class="text-sm text-slate-500 italic">Belum ada file Transkrip.</div>

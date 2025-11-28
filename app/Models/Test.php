@@ -31,6 +31,8 @@ class Test extends Model
             'start_time' => 'datetime',
             'end_time' => 'datetime',
             'duration_minutes' => 'integer',
+            'score' => 'float',
+            'passed' => 'boolean',
         ];
     }
 
