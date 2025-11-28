@@ -66,7 +66,7 @@
                 </div>
 
                 <div class="space-y-2">
-                    <x-ui.button type="submit" class="w-full bg-blue-600 hover:bg-blue-700">
+                    <x-ui.button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white">
                         Masuk
                     </x-ui.button>
                 </div>

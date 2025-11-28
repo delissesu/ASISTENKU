@@ -2,7 +2,7 @@
 
 <div class="space-y-6">
     <!-- Bagian Sambutan -->
-    <div class="bg-linear-to-r from-green-600 to-green-700 rounded-xl p-6 text-white">
+    <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-6 text-white">
         <h1 class="mb-2 text-2xl font-bold">Dashboard Recruiter</h1>
         <p class="text-green-100">
             Kelola rekrutmen asisten laboratorium dengan mudah
