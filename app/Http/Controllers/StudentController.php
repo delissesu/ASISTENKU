@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Lowongan;
 use App\Models\Application;
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;        
 use App\Models\MahasiswaProfile;
 
@@ -44,7 +45,7 @@ class StudentController extends Controller
         // apa nanti validasi di request ya, tp belakangan
         $validated = $request->validate([
             // 'name' => 'required|string|max:255', // Dimatiin dulu: Nama ngikut NIM, gabisa diubah
-            'email' => 'required|email|unique:users,email,' . auth()->id(),
+            'email' => 'required|email|unique:users,email,' . Auth::id(),
             'phone' => 'nullable|string|max:20',
             'skills' => 'nullable|string',
             'cv' => 'nullable|file|mimes:pdf|max:2048', // Max 2MB
@@ -79,8 +80,8 @@ class StudentController extends Controller
             // Handle upload CV
             if ($request->hasFile('cv')) {
                 // Hapus file lama kalo ada
-                if ($mahasiswaProfile->cv_path && \Storage::exists($mahasiswaProfile->cv_path)) {
-                    \Storage::delete($mahasiswaProfile->cv_path);
+                if ($mahasiswaProfile->cv_path && Storage::exists($mahasiswaProfile->cv_path)) {
+                    Storage::delete($mahasiswaProfile->cv_path);
                 }
                 $cvPath = $request->file('cv')->store('documents/cv', 'public');
                 $dataToUpdate['cv_path'] = $cvPath;
@@ -89,8 +90,8 @@ class StudentController extends Controller
             // Handle upload Transkrip
             if ($request->hasFile('transkrip')) {
                 // Hapus file lama kalo ada
-                if ($mahasiswaProfile->transkrip_path && \Storage::exists($mahasiswaProfile->transkrip_path)) {
-                    \Storage::delete($mahasiswaProfile->transkrip_path);
+                if ($mahasiswaProfile->transkrip_path && Storage::exists($mahasiswaProfile->transkrip_path)) {
+                    Storage::delete($mahasiswaProfile->transkrip_path);
                 }
                 $transkripPath = $request->file('transkrip')->store('documents/transkrip', 'public');
                 $dataToUpdate['transkrip_path'] = $transkripPath;

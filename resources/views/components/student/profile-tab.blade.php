@@ -274,7 +274,7 @@
                     </div>
                     {{-- Logic buat lencana verifikasi --}}
                     @php
-                        $isComplete = Auth::user()->mahasiswaProfile->cv_path && Auth::user()->mahasiswaProfile->transkrip_path;
+                        $isComplete = Auth::user()->mahasiswaProfile?->cv_path && Auth::user()->mahasiswaProfile?->transkrip_path;
                     @endphp
                     @if($isComplete)
                         <div class="absolute bottom-0 right-0 bg-green-500 text-white rounded-full p-1 border-2 border-white" title="Profil Lengkap">
@@ -283,7 +283,7 @@
                     @endif
                 </div>
                 <h3 class="font-semibold text-lg text-slate-900">{{ Auth::user()->name }}</h3>
-                <p class="text-sm text-slate-500 mb-3">{{ Auth::user()->mahasiswaProfile->nim ?? '-' }}</p>
+                <p class="text-sm text-slate-500 mb-3">{{ Auth::user()->mahasiswaProfile?->nim ?? '-' }}</p>
                 
                 @if($isComplete)
                     <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-green-100 text-green-700 hover:bg-green-200/80">
@@ -327,7 +327,7 @@
                             </div>
                             <span class="text-sm text-slate-600">Semester</span>
                         </div>
-                        <span class="font-semibold text-slate-900">{{ Auth::user()->mahasiswaProfile->semester ?? '-' }}</span>
+                        <span class="font-semibold text-slate-900">{{ Auth::user()->mahasiswaProfile?->semester ?? '-' }}</span>
                     </div>
                 </div>
             </div>

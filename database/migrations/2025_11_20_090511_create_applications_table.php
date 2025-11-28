@@ -22,14 +22,14 @@ return new class extends Migration
 
             // kolom tambahan, sifatnya opsional sih buat medkre misalnya
             $table->string('portofolio_url')->nullable(); 
-            $table->text('motivation_letter');
+            $table->text('motivation_letter')->nullable();
             $table->text('admin_notes')->nullable(); 
 
             // status pendaftaran
             $table->enum('status', ['pending', 'verified', 'test', 'interview', 'accepted', 'rejected'])->default('pending');
             
             // waktu pendaftaran
-            $table->timestamp('applied_at')->useCurrent;
+            $table->timestamp('applied_at')->useCurrent();
 
             $table->timestamps();
 
