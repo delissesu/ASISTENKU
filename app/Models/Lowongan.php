@@ -18,6 +18,7 @@ class Lowongan extends Model
         'division_id',
         'recruiter_id',
         'title',
+        'location',
         'description',
         'quota',
         'min_ipk',

@@ -20,6 +20,7 @@ class RecruiterController extends Controller
             'stats' => $this->getStats(),
             'divisionStats' => $this->getDivisionStats(),
             'recentActivity' => $this->getRecentActivity(),
+            'jobStats' => $this->getJobStats(),
             'jobs' => $this->getJobs(),
             'applicants' => $this->getApplicants(),
             'exams' => $this->getExams(),
@@ -60,7 +61,6 @@ class RecruiterController extends Controller
                 'applications as accepted_count' => fn($query) => $query->where('status', 'accepted')
             ]);
         }])->get()->map(function($division) use ($divisionStyles) {
-            // Aggregate counts from lowongans manually since hasManyThrough is tricky with counts on the fly
             $division->total_applicants = $division->lowongans->sum('total_applicants');
             $division->accepted_count = $division->lowongans->sum('accepted_count');
             
@@ -104,7 +104,6 @@ class RecruiterController extends Controller
             ->map(fn($item) => [
                 'type' => 'exam',
                 'title' => 'Ujian diselesaikan',
-                'description' => count($item->application->mahasiswa) . ' pelamar menyelesaikan ujian ' . $item->application->lowongan->title, // Note: logic might be slightly off for single test, assuming 1 test = 1 applicant
                 'description' => $item->application->mahasiswa->name . ' menyelesaikan ujian ' . $item->application->lowongan->title,
                 'time' => $item->updated_at,
                 'icon' => 'file-text',
@@ -126,9 +125,9 @@ class RecruiterController extends Controller
             ]);
         $activities = $activities->merge($jobs);
 
-        // 4. Verified Documents (Status change to verified)
-        // Since we don't track status history easily without a separate table, we'll skip this or use updated_at for verified apps
+        // 4. Verified Documents
         $verified = Application::where('status', 'verified')
+            ->with(['mahasiswa', 'lowongan'])
             ->latest('updated_at')
             ->take(5)
             ->get()
@@ -143,6 +142,18 @@ class RecruiterController extends Controller
         $activities = $activities->merge($verified);
 
         return $activities->sortByDesc('time')->take(5)->values();
+    }
+
+    private function getJobStats()
+    {
+        return [
+            'total_jobs' => Lowongan::count(),
+            'active_jobs' => Lowongan::where('status', 'open')->count(),
+            'closing_soon' => Lowongan::where('status', 'open')
+                ->where('close_date', '<=', now()->addDays(7))
+                ->count(),
+            'closed_jobs' => Lowongan::where('status', 'closed')->count(),
+        ];
     }
 
     private function getJobs()
