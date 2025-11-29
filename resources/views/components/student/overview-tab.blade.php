@@ -108,7 +108,7 @@
                     </x-ui.button>
                     @elseif($examApp->exam_status === 'completed')
                     <span class="text-sm text-blue-600 font-medium px-3 py-1.5 bg-blue-50 rounded-lg shrink-0">
-                        ✓ Selesai
+                        Selesai
                     </span>
                     @elseif($examApp->exam_status === 'expired')
                     <span class="text-sm text-red-600 font-medium px-3 py-1.5 bg-red-50 rounded-lg shrink-0">
