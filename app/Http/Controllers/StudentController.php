@@ -47,6 +47,8 @@ class StudentController extends Controller
             // 'name' => 'required|string|max:255', // Dimatiin dulu: Nama ngikut NIM, gabisa diubah
             'email' => 'required|email|unique:users,email,' . Auth::id(),
             'phone' => 'nullable|string|max:20',
+            'ipk' => 'nullable|numeric|min:0|max:4',
+            'semester' => 'nullable|integer|min:1|max:14',
             'skills' => 'nullable|string',
             'cv' => 'nullable|file|mimes:pdf|max:2048', // Max 2MB
             'transkrip' => 'nullable|file|mimes:pdf|max:2048', // Max 2MB
@@ -74,6 +76,8 @@ class StudentController extends Controller
 
             $dataToUpdate = [
                 'phone' => $validated['phone'] ?? $mahasiswaProfile->phone,
+                'ipk' => $validated['ipk'] ?? $mahasiswaProfile->ipk,
+                'semester' => $validated['semester'] ?? $mahasiswaProfile->semester,
                 'skills' => $validated['skills'] ?? $mahasiswaProfile->skills,
             ];
 

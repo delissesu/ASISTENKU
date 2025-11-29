@@ -11,10 +11,13 @@
                     Kelola informasi pribadi dan dokumen aplikasi Anda
                 </p>
             </div>
+            <!-- Toggle Edit Button -->
             <button 
                 @click="isEditing = !isEditing" 
-                class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 border border-input bg-background shadow-sm hover:bg-slate-100"
-                :class="isEditing ? 'bg-slate-100 text-slate-900' : ''"
+                class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background h-9 px-4 py-2 border shadow-sm"
+                :class="isEditing 
+                    ? 'border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:border-red-300' 
+                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'"
             >
                 <template x-if="!isEditing">
                     <div class="flex items-center">
@@ -23,7 +26,7 @@
                     </div>
                 </template>
                 <template x-if="isEditing">
-                    <div class="flex items-center text-red-600">
+                    <div class="flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                         Batal Edit
                     </div>
@@ -32,7 +35,7 @@
         </div>
 
         <!-- Form Utama -->
-        <form action="{{ route('student.profile.update') }}" method="POST" enctype="multipart/form-data">
+        <form x-ref="profileForm" action="{{ route('student.profile.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             
@@ -119,13 +122,52 @@
                         </div>
 
                         <div class="grid md:grid-cols-2 gap-6">
-                            <div class="space-y-1">
+                            <div class="space-y-2">
                                 <label class="text-sm font-medium leading-none text-slate-500">Semester</label>
-                                <p class="font-medium text-slate-900">{{ Auth::user()->mahasiswaProfile->semester ?? '-' }}</p>
+                                <!-- View Mode -->
+                                <div x-show="!isEditing">
+                                    <p class="font-medium text-slate-900">{{ Auth::user()->mahasiswaProfile->semester ?? '-' }}</p>
+                                </div>
+                                <!-- Edit Mode -->
+                                <div x-show="isEditing" style="display: none;">
+                                    <input 
+                                        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                        id="semester" 
+                                        name="semester" 
+                                        type="number"
+                                        min="1"
+                                        max="14"
+                                        value="{{ old('semester', Auth::user()->mahasiswaProfile->semester ?? '') }}" 
+                                        placeholder="Semester saat ini"
+                                    />
+                                    @error('semester')
+                                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </div>
-                            <div class="space-y-1">
+                            <div class="space-y-2">
                                 <label class="text-sm font-medium leading-none text-slate-500">IPK</label>
-                                <p class="font-medium text-slate-900">{{ Auth::user()->mahasiswaProfile->ipk ?? '-' }}</p>
+                                <!-- View Mode -->
+                                <div x-show="!isEditing">
+                                    <p class="font-medium text-slate-900">{{ Auth::user()->mahasiswaProfile->ipk ?? '-' }}</p>
+                                </div>
+                                <!-- Edit Mode -->
+                                <div x-show="isEditing" style="display: none;">
+                                    <input 
+                                        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                        id="ipk" 
+                                        name="ipk" 
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        max="4"
+                                        value="{{ old('ipk', Auth::user()->mahasiswaProfile->ipk ?? '') }}" 
+                                        placeholder="Contoh: 3.50"
+                                    />
+                                    @error('ipk')
+                                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -247,16 +289,154 @@
                     </div>
                 </div>
 
-                <!-- Action Bar -->
-                <div x-show="isEditing" x-transition class="sticky bottom-6 z-10">
-                    <div class="bg-white rounded-xl border shadow-lg p-4 flex items-center justify-between gap-4">
-                        <div class="text-sm text-muted-foreground hidden md:block">
-                            Pastikan semua data yang Anda masukkan sudah benar.
+                <!-- Action Bar - Redesigned -->
+                <div x-show="isEditing" x-transition class="sticky bottom-6 z-10" x-data="{ showConfirmModal: false, isSubmitting: false }">
+                    <div class="bg-white rounded-xl border shadow-lg p-4">
+                        <!-- Desktop Layout -->
+                        <div class="hidden md:flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-amber-50 rounded-lg text-amber-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-slate-900">Mode Edit Aktif</p>
+                                    <p class="text-xs text-slate-500">Pastikan semua data sudah benar sebelum menyimpan.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <button 
+                                    type="button" 
+                                    @click="isEditing = false"
+                                    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 h-10 px-4 py-2"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                                    Batalkan
+                                </button>
+                                <button 
+                                    type="button" 
+                                    @click="showConfirmModal = true"
+                                    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-blue-600 text-white hover:bg-blue-700 h-10 px-5 py-2 shadow-md"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                    Simpan Perubahan
+                                </button>
+                            </div>
                         </div>
-                        <x-ui.button type="submit" class="w-full md:w-auto bg-slate-900 text-white hover:bg-slate-800 shadow-md">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                            Simpan Semua Perubahan
-                        </x-ui.button>
+
+                        <!-- Mobile Layout -->
+                        <div class="md:hidden space-y-3">
+                            <div class="flex items-center gap-2 text-amber-600 bg-amber-50 p-2 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 shrink-0"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                <p class="text-xs">Pastikan semua data sudah benar.</p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button 
+                                    type="button" 
+                                    @click="isEditing = false"
+                                    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 h-10 px-4 py-2"
+                                >
+                                    Batalkan
+                                </button>
+                                <button 
+                                    type="button" 
+                                    @click="showConfirmModal = true"
+                                    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none bg-blue-600 text-white hover:bg-blue-700 h-10 px-4 py-2"
+                                >
+                                    Simpan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Confirmation Modal -->
+                    <div 
+                        x-show="showConfirmModal" 
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0"
+                        x-transition:enter-end="opacity-100"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0"
+                        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                        style="display: none;"
+                        @keydown.escape.window="showConfirmModal = false"
+                    >
+                        <div 
+                            x-show="showConfirmModal"
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 scale-95"
+                            x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-95"
+                            @click.outside="showConfirmModal = false"
+                            class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden"
+                        >
+                            <!-- Modal Header -->
+                            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
+                                <div class="flex items-center gap-4">
+                                    <div class="p-3 bg-white/20 rounded-xl">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-semibold">Konfirmasi Perubahan</h3>
+                                        <p class="text-sm text-blue-100">Simpan data profil Anda</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal Body -->
+                            <div class="p-6">
+                                <p class="text-slate-600 mb-4">Apakah Anda yakin ingin menyimpan semua perubahan yang telah dilakukan pada profil Anda?</p>
+                                <div class="bg-slate-50 rounded-lg p-4 space-y-2">
+                                    <div class="flex items-center gap-2 text-sm text-slate-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 text-green-500"><path d="M20 6 9 17l-5-5"/></svg>
+                                        Data pribadi dan kontak
+                                    </div>
+                                    <div class="flex items-center gap-2 text-sm text-slate-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 text-green-500"><path d="M20 6 9 17l-5-5"/></svg>
+                                        IPK dan Semester
+                                    </div>
+                                    <div class="flex items-center gap-2 text-sm text-slate-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 text-green-500"><path d="M20 6 9 17l-5-5"/></svg>
+                                        Skills dan dokumen pendukung
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal Footer -->
+                            <div class="px-6 pb-6 flex gap-3">
+                                <button 
+                                    type="button" 
+                                    @click="showConfirmModal = false"
+                                    class="flex-1 inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 h-11 px-4 py-2"
+                                >
+                                    Cek Lagi
+                                </button>
+                                <button 
+                                    type="button" 
+                                    @click="isSubmitting = true; $nextTick(() => $refs.profileForm.submit())"
+                                    :disabled="isSubmitting"
+                                    class="flex-1 inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed h-11 px-4 py-2"
+                                >
+                                    <template x-if="!isSubmitting">
+                                        <span class="flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M20 6 9 17l-5-5"/></svg>
+                                            Ya, Simpan
+                                        </span>
+                                    </template>
+                                    <template x-if="isSubmitting">
+                                        <span class="flex items-center">
+                                            <svg class="animate-spin size-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Menyimpan...
+                                        </span>
+                                    </template>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

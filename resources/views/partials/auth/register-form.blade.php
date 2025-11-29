@@ -193,7 +193,7 @@
                     </label>
                 </div>
 
-                <x-ui.button type="submit" class="w-full bg-blue-600 hover:bg-blue-700">
+                <x-ui.button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white">
                     Daftar Sekarang
                 </x-ui.button>
             </form>

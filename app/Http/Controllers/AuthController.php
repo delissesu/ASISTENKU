@@ -73,6 +73,8 @@ class AuthController extends Controller
                 'program_studi' => $validated['program_studi'],
                 'angkatan' => $validated['angkatan'],
                 'ipk' => $validated['ipk'],
+                'phone' => $validated['phone'],
+                'semester' => 1,
             ]);
         }
 
