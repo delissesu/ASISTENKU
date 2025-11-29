@@ -33,7 +33,10 @@ class RecruiterController extends Controller
             'active_jobs' => Lowongan::open()->count(),
             'total_applicants' => Application::count(),
             'pending_review' => Application::pending()->count(),
-            'upcoming_exams' => Test::where('start_time', '>', now())->count(),
+            'accepted' => Application::where('status', 'accepted')->count(),
+            'exams_needing_scheduling' => Application::where('status', 'verified')
+                ->whereDoesntHave('test')
+                ->count(),
         ];
     }
 
@@ -42,19 +45,85 @@ class RecruiterController extends Controller
         return Division::withCount([
             'lowongans as active_jobs_count' => fn($q) => $q->where('status', 'open')
         ])->with(['lowongans' => function($q) {
-            $q->where('status', 'open')->withCount([
+            $q->withCount([
                 'applications as total_applicants',
                 'applications as accepted_count' => fn($query) => $query->where('status', 'accepted')
             ]);
-        }])->get();
+        }])->get()->map(function($division) {
+            // Aggregate counts from lowongans manually since hasManyThrough is tricky with counts on the fly
+            $division->total_applicants = $division->lowongans->sum('total_applicants');
+            $division->accepted_count = $division->lowongans->sum('accepted_count');
+            return $division;
+        });
     }
 
     private function getRecentActivity()
     {
-        return Application::with(['mahasiswa', 'lowongan'])
+        $activities = collect();
+
+        // 1. New Applications
+        $applications = Application::with(['mahasiswa', 'lowongan'])
             ->latest()
             ->take(5)
-            ->get();
+            ->get()
+            ->map(fn($item) => [
+                'type' => 'application',
+                'title' => 'Aplikasi baru',
+                'description' => $item->mahasiswa->name . ' - ' . $item->lowongan->title,
+                'time' => $item->created_at,
+                'icon' => 'user',
+                'color' => 'blue'
+            ]);
+        $activities = $activities->merge($applications);
+
+        // 2. Completed Exams
+        $tests = Test::with(['application.mahasiswa', 'application.lowongan'])
+            ->completed()
+            ->latest()
+            ->take(5)
+            ->get()
+            ->map(fn($item) => [
+                'type' => 'exam',
+                'title' => 'Ujian diselesaikan',
+                'description' => count($item->application->mahasiswa) . ' pelamar menyelesaikan ujian ' . $item->application->lowongan->title, // Note: logic might be slightly off for single test, assuming 1 test = 1 applicant
+                'description' => $item->application->mahasiswa->name . ' menyelesaikan ujian ' . $item->application->lowongan->title,
+                'time' => $item->updated_at,
+                'icon' => 'file-text',
+                'color' => 'purple'
+            ]);
+        $activities = $activities->merge($tests);
+
+        // 3. New Jobs
+        $jobs = Lowongan::latest()
+            ->take(5)
+            ->get()
+            ->map(fn($item) => [
+                'type' => 'job',
+                'title' => 'Lowongan baru',
+                'description' => $item->title,
+                'time' => $item->created_at,
+                'icon' => 'briefcase',
+                'color' => 'orange'
+            ]);
+        $activities = $activities->merge($jobs);
+
+        // 4. Verified Documents (Status change to verified)
+        // Since we don't track status history easily without a separate table, we'll skip this or use updated_at for verified apps
+        $verified = Application::where('status', 'verified')
+            ->latest('updated_at')
+            ->take(5)
+            ->get()
+            ->map(fn($item) => [
+                'type' => 'verification',
+                'title' => 'Dokumen diverifikasi',
+                'description' => $item->mahasiswa->name . ' - ' . $item->lowongan->title,
+                'time' => $item->updated_at,
+                'icon' => 'check-circle',
+                'color' => 'green'
+            ]);
+        $activities = $activities->merge($verified);
+
+        return $activities->sortByDesc('time')->take(5)->values();
     }
 
     private function getJobs()

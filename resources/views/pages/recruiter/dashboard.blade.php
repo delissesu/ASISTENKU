@@ -4,7 +4,7 @@
 
 @section('content')
     <div x-show="activeTab === 'overview'">
-        <x-recruiter.overview-tab :division-stats="$divisionStats" :recent-activity="$recentActivity" />
+        <x-recruiter.overview-tab :stats="$stats" :division-stats="$divisionStats" :recent-activity="$recentActivity" />
     </div>
     <div x-show="activeTab === 'jobs'" style="display: none;">
         <x-recruiter.jobs-tab :jobs="$jobs" />
