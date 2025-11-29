@@ -17,6 +17,7 @@ class Test extends Model
 
     protected $fillable = [
         'application_id',
+        'scheduled_at',
         'start_time',
         'end_time',
         'duration_minutes',
@@ -28,6 +29,7 @@ class Test extends Model
     protected function casts(): array
     {
         return [
+            'scheduled_at' => 'datetime',
             'start_time' => 'datetime',
             'end_time' => 'datetime',
             'duration_minutes' => 'integer',
@@ -114,5 +116,71 @@ class Test extends Model
     protected function wrongAnswers(): Attribute
     {
         return Attribute::get(fn () => $this->testAnswers()->where('is_correct', false)->count());
+    }
+
+    /**
+     * Cek apakah ujian sudah dijadwalkan
+     */
+    protected function isScheduled(): Attribute
+    {
+        return Attribute::get(fn () => !is_null($this->scheduled_at));
+    }
+
+    /**
+     * Info jadwal dalam format readable
+     */
+    protected function scheduleInfo(): Attribute
+    {
+        return Attribute::get(function () {
+            if (!$this->scheduled_at) {
+                return null;
+            }
+            return $this->scheduled_at->translatedFormat('d F Y, H:i') . ' WIB';
+        });
+    }
+
+    /**
+     * Waktu tersisa hingga jadwal ujian
+     */
+    protected function timeUntilSchedule(): Attribute
+    {
+        return Attribute::get(function () {
+            if (!$this->scheduled_at) {
+                return null;
+            }
+            return $this->scheduled_at->diffForHumans();
+        });
+    }
+
+    /**
+     * Status ketersediaan ujian
+     * waiting: belum waktunya
+     * available: bisa mulai (dalam rentang waktu)
+     * completed: sudah selesai
+     * expired: waktu habis tanpa mengerjakan
+     */
+    protected function examAvailability(): Attribute
+    {
+        return Attribute::get(function () {
+            if (!$this->scheduled_at) {
+                return null;
+            }
+
+            $now = now();
+            $start = $this->scheduled_at;
+            // Ujian tersedia selama 24 jam dari jadwal
+            $end = $start->copy()->addHours(24);
+
+            if ($this->status === 'completed') {
+                return 'completed';
+            }
+            if ($now->lt($start)) {
+                return 'waiting';
+            }
+            if ($now->between($start, $end)) {
+                return 'available';
+            }
+            return 'expired';
+        });
     }
 }

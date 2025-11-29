@@ -18,8 +18,8 @@ class StudentController extends Controller
         // minta data user yang login
         $user = Auth::user();
         
-        // minta data aplikasi yang pernah di lamar
-        $applications = Application::with(['lowongan.division'])
+        // minta data aplikasi yang pernah di lamar (include test untuk jadwal ujian)
+        $applications = Application::with(['lowongan.division', 'test'])
             ->where('mahasiswa_id', $user->id)
             ->latest()
             ->get();

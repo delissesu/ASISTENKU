@@ -86,7 +86,7 @@
                     <p class="font-medium text-slate-900">{{ $stats['exams_needing_scheduling'] }} Ujian Perlu Dijadwalkan</p>
                     <p class="text-sm text-slate-600">Tentukan jadwal ujian untuk pelamar yang lolos seleksi administrasi</p>
                 </div>
-                <x-ui.button variant="outline" onclick="window.location.href='?tab=applicants&status=verified'">
+                <x-ui.button variant="outline" @click="$dispatch('open-schedule-exam-modal')">
                     Jadwalkan
                 </x-ui.button>
             </div>

@@ -266,6 +266,80 @@ class RecruiterController extends Controller
         ]);
     }
 
+    // =============================================
+    // PENJADWALAN UJIAN
+    // =============================================
+
+    /**
+     * Get pelamar yang sudah verified dan belum punya jadwal ujian
+     */
+    public function getVerifiedApplicants()
+    {
+        $applicants = Application::with(['mahasiswa.mahasiswaProfile', 'lowongan.division'])
+            ->where('status', 'verified')
+            ->whereDoesntHave('test')
+            ->latest()
+            ->get()
+            ->map(function ($app) {
+                return [
+                    'id' => $app->id,
+                    'name' => $app->mahasiswa->name,
+                    'nim' => $app->mahasiswa->mahasiswaProfile->nim ?? '-',
+                    'lowongan' => $app->lowongan->title,
+                    'division' => $app->lowongan->division->name,
+                    'applied_at' => $app->created_at->format('d M Y'),
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $applicants
+        ]);
+    }
+
+    /**
+     * Jadwalkan ujian untuk pelamar
+     */
+    public function scheduleExam(Request $request)
+    {
+        $validated = $request->validate([
+            'application_id' => 'required|exists:applications,id',
+            'scheduled_at' => 'required|date|after:now',
+            'duration_minutes' => 'required|integer|min:15|max:180',
+        ]);
+
+        $application = Application::findOrFail($validated['application_id']);
+
+        // Cek apakah sudah punya test
+        if ($application->test) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pelamar ini sudah memiliki jadwal ujian.'
+            ], 422);
+        }
+
+        // Buat test record
+        $test = Test::create([
+            'application_id' => $application->id,
+            'scheduled_at' => $validated['scheduled_at'],
+            'duration_minutes' => $validated['duration_minutes'],
+            'status' => 'not_started',
+        ]);
+
+        // Update status aplikasi ke 'test'
+        $application->update(['status' => 'test']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Jadwal ujian berhasil dibuat.',
+            'data' => [
+                'test_id' => $test->id,
+                'scheduled_at' => $test->scheduled_at->format('d M Y, H:i'),
+                'duration' => $test->duration_minutes . ' menit',
+            ]
+        ]);
+    }
+
     private function getJobs()
     {
         return Lowongan::with('division')

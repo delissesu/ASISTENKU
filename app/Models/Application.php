@@ -171,15 +171,40 @@ class Application extends Model
         }
 
         if ($this->status == 'test') {
-            if ($this->test && $this->test->status != 'completed') {
-                return [
-                    'message' => 'Silakan ikuti ujian online sebelum ' . ($this->test->end_time ? $this->test->end_time->format('d M H:i') : 'batas waktu yang ditentukan') . '.',
-                    'action' => 'Mulai Ujian',
-                    'url' => route('student.dashboard') . '?tab=exams',
-                ];
+            if ($this->test && $this->test->scheduled_at) {
+                $availability = $this->test->exam_availability;
+                
+                if ($availability === 'completed') {
+                    return [
+                        'message' => 'Ujian telah selesai. Skor: ' . ($this->test->score ?? '-') . '. Menunggu tahap selanjutnya.',
+                        'action' => null,
+                    ];
+                }
+                
+                if ($availability === 'available') {
+                    return [
+                        'message' => 'Ujian tersedia sekarang! Kerjakan sebelum waktu habis.',
+                        'action' => 'Mulai Ujian',
+                        'url' => route('student.exam.start', $this->test->id),
+                    ];
+                }
+                
+                if ($availability === 'waiting') {
+                    return [
+                        'message' => 'Ujian dijadwalkan pada ' . $this->test->schedule_info . '. ' . $this->test->time_until_schedule . '.',
+                        'action' => null,
+                    ];
+                }
+                
+                if ($availability === 'expired') {
+                    return [
+                        'message' => 'Waktu ujian telah berakhir. Hubungi rekruter untuk informasi lebih lanjut.',
+                        'action' => null,
+                    ];
+                }
             }
             return [
-                'message' => 'Menunggu jadwal ujian online. Anda akan diberitahu via email.',
+                'message' => 'Menunggu jadwal ujian online dari rekruter.',
                 'action' => null,
             ];
         }
@@ -209,5 +234,72 @@ class Application extends Model
             'message' => 'Menunggu update selanjutnya dari tim rekrutmen.',
             'action' => null,
         ];
+    }
+
+    /**
+     * Keterangan jadwal ujian untuk tab aplikasi
+     */
+    public function getExamScheduleLabelAttribute(): ?string
+    {
+        if ($this->status !== 'test' || !$this->test || !$this->test->scheduled_at) {
+            return null;
+        }
+        
+        $scheduled = $this->test->scheduled_at;
+        $duration = $this->test->duration_minutes;
+        
+        return "Dijadwalkan: " . $scheduled->translatedFormat('d F Y, H:i') . " WIB | Durasi: {$duration} menit";
+    }
+
+    /**
+     * Status ketersediaan ujian
+     */
+    public function getExamStatusAttribute(): ?string
+    {
+        if ($this->status !== 'test' || !$this->test) {
+            return null;
+        }
+        
+        return $this->test->exam_availability;
+    }
+
+    /**
+     * Label status ujian yang user-friendly
+     */
+    public function getExamStatusLabelAttribute(): ?string
+    {
+        $status = $this->exam_status;
+        
+        if (!$status) {
+            return null;
+        }
+
+        return match ($status) {
+            'waiting' => 'Tersisa ' . $this->test->time_until_schedule,
+            'available' => 'Ujian tersedia - Mulai sekarang!',
+            'completed' => 'Ujian selesai - Skor: ' . ($this->test->score ?? '-'),
+            'expired' => 'Waktu ujian terlewat',
+            default => null,
+        };
+    }
+
+    /**
+     * Warna untuk status ujian
+     */
+    public function getExamStatusColorAttribute(): ?string
+    {
+        $status = $this->exam_status;
+        
+        if (!$status) {
+            return null;
+        }
+
+        return match ($status) {
+            'waiting' => 'text-orange-600',
+            'available' => 'text-green-600',
+            'completed' => 'text-blue-600',
+            'expired' => 'text-red-600',
+            default => 'text-slate-600',
+        };
     }
 }

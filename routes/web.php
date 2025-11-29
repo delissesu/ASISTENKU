@@ -50,4 +50,8 @@ Route::middleware(['auth', 'role:recruiter'])->prefix('recruiter')->name('recrui
     Route::post('/lowongan', [RecruiterController::class, 'storeLowongan'])->name('lowongan.store');
     Route::put('/lowongan/{lowongan}', [RecruiterController::class, 'updateLowongan'])->name('lowongan.update');
     Route::delete('/lowongan/{lowongan}', [RecruiterController::class, 'deleteLowongan'])->name('lowongan.destroy');
+
+    // Penjadwalan Ujian
+    Route::get('/exams/verified-applicants', [RecruiterController::class, 'getVerifiedApplicants'])->name('exams.verified');
+    Route::post('/exams/schedule', [RecruiterController::class, 'scheduleExam'])->name('exams.schedule');
 });

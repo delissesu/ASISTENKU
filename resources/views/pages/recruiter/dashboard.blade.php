@@ -18,4 +18,7 @@
     <div x-show="activeTab === 'announcements'" x-cloak>
         <x-recruiter.announcements-tab :announcements="$announcements" />
     </div>
+
+    {{-- Modal Penjadwalan Ujian --}}
+    <x-recruiter.schedule-exam-modal />
 @endsection
