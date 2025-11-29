@@ -140,7 +140,7 @@ class Test extends Model
     }
 
     /**
-     * Waktu tersisa hingga jadwal ujian
+     * Waktu tersisa hingga jadwal ujian (dalam bahasa Indonesia)
      */
     protected function timeUntilSchedule(): Attribute
     {
@@ -148,7 +148,7 @@ class Test extends Model
             if (!$this->scheduled_at) {
                 return null;
             }
-            return $this->scheduled_at->diffForHumans();
+            return $this->scheduled_at->locale('id')->diffForHumans();
         });
     }
 

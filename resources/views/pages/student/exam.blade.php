@@ -1,11 +1,11 @@
 @extends('layouts.student')
 
-@section('page-title', 'Ujian')
+@section('page-title', 'Ujian - ' . $test->application->lowongan->title)
 
 @section('content')
 <div class="min-h-screen bg-slate-900 -mx-4 sm:-mx-6 lg:-mx-8 -my-8 px-4 sm:px-6 lg:px-8 py-8" x-data="{
     currentQuestion: 0,
-    timeLeft: 3600,
+    timeLeft: {{ $remainingSeconds }},
     answers: {},
     markedQuestions: [],
     showSubmitModal: false,
@@ -14,61 +14,19 @@
     isSubmitting: false,
     examFinished: false,
     questions: [
+        @foreach($questions as $index => $q)
         {
-            id: 1,
+            id: {{ $q->id }},
             type: 'multiple-choice',
-            question: 'Apa kepanjangan dari HTML?',
+            question: @js($q->question_text),
             options: [
-                'Hyper Text Markup Language',
-                'High Tech Modern Language',
-                'Home Tool Markup Language',
-                'Hyperlinks and Text Markup Language'
+                @js($q->option_a),
+                @js($q->option_b),
+                @js($q->option_c),
+                @js($q->option_d)
             ]
-        },
-        {
-            id: 2,
-            type: 'multiple-choice',
-            question: 'Manakah yang BUKAN merupakan CSS framework?',
-            options: [
-                'Bootstrap',
-                'Tailwind CSS',
-                'Django',
-                'Foundation'
-            ]
-        },
-        {
-            id: 3,
-            type: 'multiple-choice',
-            question: 'Apa fungsi utama dari Virtual DOM dalam React?',
-            options: [
-                'Menyimpan data aplikasi',
-                'Mengoptimalkan rendering UI',
-                'Mengelola routing',
-                'Menangani HTTP requests'
-            ]
-        },
-        {
-            id: 4,
-            type: 'multiple-choice',
-            question: 'Method HTTP mana yang digunakan untuk mengupdate data?',
-            options: [
-                'GET',
-                'POST',
-                'PUT',
-                'DELETE'
-            ]
-        },
-        {
-            id: 5,
-            type: 'multiple-choice',
-            question: 'Apa itu REST API?',
-            options: [
-                'Bahasa pemrograman',
-                'Arsitektur untuk web services',
-                'Database management system',
-                'Framework JavaScript'
-            ]
-        }
+        }{{ !$loop->last ? ',' : '' }}
+        @endforeach
     ],
     formatTime(seconds) {
         const h = Math.floor(seconds / 3600);
@@ -92,7 +50,13 @@
         return this.timeLeft <= 60 && this.timeLeft > 0;
     },
     selectAnswer(questionId, answer) {
-        this.answers[questionId] = answer;
+        // Map index ke huruf A, B, C, D
+        const letters = ['A', 'B', 'C', 'D'];
+        this.answers[questionId] = letters[answer];
+    },
+    getAnswerIndex(questionId) {
+        const letters = ['A', 'B', 'C', 'D'];
+        return letters.indexOf(this.answers[questionId]);
     },
     toggleMark(questionId) {
         const index = this.markedQuestions.indexOf(questionId);
@@ -124,11 +88,12 @@
     },
     submitExam() {
         this.isSubmitting = true;
-        setTimeout(() => {
-            this.isSubmitting = false;
-            this.examFinished = true;
-            this.showSubmitModal = false;
-        }, 2000);
+        
+        // Submit form dengan jawaban
+        const form = document.getElementById('exam-form');
+        const answersInput = document.getElementById('answers-input');
+        answersInput.value = JSON.stringify(this.answers);
+        form.submit();
     }
 }" x-init="
     setInterval(() => { 
@@ -141,6 +106,12 @@
     window.onbeforeunload = function() { return examFinished ? null : 'Ujian sedang berlangsung!'; };
 ">
 
+    {{-- Hidden Form for Submit --}}
+    <form id="exam-form" action="{{ route('student.exam.submit', $test->id) }}" method="POST" class="hidden">
+        @csrf
+        <input type="hidden" name="answers" id="answers-input">
+    </form>
+
     {{-- Header Ujian --}}
     <div class="bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700 py-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
@@ -149,8 +120,8 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5 text-blue-400"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
                 </div>
                 <div>
-                    <h1 class="text-white font-semibold">Ujian Seleksi - Asisten Praktikum</h1>
-                    <p class="text-slate-400 text-xs">Divisi Pemrograman Dasar</p>
+                    <h1 class="text-white font-semibold">Ujian Seleksi - {{ $test->application->lowongan->title }}</h1>
+                    <p class="text-slate-400 text-xs">{{ $test->application->lowongan->division->name }}</p>
                 </div>
             </div>
             <div class="flex items-center gap-4">
@@ -181,6 +152,26 @@
         </div>
     </div>
 
+    {{-- No Questions Warning --}}
+    @if($questions->isEmpty())
+    <div class="max-w-2xl mx-auto py-16 text-center">
+        <div class="bg-slate-800/50 backdrop-blur rounded-3xl border border-slate-700/50 p-10">
+            <div class="w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="size-10 text-white"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <h2 class="text-3xl font-bold text-white mb-3">Soal Belum Tersedia</h2>
+            <p class="text-slate-400 mb-8">Maaf, belum ada soal yang tersedia untuk ujian ini. Silakan hubungi rekruter.</p>
+            
+            <a 
+                href="{{ route('student.dashboard', ['tab' => 'my-applications']) }}"
+                class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-500 transition-colors"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="m15 18-6-6 6-6"/></svg>
+                Kembali ke Dashboard
+            </a>
+        </div>
+    </div>
+    @else
     {{-- Main Content --}}
     <div class="max-w-6xl mx-auto py-8" x-show="!examFinished">
         <div class="grid grid-cols-12 gap-6">
@@ -291,22 +282,22 @@
                                             @click="selectAnswer(q.id, optIndex)"
                                             class="w-full text-left p-4 rounded-xl border-2 transition-all duration-200 group"
                                             :class="{
-                                                'border-blue-500 bg-blue-500/10 shadow-lg shadow-blue-500/10': answers[q.id] === optIndex,
-                                                'border-slate-600 hover:border-slate-500 hover:bg-slate-700/50': answers[q.id] !== optIndex
+                                                'border-blue-500 bg-blue-500/10 shadow-lg shadow-blue-500/10': getAnswerIndex(q.id) === optIndex,
+                                                'border-slate-600 hover:border-slate-500 hover:bg-slate-700/50': getAnswerIndex(q.id) !== optIndex
                                             }"
                                         >
                                             <div class="flex items-center gap-4">
                                                 <span 
                                                     class="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-colors"
                                                     :class="{
-                                                        'bg-blue-500 text-white': answers[q.id] === optIndex,
-                                                        'bg-slate-700 text-slate-400 group-hover:bg-slate-600': answers[q.id] !== optIndex
+                                                        'bg-blue-500 text-white': getAnswerIndex(q.id) === optIndex,
+                                                        'bg-slate-700 text-slate-400 group-hover:bg-slate-600': getAnswerIndex(q.id) !== optIndex
                                                     }"
                                                     x-text="['A', 'B', 'C', 'D'][optIndex]"
                                                 ></span>
                                                 <span class="text-white flex-1" x-text="option"></span>
                                                 <svg 
-                                                    x-show="answers[q.id] === optIndex"
+                                                    x-show="getAnswerIndex(q.id) === optIndex"
                                                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
                                                     class="size-5 text-blue-400"
                                                 ><path d="M20 6 9 17l-5-5"/></svg>
@@ -385,7 +376,7 @@
             </div>
 
             <a 
-                href="{{ route('student.dashboard') }}"
+                href="{{ route('student.dashboard', ['tab' => 'my-applications']) }}"
                 class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-500 transition-colors"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -551,5 +542,6 @@
             </button>
         </div>
     </div>
+    @endif
 </div>
 @endsection

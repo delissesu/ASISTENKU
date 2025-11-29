@@ -429,7 +429,31 @@
     <span x-text="message"></span>
 </div>
 
+{{-- Alpine.js Component: Applicants Manager --}}
 <script>
+/**
+ * Applicants Manager - Alpine.js Component
+ * @see resources/js/components/applicants-manager.js for modular version
+ */
+const STATUS_CONFIG = {
+    labels: {
+        'pending': 'Menunggu Verifikasi',
+        'verified': 'Seleksi Dokumen',
+        'test': 'Ujian Online',
+        'interview': 'Wawancara',
+        'accepted': 'Diterima',
+        'rejected': 'Ditolak'
+    },
+    colors: {
+        'pending': 'bg-blue-100 text-blue-700',
+        'verified': 'bg-orange-100 text-orange-700',
+        'test': 'bg-purple-100 text-purple-700',
+        'interview': 'bg-indigo-100 text-indigo-700',
+        'accepted': 'bg-green-100 text-green-700',
+        'rejected': 'bg-red-100 text-red-700'
+    }
+};
+
 function applicantsManager() {
     return {
         searchQuery: '',
@@ -450,33 +474,15 @@ function applicantsManager() {
         },
 
         showToast(message, type = 'success') {
-            window.dispatchEvent(new CustomEvent('show-toast', { 
-                detail: { message, type } 
-            }));
+            window.dispatchEvent(new CustomEvent('show-toast', { detail: { message, type } }));
         },
 
         getStatusLabel(status) {
-            const labels = {
-                'pending': 'Menunggu Verifikasi',
-                'verified': 'Seleksi Dokumen',
-                'test': 'Ujian Online',
-                'interview': 'Wawancara',
-                'accepted': 'Diterima',
-                'rejected': 'Ditolak'
-            };
-            return labels[status] || status;
+            return STATUS_CONFIG.labels[status] || status;
         },
 
         getStatusColor(status) {
-            const colors = {
-                'pending': 'bg-blue-100 text-blue-700',
-                'verified': 'bg-orange-100 text-orange-700',
-                'test': 'bg-purple-100 text-purple-700',
-                'interview': 'bg-indigo-100 text-indigo-700',
-                'accepted': 'bg-green-100 text-green-700',
-                'rejected': 'bg-red-100 text-red-700'
-            };
-            return colors[status] || 'bg-slate-100 text-slate-700';
+            return STATUS_CONFIG.colors[status] || 'bg-slate-100 text-slate-700';
         },
 
         async openModal(id) {
@@ -487,13 +493,13 @@ function applicantsManager() {
                 const data = await response.json();
                 if (data.success) {
                     this.selectedApplicant = data.data;
-                    this.newStatus = data.data.status; // Set current status as default
+                    this.newStatus = data.data.status;
                     this.showModal = true;
                 } else {
                     this.showToast('Gagal memuat detail pelamar', 'error');
                 }
             } catch (error) {
-                console.error('Error fetching applicant details:', error);
+                console.error('Error:', error);
                 this.showToast('Terjadi kesalahan saat memuat data', 'error');
             } finally {
                 this.isLoading = false;
@@ -518,31 +524,28 @@ function applicantsManager() {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
-                    body: JSON.stringify({ status: status })
+                    body: JSON.stringify({ status })
                 });
 
                 const data = await response.json();
-                
                 if (response.ok && data.success) {
                     this.showToast(data.message || `Status berhasil diubah menjadi ${statusLabel}`, 'success');
-                    // Update local state
                     if (this.selectedApplicant) {
                         this.selectedApplicant.status = status;
                         this.selectedApplicant.status_label = statusLabel;
                         this.newStatus = status;
                     }
-                    // Reload after a short delay so toast is visible
                     setTimeout(() => window.location.reload(), 1500);
                 } else {
                     this.showToast(data.message || 'Gagal mengubah status', 'error');
                 }
             } catch (error) {
-                console.error('Error updating status:', error);
+                console.error('Error:', error);
                 this.showToast('Terjadi kesalahan saat mengubah status', 'error');
             } finally {
                 this.isLoading = false;
             }
         }
-    }
+    };
 }
 </script>

@@ -31,7 +31,8 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('student')->name('student.
     
     // route buat ujian (kudu profil lengkap)
     Route::middleware('profile.complete')->group(function () {
-        Route::get('/exam', [StudentController::class, 'exam'])->name('exam');
+        Route::get('/exam/{test}', [StudentController::class, 'exam'])->name('exam.start');
+        Route::post('/exam/{test}/submit', [StudentController::class, 'submitExam'])->name('exam.submit');
     });
 });
 

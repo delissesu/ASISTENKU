@@ -55,7 +55,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-slate-600">Dalam Proses</p>
-                        <p class="text-slate-900 mt-1 font-bold">{{ $applications->whereIn('status', ['pending', 'verified', 'interview'])->count() }}</p>
+                        <p class="text-slate-900 mt-1 font-bold">{{ $applications->whereIn('status', ['pending', 'verified', 'test', 'interview'])->count() }}</p>
                     </div>
                     <!-- icon jam -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-8 text-orange-600"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -64,28 +64,63 @@
         </div>
     </div>
 
-    <!-- Pemberitahuan Penting -->
+    <!-- Pemberitahuan Penting (Dynamic dari applications dengan jadwal ujian) -->
+    @php
+        $scheduledExams = $applications->filter(function($app) {
+            return $app->status === 'test' && $app->test && $app->test->scheduled_at;
+        });
+    @endphp
+    
+    @if($scheduledExams->count() > 0)
     <div class="rounded-xl border border-orange-200 bg-white shadow-sm overflow-hidden">
         <div class="p-4 bg-orange-50 border-b border-orange-100 flex items-center gap-2 text-orange-800">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
             <h3 class="font-semibold">Pemberitahuan Penting</h3>
         </div>
         <div class="p-4 space-y-3">
+            @foreach($scheduledExams as $examApp)
             <div class="flex items-center justify-between p-3 bg-orange-50/50 rounded-lg border border-orange-100">
                 <div>
-                    <p class="font-medium text-slate-900">Ujian Online - Asisten Praktikum</p>
-                    <p class="text-sm text-slate-600">Anda dijadwalkan mengikuti ujian online pada tanggal 15 November 2025, pukul 14:00 WIB</p>
+                    <p class="font-medium text-slate-900">Ujian Online - {{ $examApp->lowongan->title }}</p>
+                    <p class="text-sm text-slate-600">Anda dijadwalkan mengikuti ujian online pada tanggal {{ $examApp->test->scheduled_at->translatedFormat('d F Y') }}, pukul {{ $examApp->test->scheduled_at->format('H:i') }} WIB</p>
+                    @if($examApp->exam_status === 'waiting')
                     <p class="text-sm text-orange-600 mt-1 flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3 inline mr-1"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        Tersisa 2 hari lagi
+                        {{ $examApp->exam_status_label }}
                     </p>
+                    @elseif($examApp->exam_status === 'available')
+                    <p class="text-sm text-green-600 mt-1 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3 inline mr-1"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                        {{ $examApp->exam_status_label }}
+                    </p>
+                    @endif
                 </div>
-                <x-ui.button size="sm" class="bg-orange-600 hover:bg-orange-700 text-white" onclick="window.location.href='{{ route('student.exam') }}'">
-                    Mulai Ujian
-                </x-ui.button>
+                @if($examApp->test)
+                    @if($examApp->exam_status === 'available')
+                    <x-ui.button size="sm" class="bg-green-600 hover:bg-green-700 text-white shrink-0" onclick="window.location.href='{{ route('student.exam.start', $examApp->test->id) }}'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-1"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Mulai Ujian
+                    </x-ui.button>
+                    @elseif($examApp->exam_status === 'waiting')
+                    <x-ui.button size="sm" class="bg-slate-300 text-slate-500 cursor-not-allowed shrink-0" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-1"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        Belum Waktunya
+                    </x-ui.button>
+                    @elseif($examApp->exam_status === 'completed')
+                    <span class="text-sm text-blue-600 font-medium px-3 py-1.5 bg-blue-50 rounded-lg shrink-0">
+                        ✓ Selesai
+                    </span>
+                    @elseif($examApp->exam_status === 'expired')
+                    <span class="text-sm text-red-600 font-medium px-3 py-1.5 bg-red-50 rounded-lg shrink-0">
+                        Terlewat
+                    </span>
+                    @endif
+                @endif
             </div>
+            @endforeach
         </div>
     </div>
+    @endif
 
     <!-- Aplikasi Terakhir -->
     <div class="rounded-xl border bg-card text-card-foreground shadow">

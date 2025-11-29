@@ -171,29 +171,31 @@
     </div>
 </div>
 
+{{-- Alpine.js Component: Schedule Exam Modal --}}
 <script>
+/**
+ * Schedule Exam Modal - Alpine.js Component
+ * @see resources/js/components/schedule-exam-modal.js for modular version
+ */
 function scheduleExamModal() {
     return {
         showModal: false,
         isLoading: false,
         isSubmitting: false,
         applicants: [],
-        form: {
-            application_id: '',
-            scheduled_at: '',
-            duration_minutes: 60
-        },
+        form: { application_id: '', scheduled_at: '', duration_minutes: 60 },
         errors: {},
 
         get minDateTime() {
             const now = new Date();
-            now.setMinutes(now.getMinutes() + 30); // Minimal 30 menit dari sekarang
+            now.setMinutes(now.getMinutes() + 30);
             return now.toISOString().slice(0, 16);
         },
 
         get selectedApplicant() {
-            if (!this.form.application_id) return null;
-            return this.applicants.find(a => a.id == this.form.application_id);
+            return this.form.application_id 
+                ? this.applicants.find(a => a.id == this.form.application_id) 
+                : null;
         },
 
         async openModal() {
@@ -208,11 +210,7 @@ function scheduleExamModal() {
         },
 
         resetForm() {
-            this.form = {
-                application_id: '',
-                scheduled_at: '',
-                duration_minutes: 60
-            };
+            this.form = { application_id: '', scheduled_at: '', duration_minutes: 60 };
             this.errors = {};
         },
 
@@ -221,11 +219,9 @@ function scheduleExamModal() {
             try {
                 const response = await fetch('{{ route("recruiter.exams.verified") }}');
                 const data = await response.json();
-                if (data.success) {
-                    this.applicants = data.data;
-                }
+                if (data.success) this.applicants = data.data;
             } catch (error) {
-                console.error('Error fetching applicants:', error);
+                console.error('Error:', error);
             } finally {
                 this.isLoading = false;
             }
@@ -233,29 +229,24 @@ function scheduleExamModal() {
 
         validate() {
             this.errors = {};
-            
-            if (!this.form.application_id) {
-                this.errors.application_id = 'Pilih pelamar terlebih dahulu';
-            }
-            
+            if (!this.form.application_id) this.errors.application_id = 'Pilih pelamar terlebih dahulu';
             if (!this.form.scheduled_at) {
                 this.errors.scheduled_at = 'Tanggal dan waktu wajib diisi';
             } else if (new Date(this.form.scheduled_at) <= new Date()) {
                 this.errors.scheduled_at = 'Jadwal harus lebih dari waktu sekarang';
             }
-            
-            if (!this.form.duration_minutes || this.form.duration_minutes < 15) {
-                this.errors.duration_minutes = 'Durasi minimal 15 menit';
-            } else if (this.form.duration_minutes > 180) {
-                this.errors.duration_minutes = 'Durasi maksimal 180 menit';
-            }
-
+            const duration = parseInt(this.form.duration_minutes);
+            if (!duration || duration < 15) this.errors.duration_minutes = 'Durasi minimal 15 menit';
+            else if (duration > 180) this.errors.duration_minutes = 'Durasi maksimal 180 menit';
             return Object.keys(this.errors).length === 0;
+        },
+
+        showToast(message, type = 'success') {
+            window.dispatchEvent(new CustomEvent('show-toast', { detail: { message, type } }));
         },
 
         async submitForm() {
             if (!this.validate()) return;
-
             this.isSubmitting = true;
             try {
                 const response = await fetch('{{ route("recruiter.exams.schedule") }}', {
@@ -266,30 +257,21 @@ function scheduleExamModal() {
                     },
                     body: JSON.stringify(this.form)
                 });
-
                 const data = await response.json();
-
                 if (data.success) {
-                    window.dispatchEvent(new CustomEvent('show-toast', { 
-                        detail: { message: data.message, type: 'success' } 
-                    }));
+                    this.showToast(data.message, 'success');
                     this.closeModal();
-                    // Reload halaman untuk refresh data
                     setTimeout(() => window.location.reload(), 1000);
                 } else {
-                    window.dispatchEvent(new CustomEvent('show-toast', { 
-                        detail: { message: data.message || 'Gagal menjadwalkan ujian', type: 'error' } 
-                    }));
+                    this.showToast(data.message || 'Gagal menjadwalkan ujian', 'error');
                 }
             } catch (error) {
-                console.error('Error scheduling exam:', error);
-                window.dispatchEvent(new CustomEvent('show-toast', { 
-                    detail: { message: 'Terjadi kesalahan. Silakan coba lagi.', type: 'error' } 
-                }));
+                console.error('Error:', error);
+                this.showToast('Terjadi kesalahan. Silakan coba lagi.', 'error');
             } finally {
                 this.isSubmitting = false;
             }
         }
-    }
+    };
 }
 </script>
