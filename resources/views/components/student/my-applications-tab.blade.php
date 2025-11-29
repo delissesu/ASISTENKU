@@ -3,9 +3,9 @@
 <div class="space-y-6">
     <!-- Kepala -->
     <div>
-        <h1 class="text-slate-900 mb-2 text-2xl font-bold">Aplikasi Saya</h1>
+        <h1 class="text-slate-900 mb-2 text-2xl font-bold">Progres Seleksi</h1>
         <p class="text-slate-600">
-            Pantau status dan progres aplikasi Anda
+            Pantau status dan progres seleksi Anda
         </p>
     </div>
 
@@ -15,7 +15,7 @@
             <div class="p-6 pt-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-slate-600">Total Aplikasi</p>
+                        <p class="text-sm text-slate-600">Total Lamaran</p>
                         <p class="text-slate-900 mt-1 font-bold">{{ $applications->count() }}</p>
                     </div>
                     <!-- Ikon Dokumen -->
@@ -65,55 +65,113 @@
     </div>
 
     <!-- Daftar Aplikasi -->
-    <div class="space-y-4">
+    <div class="space-y-6">
         @foreach($applications as $app)
-            <div class="rounded-xl border bg-card text-card-foreground shadow hover:shadow-lg transition-shadow">
-                <div class="flex flex-col space-y-1.5 p-6">
-                    <div class="flex items-start justify-between gap-4">
-                        <div class="flex items-center gap-4">
-                            <div class="bg-blue-50 p-3 rounded-lg">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6 text-blue-600"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                            </div>
-                            <div>
-                                <h3 class="font-semibold leading-none tracking-tight text-slate-900">{{ $app->lowongan->title }}</h3>
-                                <div class="flex items-center gap-2 mt-1">
-                                    <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground">
-                                        {{ $app->lowongan->division->name }}
-                                    </div>
-                                    <span class="text-sm text-slate-600">
-                                        Dilamar: {{ $app->created_at->format('d M Y') }}
-                                    </span>
+            <div class="rounded-xl border bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                <!-- Header Card -->
+                <div class="p-6 border-b border-slate-100 flex items-start justify-between gap-4">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-blue-50 p-3 rounded-xl shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6 text-blue-600"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900">{{ $app->lowongan->title }}</h3>
+                            <div class="flex items-center gap-2 mt-1">
+                                <div class="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-slate-600 bg-slate-50">
+                                    {{ $app->lowongan->division->name }}
                                 </div>
+                                <span class="text-sm text-slate-500">
+                                    Dilamar: {{ $app->created_at->format('d F Y') }}
+                                </span>
                             </div>
                         </div>
-                        <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-blue-100 text-blue-700">
-                            {{ ucfirst($app->status) }}
-                        </div>
+                    </div>
+                    <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 {{ $app->status_color }}">
+                        {{ $app->status_label }}
                     </div>
                 </div>
 
-                <div class="p-6 pt-0 space-y-4">
-                    <!-- Progres -->
+                <div class="p-6 space-y-8">
+                    <!-- Progress Bar -->
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm text-slate-600">Progres Seleksi</span>
-                            <span class="text-sm text-slate-900">
-                                @if($app->status == 'pending') 20%
-                                @elseif($app->status == 'verified') 40%
-                                @elseif($app->status == 'interview') 60%
-                                @elseif($app->status == 'accepted') 100%
-                                @else 0% @endif
-                            </span>
+                            <span class="text-sm font-medium text-slate-600">Progres Seleksi</span>
+                            <span class="text-sm font-bold text-slate-900">{{ $app->progress }}%</span>
                         </div>
-                        <div class="h-2 w-full overflow-hidden rounded-full bg-secondary">
-                            <div class="h-full w-full flex-1 bg-primary transition-all" style="transform: translateX(-{{ $app->status == 'pending' ? 80 : ($app->status == 'verified' ? 60 : ($app->status == 'interview' ? 40 : ($app->status == 'accepted' ? 0 : 100))) }}%)"></div>
+                        <div class="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                            <div class="h-full bg-slate-900 transition-all duration-500" style="width: {{ $app->progress }}%"></div>
                         </div>
                     </div>
 
-                    <!-- Aksi-aksi -->
-                    <div class="flex items-center gap-3">
-                        <x-ui.button variant="outline">
-                            <!-- Ikon Mata -->
+                    <!-- Timeline -->
+                    <div class="relative pl-2">
+                        <!-- Garis Vertikal -->
+                        <div class="absolute left-[19px] top-2 bottom-2 w-0.5 bg-slate-200"></div>
+
+                        <div class="space-y-6">
+                            @foreach($app->timeline as $step)
+                                <div class="relative flex items-start gap-4 group">
+                                    <!-- Dot/Icon -->
+                                    <div class="relative z-10 flex items-center justify-center size-10 rounded-full shrink-0 
+                                        {{ $step['status'] == 'completed' ? 'bg-green-100 text-green-600' : ($step['status'] == 'current' ? 'bg-blue-100 text-blue-600' : 'bg-white border-2 border-slate-200 text-slate-300') }}">
+                                        @if($step['status'] == 'completed')
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5"><path d="M20 6 9 17l-5-5"/></svg>
+                                        @elseif($step['status'] == 'current')
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        @else
+                                            <div class="size-2.5 rounded-full bg-slate-200"></div>
+                                        @endif
+                                    </div>
+                                    
+                                    <!-- Content -->
+                                    <div class="pt-2">
+                                        <p class="font-medium text-sm {{ $step['status'] == 'pending' ? 'text-slate-400' : 'text-slate-900' }}">
+                                            {{ $step['title'] }}
+                                        </p>
+                                        <p class="text-xs {{ $step['status'] == 'pending' ? 'text-slate-400' : 'text-slate-500' }}">
+                                            {{ $step['date'] }}
+                                        </p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Next Step Box -->
+                    <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-3">
+                        <div class="p-2 bg-blue-100 rounded-lg shrink-0 text-blue-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-blue-900 text-sm mb-1">Langkah Selanjutnya:</h4>
+                            <p class="text-blue-700 text-sm">
+                                {{ $app->next_step['message'] }}
+                            </p>
+                        </div>
+                        @if($app->next_step['action'])
+                            <x-ui.button 
+                                size="sm" 
+                                class="bg-blue-600 hover:bg-blue-700 text-white shrink-0"
+                                onclick="window.location.href='{{ $app->next_step['url'] }}'"
+                            >
+                                {{ $app->next_step['action'] }}
+                            </x-ui.button>
+                        @endif
+                    </div>
+
+                    <!-- Footer Actions -->
+                    <div class="pt-4 border-t border-slate-100 flex gap-3">
+                        @if($app->next_step['action'] == 'Mulai Ujian')
+                            <x-ui.button class="bg-blue-600 hover:bg-blue-700 text-white" onclick="window.location.href='{{ $app->next_step['url'] }}'">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+                                Mulai Ujian
+                            </x-ui.button>
+                        @endif
+                        
+                        <x-ui.button 
+                            variant="outline"
+                            @click="openModal({{ $app->lowongan->id }})"
+                        >
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                             Lihat Detail
                         </x-ui.button>
