@@ -1,433 +1,543 @@
-@props(['applicants'])
+@props(['applicants', 'applicantStats', 'divisions' => collect()])
 
-<div class="space-y-6" x-data='{ 
-    statusFilter: 'all', 
-    selectedApplicant: null,
-    showDetailDialog: false,
-    activeDetailTab: 'info',
-    applicants: @json($applicants),
-    interviewForm: {
-        date: '',
-        time: '',
-        location: '',
-        notes: ''
-    },
-    showInterviewModal: false,
-
-    async updateStatus(status) {
-        if (!this.selectedApplicant) return;
-        
-        if (status === 'interview') {
-            this.showInterviewModal = true;
-            return;
-        }
-
-        if (!confirm('Apakah Anda yakin ingin mengubah status pelamar ini menjadi ' + status + '?')) return;
-
-        try {
-            const response = await fetch(`/recruiter/applications/${this.selectedApplicant.id}/status`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ status: status })
-            });
-
-            if (response.ok) {
-                this.selectedApplicant.status = status.charAt(0).toUpperCase() + status.slice(1);
-                // Update local list
-                const index = this.applicants.findIndex(a => a.id === this.selectedApplicant.id);
-                if (index !== -1) {
-                    this.applicants[index].status = this.selectedApplicant.status;
-                    // Update color logic locally for immediate feedback
-                    this.applicants[index].statusColor = this.getStatusColor(status);
-                    this.selectedApplicant.statusColor = this.applicants[index].statusColor;
-                }
-                alert('Status berhasil diperbarui!');
-            } else {
-                alert('Gagal memperbarui status.');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan saat memperbarui status.');
-        }
-    },
-
-    async submitInterview() {
-        if (!this.selectedApplicant) return;
-
-        try {
-            const response = await fetch(`/recruiter/applications/${this.selectedApplicant.id}/interview`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    interview_date: `${this.interviewForm.date} ${this.interviewForm.time}`,
-                    interview_location: this.interviewForm.location,
-                    interview_notes: this.interviewForm.notes
-                })
-            });
-
-            if (response.ok) {
-                this.selectedApplicant.status = 'Interview';
-                const index = this.applicants.findIndex(a => a.id === this.selectedApplicant.id);
-                if (index !== -1) {
-                    this.applicants[index].status = 'Interview';
-                    this.applicants[index].statusColor = this.getStatusColor('interview');
-                }
-                this.showInterviewModal = false;
-                this.showDetailDialog = false;
-                alert('Jadwal interview berhasil disimpan!');
-                // Reset form
-                this.interviewForm = { date: '', time: '', location: '', notes: '' };
-            } else {
-                alert('Gagal menyimpan jadwal interview.');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan.');
-        }
-    },
-
-    getStatusColor(status) {
-        const colors = {
-            'pending': 'bg-slate-100 text-slate-700',
-            'verified': 'bg-blue-100 text-blue-700',
-            'accepted': 'bg-green-100 text-green-700',
-            'rejected': 'bg-red-100 text-red-700',
-            'interview': 'bg-purple-100 text-purple-700'
-        };
-        return colors[status.toLowerCase()] || 'bg-slate-100 text-slate-700';
-    }
-}'>
-    <!-- Kepala -->
+<div x-data="applicantsManager()" class="space-y-6">
+    <!-- Header -->
     <div>
-        <h1 class="text-slate-900 mb-2 text-2xl font-bold">Data Pelamar</h1>
-        <p class="text-slate-600">
-            Review dan kelola aplikasi dari calon asisten laboratorium
-        </p>
+        <h2 class="text-2xl font-bold text-slate-900">Data Pelamar</h2>
+        <p class="text-slate-600">Review dan kelola aplikasi dari calon asisten laboratorium</p>
     </div>
 
-    <!-- Filter-filteran -->
-    <div class="rounded-xl border bg-card text-card-foreground shadow">
-        <div class="p-6 pt-6">
-            <div class="grid md:grid-cols-3 gap-4">
-                <div class="md:col-span-2">
-                    <div class="relative">
-                        <!-- Ikon Cari -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                        <input class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-10" placeholder="Cari berdasarkan nama, NIM, atau posisi..." />
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-5 gap-4">
+        <div class="bg-white p-6 rounded-xl border shadow-sm text-center">
+            <p class="text-4xl font-bold text-slate-900 mb-1">{{ $applicantStats['total'] }}</p>
+            <p class="text-sm text-slate-600">Total Pelamar</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl border shadow-sm text-center">
+            <p class="text-4xl font-bold text-blue-600 mb-1">{{ $applicantStats['verification'] }}</p>
+            <p class="text-sm text-slate-600">Verifikasi</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl border shadow-sm text-center">
+            <p class="text-4xl font-bold text-orange-500 mb-1">{{ $applicantStats['review'] }}</p>
+            <p class="text-sm text-slate-600">Review Dokumen</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl border shadow-sm text-center">
+            <p class="text-4xl font-bold text-purple-600 mb-1">{{ $applicantStats['exam'] }}</p>
+            <p class="text-sm text-slate-600">Ujian</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl border shadow-sm text-center">
+            <p class="text-4xl font-bold text-green-600 mb-1">{{ $applicantStats['accepted'] }}</p>
+            <p class="text-sm text-slate-600">Diterima</p>
+        </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="flex items-center gap-4 bg-white p-4 rounded-xl border shadow-sm">
+        <div class="relative flex-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input 
+                type="text" 
+                x-model="searchQuery"
+                placeholder="Cari berdasarkan nama, NIM, atau posisi..." 
+                class="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-lg text-slate-900 placeholder:text-slate-400 focus:ring-0"
+            >
+        </div>
+        <div class="flex items-center gap-2 border-l pl-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            <select 
+                x-model="filterStatus"
+                class="bg-transparent border-none text-slate-600 focus:ring-0 cursor-pointer"
+            >
+                <option value="">Semua Status</option>
+                <option value="pending">Verifikasi</option>
+                <option value="verified">Review Dokumen</option>
+                <option value="interview">Ujian</option>
+                <option value="accepted">Diterima</option>
+                <option value="rejected">Ditolak</option>
+            </select>
+        </div>
+        <div class="flex items-center gap-2 border-l pl-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+            <select 
+                x-model="filterDivision"
+                class="bg-transparent border-none text-slate-600 focus:ring-0 cursor-pointer"
+            >
+                <option value="">Semua Divisi</option>
+                @foreach($divisions as $division)
+                <option value="{{ $division->name }}">{{ $division->name }}</option>
+                @endforeach
+            </select>
+        </div>
+    </div>
+
+    <!-- Applicant List -->
+    <div class="space-y-4">
+        @forelse($applicants as $applicant)
+        <div 
+            class="bg-white rounded-xl border shadow-sm p-6 transition-all hover:shadow-md"
+            x-show="filterApplicant('{{ strtolower($applicant->mahasiswa->name) }}', '{{ strtolower($applicant->mahasiswa->mahasiswaProfile->nim ?? '') }}', '{{ strtolower($applicant->lowongan->title) }}', '{{ $applicant->status }}', '{{ $applicant->lowongan->division->name }}')"
+        >
+            <div class="flex items-start justify-between">
+                <div class="flex gap-4">
+                    <!-- Avatar/Initials -->
+                    <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-lg">
+                        {{ substr($applicant->mahasiswa->name, 0, 2) }}
+                    </div>
+                    
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-lg font-bold text-slate-900">{{ $applicant->mahasiswa->name }}</h3>
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium {{ $applicant->status_color }}">
+                                {{ $applicant->status_label }}
+                            </span>
+                        </div>
+                        <p class="text-sm text-slate-600 mt-1">
+                            {{ $applicant->mahasiswa->mahasiswaProfile->nim ?? '-' }} • IPK: {{ $applicant->mahasiswa->mahasiswaProfile->ipk ?? '-' }} • Semester {{ $applicant->mahasiswa->mahasiswaProfile->semester ?? '-' }}
+                        </p>
+                        
+                        <div class="mt-4 grid grid-cols-2 gap-x-12 gap-y-2">
+                            <div>
+                                <p class="text-xs text-slate-500 uppercase tracking-wider font-medium mb-1">Posisi Dilamar:</p>
+                                <p class="font-medium text-slate-900">{{ $applicant->lowongan->title }}</p>
+                                <span class="inline-block mt-1 px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded">
+                                    {{ $applicant->lowongan->division->name }}
+                                </span>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 uppercase tracking-wider font-medium mb-1">Dokumen:</p>
+                                <div class="flex gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded bg-slate-900 text-white text-xs">
+                                        CV <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1"><polyline points="20 6 9 17 4 12"/></svg>
+                                    </span>
+                                    <span class="inline-flex items-center px-2 py-1 rounded bg-slate-900 text-white text-xs">
+                                        Transkrip <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1"><polyline points="20 6 9 17 4 12"/></svg>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 flex items-center gap-4 text-sm text-slate-500">
+                            <div class="flex items-center gap-1.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                                {{ $applicant->mahasiswa->email }}
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                {{ $applicant->mahasiswa->mahasiswaProfile->phone ?? '-' }}
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                {{ $applicant->created_at->format('d M Y') }}
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <select x-model="statusFilter" class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
-                    <option value="all">Semua Status</option>
-                    <option value="Pending">Menunggu Verifikasi</option>
-                    <option value="Verified">Terverifikasi</option>
-                    <option value="Accepted">Diterima</option>
-                    <option value="Rejected">Ditolak</option>
-                </select>
+
+                <div class="flex flex-col gap-2">
+                    <button 
+                        @click="openModal({{ $applicant->id }})"
+                        class="inline-flex items-center justify-center px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                        Detail
+                    </button>
+                    @if($applicant->status === 'pending')
+                    <button 
+                        @click="updateStatus({{ $applicant->id }}, 'verified')"
+                        class="inline-flex items-center justify-center px-4 py-2 bg-green-600 rounded-lg text-sm font-medium text-white hover:bg-green-700 transition-colors"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m22 4-12 12-4-4"/></svg>
+                        Verifikasi
+                    </button>
+                    @endif
+                </div>
             </div>
         </div>
+        @empty
+        <div class="text-center py-12 bg-white rounded-xl border border-dashed">
+            <p class="text-slate-500">Belum ada pelamar.</p>
+        </div>
+        @endforelse
     </div>
 
-    <!-- Statistik -->
-    <div class="grid md:grid-cols-4 gap-4">
-        <div class="rounded-xl border bg-card text-card-foreground shadow">
-            <div class="p-6 pt-6 text-center">
-                <p class="text-2xl text-slate-900 mb-1 font-bold">{{ $applicants->count() }}</p>
-                <p class="text-sm text-slate-600">Total Pelamar</p>
-            </div>
-        </div>
-        <div class="rounded-xl border bg-card text-card-foreground shadow">
-            <div class="p-6 pt-6 text-center">
-                <p class="text-2xl text-slate-600 mb-1 font-bold">{{ $applicants->where('status', 'pending')->count() }}</p>
-                <p class="text-sm text-slate-600">Pending</p>
-            </div>
-        </div>
-        <div class="rounded-xl border bg-card text-card-foreground shadow">
-            <div class="p-6 pt-6 text-center">
-                <p class="text-2xl text-green-600 mb-1 font-bold">{{ $applicants->where('status', 'accepted')->count() }}</p>
-                <p class="text-sm text-slate-600">Diterima</p>
-            </div>
-        </div>
-        <div class="rounded-xl border bg-card text-card-foreground shadow">
-            <div class="p-6 pt-6 text-center">
-                <p class="text-2xl text-red-600 mb-1 font-bold">{{ $applicants->where('status', 'rejected')->count() }}</p>
-                <p class="text-sm text-slate-600">Ditolak</p>
-            </div>
-        </div>
-    </div>
+    <!-- Detail Modal -->
+    <div 
+        x-show="showModal" 
+        x-cloak
+        class="fixed inset-0 z-50 overflow-y-auto"
+        aria-labelledby="modal-title" 
+        role="dialog" 
+        aria-modal="true"
+    >
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div 
+                x-show="showModal"
+                x-transition:enter="ease-out duration-300"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="ease-in duration-200"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
+                @click="closeModal()"
+                aria-hidden="true"
+            ></div>
 
-    <!-- Tabel Pelamar -->
-    <div class="rounded-xl border bg-card text-card-foreground shadow">
-        <div class="flex flex-col space-y-1.5 p-6">
-            <h3 class="font-semibold leading-none tracking-tight">Daftar Pelamar</h3>
-        </div>
-        <div class="p-6 pt-0">
-            <div class="space-y-3">
-                <template x-if="applicants.filter(app => statusFilter === 'all' || app.status === statusFilter).length === 0">
-                    <div class="text-center py-12">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-12 text-slate-300 mx-auto mb-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <p class="text-slate-500 text-sm mt-3">Tidak ada pelamar ditemukan</p>
-                        <p class="text-slate-400 text-xs mt-1">Filter atau kriteria pencarian tidak menghasilkan data</p>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <div 
+                x-show="showModal"
+                x-transition:enter="ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave="ease-in duration-200"
+                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full"
+            >
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="flex justify-between items-start mb-6">
+                        <h3 class="text-xl font-bold text-slate-900" id="modal-title">Detail Pelamar</h3>
+                        <button @click="closeModal()" class="text-slate-400 hover:text-slate-500">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
                     </div>
-                </template>
-                
-                <template x-for="applicant in applicants.filter(app => statusFilter === 'all' || app.status === statusFilter)" :key="applicant.id">
-                    <div class="border border-slate-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all">
-                        <div class="flex items-start justify-between gap-4">
-                            <div class="flex-1">
-                                <div class="flex items-start justify-between mb-2">
-                                    <div>
-                                        <h4 class="text-slate-900 font-semibold" x-text="applicant.name"></h4>
-                                        <p class="text-sm text-slate-600">
-                                            <span x-text="applicant.nim"></span> • IPK: <span x-text="applicant.ipk"></span> • Semester <span x-text="applicant.semester"></span>
-                                        </p>
-                                    </div>
-                                    <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2" :class="applicant.statusColor" x-text="applicant.status"></div>
-                                </div>
 
-                                <div class="grid md:grid-cols-2 gap-4 mb-3">
-                                    <div class="text-sm">
-                                        <p class="text-slate-600 mb-1">Posisi Dilamar:</p>
-                                        <p class="text-slate-900" x-text="applicant.position"></p>
-                                        <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground mt-1" x-text="applicant.division"></div>
+                    <!-- Modal Tabs -->
+                    <div class="flex border-b border-slate-200 mb-6">
+                        <button 
+                            @click="activeModalTab = 'info'"
+                            :class="activeModalTab === 'info' ? 'border-green-600 text-green-600' : 'border-transparent text-slate-500 hover:text-slate-700'"
+                            class="flex-1 py-2 px-4 text-center border-b-2 font-medium text-sm transition-colors"
+                        >
+                            Informasi
+                        </button>
+                        <button 
+                            @click="activeModalTab = 'docs'"
+                            :class="activeModalTab === 'docs' ? 'border-green-600 text-green-600' : 'border-transparent text-slate-500 hover:text-slate-700'"
+                            class="flex-1 py-2 px-4 text-center border-b-2 font-medium text-sm transition-colors"
+                        >
+                            Dokumen
+                        </button>
+                        <button 
+                            @click="activeModalTab = 'eval'"
+                            :class="activeModalTab === 'eval' ? 'border-green-600 text-green-600' : 'border-transparent text-slate-500 hover:text-slate-700'"
+                            class="flex-1 py-2 px-4 text-center border-b-2 font-medium text-sm transition-colors"
+                        >
+                            Evaluasi
+                        </button>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div x-show="activeModalTab === 'info'" class="space-y-4">
+                        <template x-if="selectedApplicant">
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <p class="text-sm text-slate-500 mb-1">Nama Lengkap</p>
+                                    <p class="font-medium text-slate-900" x-text="selectedApplicant.mahasiswa.name"></p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-slate-500 mb-1">NIM</p>
+                                    <p class="font-medium text-slate-900" x-text="selectedApplicant.mahasiswa.mahasiswa_profile?.nim || '-'"></p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-slate-500 mb-1">Email</p>
+                                    <p class="font-medium text-slate-900" x-text="selectedApplicant.mahasiswa.email"></p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-slate-500 mb-1">Nomor HP</p>
+                                    <p class="font-medium text-slate-900" x-text="selectedApplicant.mahasiswa.mahasiswa_profile?.phone || '-'"></p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-slate-500 mb-1">IPK</p>
+                                    <p class="font-medium text-slate-900" x-text="selectedApplicant.mahasiswa.mahasiswa_profile?.ipk || '-'"></p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-slate-500 mb-1">Semester</p>
+                                    <p class="font-medium text-slate-900" x-text="selectedApplicant.mahasiswa.mahasiswa_profile?.semester || '-'"></p>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div x-show="activeModalTab === 'docs'" class="space-y-4">
+                        <template x-if="selectedApplicant">
+                            <div class="space-y-3">
+                                <!-- CV Document -->
+                                <div class="flex items-center justify-between p-4 border rounded-lg">
+                                    <div class="flex items-center gap-3">
+                                        <div class="p-2 bg-slate-100 rounded">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-slate-900">Curriculum Vitae (CV)</p>
+                                            <p class="text-sm text-slate-500">PDF Document</p>
+                                        </div>
                                     </div>
-                                    <div class="text-sm">
-                                        <p class="text-slate-600 mb-1">Dokumen:</p>
-                                        <div class="flex gap-2">
-                                            <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2" :class="applicant.documents.cv ? 'border-transparent bg-primary text-primary-foreground hover:bg-primary/80' : 'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80'">
-                                                CV <span x-text="applicant.documents.cv ? '✓' : '✗'"></span>
-                                            </div>
-                                            <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2" :class="applicant.documents.transcript ? 'border-transparent bg-primary text-primary-foreground hover:bg-primary/80' : 'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80'">
-                                                Transkrip <span x-text="applicant.documents.transcript ? '✓' : '✗'"></span>
-                                            </div>
-                                            <template x-if="applicant.documents.portfolio">
-                                                <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80">
-                                                    Portfolio ✓
-                                                </div>
-                                            </template>
+                                    <template x-if="selectedApplicant.mahasiswa?.mahasiswa_profile?.cv_path">
+                                        <a 
+                                            :href="`/recruiter/applications/${selectedApplicant.id}/download/cv`"
+                                            class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                                            Download
+                                        </a>
+                                    </template>
+                                    <template x-if="!selectedApplicant.mahasiswa?.mahasiswa_profile?.cv_path">
+                                        <span class="px-3 py-1.5 bg-slate-100 rounded-lg text-sm text-slate-500">Tidak tersedia</span>
+                                    </template>
+                                </div>
+                                <!-- Transkrip Document -->
+                                <div class="flex items-center justify-between p-4 border rounded-lg">
+                                    <div class="flex items-center gap-3">
+                                        <div class="p-2 bg-slate-100 rounded">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-slate-900">Transkrip Nilai</p>
+                                            <p class="text-sm text-slate-500">PDF Document</p>
+                                        </div>
+                                    </div>
+                                    <template x-if="selectedApplicant.mahasiswa?.mahasiswa_profile?.transkrip_path">
+                                        <a 
+                                            :href="`/recruiter/applications/${selectedApplicant.id}/download/transkrip`"
+                                            class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                                            Download
+                                        </a>
+                                    </template>
+                                    <template x-if="!selectedApplicant.mahasiswa?.mahasiswa_profile?.transkrip_path">
+                                        <span class="px-3 py-1.5 bg-slate-100 rounded-lg text-sm text-slate-500">Tidak tersedia</span>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div x-show="activeModalTab === 'eval'" class="space-y-6">
+                        <template x-if="selectedApplicant">
+                            <div>
+                                <!-- Current Status Display -->
+                                <div class="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm text-slate-500 mb-1">Status Saat Ini</p>
+                                            <p class="font-semibold text-slate-900" x-text="selectedApplicant.status_label || getStatusLabel(selectedApplicant.status)"></p>
+                                        </div>
+                                        <div class="px-3 py-1 rounded-full text-sm font-medium" 
+                                            :class="getStatusColor(selectedApplicant.status)">
+                                            <span x-text="getStatusLabel(selectedApplicant.status)"></span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="flex items-center gap-3 text-sm text-slate-600">
-                                    <span class="flex items-center gap-1">
-                                        <!-- Ikon Surat -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                                        <span x-text="applicant.email"></span>
-                                    </span>
-                                    <span class="flex items-center gap-1">
-                                        <!-- Ikon Hape -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                                        <span x-text="applicant.phone"></span>
-                                    </span>
-                                    <span class="flex items-center gap-1">
-                                        <!-- Ikon Jam -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                        <span x-text="applicant.appliedDate"></span>
-                                    </span>
+                                <!-- Status Dropdown -->
+                                <div class="mb-6">
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Ubah Status Aplikasi</label>
+                                    <select 
+                                        x-model="newStatus"
+                                        class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 focus:ring-2 focus:ring-green-500 focus:border-green-500 cursor-pointer"
+                                    >
+                                        <option value="pending">Menunggu Verifikasi</option>
+                                        <option value="verified">Seleksi Dokumen</option>
+                                        <option value="test">Ujian Online</option>
+                                        <option value="interview">Wawancara</option>
+                                        <option value="accepted">Diterima</option>
+                                        <option value="rejected">Ditolak</option>
+                                    </select>
                                 </div>
-                            </div>
 
-                            <div class="flex flex-col gap-2">
-                                <x-ui.button variant="outline" size="sm" @click="selectedApplicant = applicant; showDetailDialog = true">
-                                    <!-- Ikon Mata -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                                    Detail
-                                </x-ui.button>
-                                <x-ui.button size="sm" class="bg-green-600 hover:bg-green-700">
-                                    <!-- Ikon Centang -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m22 4-12 12-4-4"/></svg>
-                                    Verifikasi
-                                </x-ui.button>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </div>
-        </div>
-    </div>
+                                <!-- Action Buttons -->
+                                <div class="flex gap-3">
+                                    <button 
+                                        @click="updateStatus(selectedApplicant.id, newStatus)"
+                                        :disabled="isLoading || newStatus === selectedApplicant.status"
+                                        class="flex-1 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
+                                    >
+                                        <template x-if="isLoading">
+                                            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </template>
+                                        <template x-if="!isLoading">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                                        </template>
+                                        <span x-text="isLoading ? 'Menyimpan...' : 'Simpan Perubahan'"></span>
+                                    </button>
+                                </div>
 
-    <!-- Dialog Detail -->
-    <div x-show="showDetailDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" style="display: none;">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6" @click.away="showDetailDialog = false">
-            <div class="flex flex-col space-y-1.5 text-center sm:text-left mb-4">
-                <h3 class="text-lg font-semibold leading-none tracking-tight">Detail Pelamar</h3>
-                <p class="text-sm text-muted-foreground">Informasi lengkap dan dokumen aplikasi</p>
-            </div>
-
-            <template x-if="selectedApplicant">
-                <div>
-                    <!-- Tab-tab -->
-                    <div class="grid w-full grid-cols-3 mb-4 p-1 bg-slate-100 rounded-lg">
-                        <button @click="activeDetailTab = 'info'" :class="activeDetailTab === 'info' ? 'bg-white shadow-sm' : 'hover:bg-slate-200'" class="py-1.5 text-sm font-medium rounded-md transition-all">Informasi</button>
-                        <button @click="activeDetailTab = 'documents'" :class="activeDetailTab === 'documents' ? 'bg-white shadow-sm' : 'hover:bg-slate-200'" class="py-1.5 text-sm font-medium rounded-md transition-all">Dokumen</button>
-                        <button @click="activeDetailTab = 'evaluation'" :class="activeDetailTab === 'evaluation' ? 'bg-white shadow-sm' : 'hover:bg-slate-200'" class="py-1.5 text-sm font-medium rounded-md transition-all">Evaluasi</button>
-                    </div>
-
-                    <div x-show="activeDetailTab === 'info'" class="space-y-4">
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <p class="text-sm font-medium text-slate-600">Nama Lengkap</p>
-                                <p class="text-slate-900" x-text="selectedApplicant.name"></p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-slate-600">NIM</p>
-                                <p class="text-slate-900" x-text="selectedApplicant.nim"></p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-slate-600">Email</p>
-                                <p class="text-slate-900" x-text="selectedApplicant.email"></p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-slate-600">Nomor HP</p>
-                                <p class="text-slate-900" x-text="selectedApplicant.phone"></p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-slate-600">IPK</p>
-                                <p class="text-slate-900" x-text="selectedApplicant.ipk"></p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-slate-600">Semester</p>
-                                <p class="text-slate-900" x-text="selectedApplicant.semester"></p>
-                            </div>
-                        </div>
-
-                        <template x-if="selectedApplicant.interview && selectedApplicant.interview.date">
-                            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 mt-4">
-                                <h4 class="font-semibold text-purple-900 mb-2 flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-                                    Jadwal Interview
-                                </h4>
-                                <div class="grid md:grid-cols-2 gap-4 text-sm">
-                                    <div>
-                                        <p class="text-purple-700 font-medium">Waktu</p>
-                                        <p class="text-slate-700" x-text="new Date(selectedApplicant.interview.date).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })"></p>
-                                    </div>
-                                    <div>
-                                        <p class="text-purple-700 font-medium">Lokasi</p>
-                                        <p class="text-slate-700" x-text="selectedApplicant.interview.location"></p>
-                                    </div>
-                                    <div class="col-span-2" x-show="selectedApplicant.interview.notes">
-                                        <p class="text-purple-700 font-medium">Catatan</p>
-                                        <p class="text-slate-700" x-text="selectedApplicant.interview.notes"></p>
+                                <!-- Quick Actions -->
+                                <div class="mt-6 pt-6 border-t border-slate-200">
+                                    <p class="text-sm font-medium text-slate-700 mb-3">Aksi Cepat</p>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <button 
+                                            @click="updateStatus(selectedApplicant.id, 'accepted')"
+                                            :disabled="isLoading || selectedApplicant.status === 'accepted'"
+                                            class="py-2.5 bg-green-50 text-green-700 border border-green-200 rounded-lg font-medium hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m22 4-12 12-4-4"/></svg>
+                                            Terima
+                                        </button>
+                                        <button 
+                                            @click="updateStatus(selectedApplicant.id, 'rejected')"
+                                            :disabled="isLoading || selectedApplicant.status === 'rejected'"
+                                            class="py-2.5 bg-red-50 text-red-700 border border-red-200 rounded-lg font-medium hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" x2="9" y1="9" y2="15"/><line x1="9" x2="15" y1="9" y2="15"/></svg>
+                                            Tolak
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         </template>
                     </div>
-
-                    <div x-show="activeDetailTab === 'documents'" class="space-y-3" style="display: none;">
-                        <template x-if="selectedApplicant.documents.cv">
-                            <div class="border rounded-lg p-4">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-slate-900 mb-1 font-medium">Curriculum Vitae (CV)</p>
-                                        <p class="text-sm text-slate-600">Tersedia</p>
-                                    </div>
-                                    <x-ui.button size="sm" variant="outline">
-                                        Download
-                                    </x-ui.button>
-                                </div>
-                            </div>
-                        </template>
-                        <template x-if="selectedApplicant.documents.transcript">
-                            <div class="border rounded-lg p-4">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-slate-900 mb-1 font-medium">Transkrip Nilai</p>
-                                        <p class="text-sm text-slate-600">Tersedia</p>
-                                    </div>
-                                    <x-ui.button size="sm" variant="outline">
-                                        Download
-                                    </x-ui.button>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-
-                    <div x-show="activeDetailTab === 'evaluation'" class="space-y-4" style="display: none;">
-                        <div class="space-y-3">
-                            <div>
-                                <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Status Aplikasi</label>
-                                <select 
-                                    class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-2" 
-                                    x-model="selectedApplicant.status"
-                                    @change="updateStatus($event.target.value)"
-                                >
-                                    <option value="Pending">Menunggu Verifikasi</option>
-                                    <option value="Verified">Terverifikasi</option>
-                                    <option value="Interview">Interview</option>
-                                    <option value="Accepted">Diterima</option>
-                                    <option value="Rejected">Ditolak</option>
-                                </select>
-                            </div>
-
-                            <div class="flex gap-3">
-                                <x-ui.button class="flex-1 bg-green-600 hover:bg-green-700" @click="updateStatus('accepted')">
-                                    Terima
-                                </x-ui.button>
-                                <x-ui.button variant="destructive" class="flex-1" @click="updateStatus('rejected')">
-                                    Tolak
-                                </x-ui.button>
-                            </div>
-                            
-                            <div class="pt-2 border-t">
-                                <x-ui.button variant="outline" class="w-full" @click="showInterviewModal = true">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-                                    Jadwalkan Interview
-                                </x-ui.button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </template>
-            
-            <div class="mt-4 flex justify-end">
-                <x-ui.button variant="outline" @click="showDetailDialog = false">Tutup</x-ui.button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Jadwal Interview -->
-    <div x-show="showInterviewModal" class="fixed inset-0 z-60 flex items-center justify-center bg-black/50" style="display: none;">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6" @click.away="showInterviewModal = false">
-            <div class="flex flex-col space-y-1.5 mb-4">
-                <h3 class="text-lg font-semibold leading-none tracking-tight">Jadwalkan Interview</h3>
-                <p class="text-sm text-muted-foreground">Tentukan waktu dan lokasi interview</p>
-            </div>
-            
-            <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label class="text-sm font-medium">Tanggal</label>
-                        <input type="date" x-model="interviewForm.date" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-sm font-medium">Waktu</label>
-                        <input type="time" x-model="interviewForm.time" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                    </div>
-                </div>
-                
-                <div class="space-y-2">
-                    <label class="text-sm font-medium">Lokasi / Link Meeting</label>
-                    <input type="text" x-model="interviewForm.location" placeholder="Ruang Lab 1 atau Google Meet Link" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                </div>
-                
-                <div class="space-y-2">
-                    <label class="text-sm font-medium">Catatan Tambahan</label>
-                    <textarea x-model="interviewForm.notes" placeholder="Instruksi khusus untuk pelamar..." class="flex min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"></textarea>
-                </div>
-                
-                <div class="flex justify-end gap-3 pt-2">
-                    <x-ui.button variant="outline" @click="showInterviewModal = false">Batal</x-ui.button>
-                    <x-ui.button class="bg-blue-600 hover:bg-blue-700 text-white" @click="submitInterview">Simpan Jadwal</x-ui.button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Toast Notification -->
+<div 
+    x-data="{ show: false, message: '', type: 'success' }"
+    x-on:show-toast.window="show = true; message = $event.detail.message; type = $event.detail.type; setTimeout(() => show = false, 3000)"
+    x-show="show"
+    x-transition:enter="transform ease-out duration-300 transition"
+    x-transition:enter-start="translate-y-2 opacity-0"
+    x-transition:enter-end="translate-y-0 opacity-100"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="fixed bottom-4 right-4 z-[60] px-6 py-3 rounded-lg shadow-lg flex items-center gap-3"
+    :class="type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'"
+>
+    <template x-if="type === 'success'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m22 4-12 12-4-4"/></svg>
+    </template>
+    <template x-if="type === 'error'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" x2="9" y1="9" y2="15"/><line x1="9" x2="15" y1="9" y2="15"/></svg>
+    </template>
+    <span x-text="message"></span>
+</div>
+
+<script>
+function applicantsManager() {
+    return {
+        searchQuery: '',
+        filterStatus: '',
+        filterDivision: '',
+        showModal: false,
+        activeModalTab: 'info',
+        selectedApplicant: null,
+        isLoading: false,
+        newStatus: '',
+
+        filterApplicant(name, nim, title, status, divisionName) {
+            const searchLower = this.searchQuery.toLowerCase();
+            const matchesSearch = name.includes(searchLower) || nim.includes(searchLower) || title.includes(searchLower);
+            const matchesStatus = this.filterStatus === '' || status === this.filterStatus;
+            const matchesDivision = this.filterDivision === '' || divisionName === this.filterDivision;
+            return matchesSearch && matchesStatus && matchesDivision;
+        },
+
+        showToast(message, type = 'success') {
+            window.dispatchEvent(new CustomEvent('show-toast', { 
+                detail: { message, type } 
+            }));
+        },
+
+        getStatusLabel(status) {
+            const labels = {
+                'pending': 'Menunggu Verifikasi',
+                'verified': 'Seleksi Dokumen',
+                'test': 'Ujian Online',
+                'interview': 'Wawancara',
+                'accepted': 'Diterima',
+                'rejected': 'Ditolak'
+            };
+            return labels[status] || status;
+        },
+
+        getStatusColor(status) {
+            const colors = {
+                'pending': 'bg-blue-100 text-blue-700',
+                'verified': 'bg-orange-100 text-orange-700',
+                'test': 'bg-purple-100 text-purple-700',
+                'interview': 'bg-indigo-100 text-indigo-700',
+                'accepted': 'bg-green-100 text-green-700',
+                'rejected': 'bg-red-100 text-red-700'
+            };
+            return colors[status] || 'bg-slate-100 text-slate-700';
+        },
+
+        async openModal(id) {
+            this.activeModalTab = 'info';
+            this.isLoading = true;
+            try {
+                const response = await fetch(`/recruiter/applications/${id}`);
+                const data = await response.json();
+                if (data.success) {
+                    this.selectedApplicant = data.data;
+                    this.newStatus = data.data.status; // Set current status as default
+                    this.showModal = true;
+                } else {
+                    this.showToast('Gagal memuat detail pelamar', 'error');
+                }
+            } catch (error) {
+                console.error('Error fetching applicant details:', error);
+                this.showToast('Terjadi kesalahan saat memuat data', 'error');
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        closeModal() {
+            this.showModal = false;
+            this.selectedApplicant = null;
+            this.newStatus = '';
+        },
+
+        async updateStatus(id, status) {
+            const statusLabel = this.getStatusLabel(status);
+            if (!confirm(`Apakah Anda yakin ingin mengubah status menjadi "${statusLabel}"?`)) return;
+
+            this.isLoading = true;
+            try {
+                const response = await fetch(`/recruiter/applications/${id}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ status: status })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    this.showToast(data.message || `Status berhasil diubah menjadi ${statusLabel}`, 'success');
+                    // Update local state
+                    if (this.selectedApplicant) {
+                        this.selectedApplicant.status = status;
+                        this.selectedApplicant.status_label = statusLabel;
+                        this.newStatus = status;
+                    }
+                    // Reload after a short delay so toast is visible
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    this.showToast(data.message || 'Gagal mengubah status', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating status:', error);
+                this.showToast('Terjadi kesalahan saat mengubah status', 'error');
+            } finally {
+                this.isLoading = false;
+            }
+        }
+    }
+}
+</script>

@@ -32,8 +32,12 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('student')->name('student.
 // route buat recruiter (dipagerin middleware auth sama role recruiter)
 Route::middleware(['auth', 'role:recruiter'])->prefix('recruiter')->name('recruiter.')->group(function () {
     Route::get('/dashboard', [RecruiterController::class, 'dashboard'])->name('dashboard');
+    
+    // CRUD Applications
+    Route::get('/applications/{application}', [RecruiterController::class, 'showApplication'])->name('applications.show');
     Route::put('/applications/{application}/status', [RecruiterController::class, 'updateStatus'])->name('applications.status');
     Route::put('/applications/{application}/interview', [RecruiterController::class, 'scheduleInterview'])->name('applications.interview');
+    Route::get('/applications/{application}/download/{type}', [RecruiterController::class, 'downloadDocument'])->name('applications.download');
 
     // CRUD Lowongan
     Route::get('/lowongan/{lowongan}', [RecruiterController::class, 'showLowongan'])->name('lowongan.show');

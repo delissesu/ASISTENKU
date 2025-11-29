@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\LowonganRequest;
 use App\Models\Lowongan;
 use App\Models\Application;
@@ -24,6 +25,7 @@ class RecruiterController extends Controller
             'jobStats' => $this->getJobStats(),
             'jobs' => $this->getJobs(),
             'divisions' => Division::active()->get(),
+            'applicantStats' => $this->getApplicantStats(),
             'applicants' => $this->getApplicants(),
             'exams' => $this->getExams(),
             'announcements' => $this->getAnnouncements(),
@@ -225,6 +227,43 @@ class RecruiterController extends Controller
         ];
     }
 
+    private function getApplicantStats()
+    {
+        return [
+            'total' => Application::count(),
+            'verification' => Application::where('status', 'pending')->count(),
+            'review' => Application::where('status', 'verified')->count(),
+            'exam' => Application::where('status', 'interview')->count(), // Asumsi interview = ujian/wawancara
+            'accepted' => Application::where('status', 'accepted')->count(),
+        ];
+    }
+
+    public function showApplication(Application $application)
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $application->load(['mahasiswa.mahasiswaProfile', 'lowongan.division'])
+        ]);
+    }
+
+    public function updateApplicationStatus(Request $request, Application $application)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:pending,verified,interview,accepted,rejected',
+            'notes' => 'nullable|string'
+        ]);
+
+        $application->update([
+            'status' => $validated['status'],
+            'admin_notes' => $validated['notes'] ?? $application->admin_notes
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status aplikasi berhasil diperbarui.'
+        ]);
+    }
+
     private function getJobs()
     {
         return Lowongan::with('division')
@@ -235,39 +274,37 @@ class RecruiterController extends Controller
 
     private function getApplicants()
     {
+        // Return Collection of Application models (bukan formatted array)
+        // Supaya accessor status_label dan status_color bisa digunakan langsung di blade
         return Application::with(['mahasiswa.mahasiswaProfile', 'lowongan.division', 'test'])
             ->latest()
-            ->get()
-            ->map(fn($app) => $this->formatApplicant($app));
+            ->get();
     }
 
-    private function formatApplicant(Application $app): array
+    /**
+     * Download dokumen pelamar (CV atau Transkrip)
+     */
+    public function downloadDocument(Application $application, string $type)
     {
-        return [
-            'id' => $app->id,
-            'name' => $app->mahasiswa->name,
-            'nim' => $app->mahasiswa->mahasiswaProfile->nim ?? '-',
-            'email' => $app->mahasiswa->email,
-            'phone' => $app->mahasiswa->mahasiswaProfile->phone ?? '-',
-            'position' => $app->lowongan->title,
-            'division' => $app->lowongan->division->name ?? '-',
-            'ipk' => $app->mahasiswa->mahasiswaProfile->ipk ?? '-',
-            'semester' => $app->mahasiswa->mahasiswaProfile->semester ?? '-',
-            'appliedDate' => $app->created_at->format('d M Y'),
-            'status' => ucfirst($app->status),
-            'statusColor' => $this->getStatusColor($app->status),
-            'documents' => [
-                'cv' => !empty($app->mahasiswa->mahasiswaProfile->cv_path),
-                'transcript' => !empty($app->mahasiswa->mahasiswaProfile->transkrip_path),
-                'portfolio' => !empty($app->portofolio_url)
-            ],
-            'examScore' => $app->test->score ?? null,
-            'interview' => [
-                'date' => $app->interview_date?->format('Y-m-d\TH:i'),
-                'location' => $app->interview_location,
-                'notes' => $app->interview_notes
-            ]
-        ];
+        $profile = $application->mahasiswa->mahasiswaProfile;
+        
+        if (!$profile) {
+            abort(404, 'Profil mahasiswa tidak ditemukan.');
+        }
+
+        $path = match($type) {
+            'cv' => $profile->cv_path,
+            'transkrip' => $profile->transkrip_path,
+            default => null
+        };
+
+        if (!$path || !Storage::disk('public')->exists($path)) {
+            abort(404, 'Dokumen tidak ditemukan.');
+        }
+
+        $filename = $application->mahasiswa->name . '_' . strtoupper($type) . '.' . pathinfo($path, PATHINFO_EXTENSION);
+        
+        return Storage::disk('public')->download($path, $filename);
     }
 
     private function getStatusColor(string $status): string
@@ -299,9 +336,29 @@ class RecruiterController extends Controller
             'status' => 'required|in:pending,verified,test,interview,accepted,rejected',
         ]);
 
+        $oldStatus = $application->status;
         $application->update(['status' => $validated['status']]);
+        
+        // Reload untuk mendapatkan accessor terbaru
+        $application->refresh();
+        $application->load(['mahasiswa.mahasiswaProfile', 'lowongan.division']);
 
-        return response()->json(['message' => 'Status updated successfully']);
+        $statusLabels = [
+            'pending' => 'Menunggu Verifikasi',
+            'verified' => 'Seleksi Dokumen',
+            'test' => 'Ujian Online',
+            'interview' => 'Wawancara',
+            'accepted' => 'Diterima',
+            'rejected' => 'Ditolak',
+        ];
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status berhasil diubah menjadi ' . ($statusLabels[$validated['status']] ?? $validated['status']),
+            'data' => $application,
+            'old_status' => $oldStatus,
+            'new_status' => $validated['status'],
+        ]);
     }
 
     public function scheduleInterview(Request $request, Application $application)

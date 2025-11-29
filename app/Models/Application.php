@@ -74,8 +74,9 @@ class Application extends Model
     public function getProgressAttribute(): int
     {
         return match ($this->status) {
-            'pending' => 20,
-            'verified' => 50,
+            'pending' => 15,
+            'verified' => 30,
+            'test' => 50,
             'interview' => 75,
             'accepted', 'rejected' => 100,
             default => 0,
@@ -86,9 +87,10 @@ class Application extends Model
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
-            'pending' => 'Seleksi Berkas',
-            'verified' => 'Wawancara',
-            'interview' => 'Menunggu Hasil',
+            'pending' => 'Menunggu Verifikasi',
+            'verified' => 'Seleksi Dokumen',
+            'test' => 'Ujian Online',
+            'interview' => 'Wawancara',
             'accepted' => 'Diterima',
             'rejected' => 'Ditolak',
             default => 'Menunggu',
@@ -101,7 +103,8 @@ class Application extends Model
         return match ($this->status) {
             'pending' => 'bg-blue-100 text-blue-700',
             'verified' => 'bg-orange-100 text-orange-700',
-            'interview' => 'bg-purple-100 text-purple-700',
+            'test' => 'bg-purple-100 text-purple-700',
+            'interview' => 'bg-indigo-100 text-indigo-700',
             'accepted' => 'bg-green-100 text-green-700',
             'rejected' => 'bg-red-100 text-red-700',
             default => 'bg-slate-100 text-slate-700',
@@ -111,30 +114,38 @@ class Application extends Model
     // Accessor untuk Timeline Seleksi
     public function getTimelineAttribute(): array
     {
+        $statusOrder = ['pending', 'verified', 'test', 'interview', 'accepted', 'rejected'];
+        $currentIndex = array_search($this->status, $statusOrder);
+        
         $steps = [
             [
                 'title' => 'Pendaftaran',
                 'date' => $this->created_at->format('d M'),
-                'status' => 'completed', // Selalu completed kalo udah ada recordnya
+                'status' => 'completed',
             ],
             [
                 'title' => 'Verifikasi Dokumen',
-                'date' => $this->status == 'pending' ? 'Sedang Diproses' : ($this->updated_at->format('d M')),
-                'status' => $this->status == 'pending' ? 'current' : 'completed',
+                'date' => $currentIndex >= 1 ? $this->updated_at->format('d M') : 'Menunggu',
+                'status' => $currentIndex == 0 ? 'current' : ($currentIndex >= 1 ? 'completed' : 'pending'),
+            ],
+            [
+                'title' => 'Seleksi Dokumen',
+                'date' => $currentIndex >= 2 ? $this->updated_at->format('d M') : 'Menunggu',
+                'status' => $currentIndex == 1 ? 'current' : ($currentIndex >= 2 ? 'completed' : 'pending'),
             ],
             [
                 'title' => 'Ujian Online',
-                'date' => $this->test ? $this->test->start_time->format('d M') : 'TBA',
-                'status' => $this->test ? ($this->test->status == 'completed' ? 'completed' : 'current') : 'pending',
+                'date' => $this->test ? $this->test->start_time?->format('d M') ?? 'Terjadwal' : 'Menunggu',
+                'status' => $currentIndex == 2 ? 'current' : ($currentIndex >= 3 ? 'completed' : 'pending'),
             ],
             [
                 'title' => 'Wawancara',
-                'date' => $this->interview_date ? $this->interview_date->format('d M') : 'TBA',
-                'status' => $this->status == 'interview' ? 'current' : (in_array($this->status, ['accepted', 'rejected']) ? 'completed' : 'pending'),
+                'date' => $this->interview_date ? $this->interview_date->format('d M') : 'Menunggu',
+                'status' => $currentIndex == 3 ? 'current' : ($currentIndex >= 4 ? 'completed' : 'pending'),
             ],
             [
                 'title' => 'Pengumuman',
-                'date' => in_array($this->status, ['accepted', 'rejected']) ? $this->updated_at->format('d M') : 'TBA',
+                'date' => in_array($this->status, ['accepted', 'rejected']) ? $this->updated_at->format('d M') : 'Menunggu',
                 'status' => in_array($this->status, ['accepted', 'rejected']) ? 'completed' : 'pending',
             ],
         ];
@@ -147,48 +158,55 @@ class Application extends Model
     {
         if ($this->status == 'pending') {
             return [
-                'message' => 'Dokumen Anda sedang dalam proses verifikasi oleh tim rekrutmen.',
+                'message' => 'Dokumen Anda sedang dalam proses verifikasi oleh tim rekrutmen. Harap menunggu.',
                 'action' => null,
             ];
         }
 
         if ($this->status == 'verified') {
+            return [
+                'message' => 'Dokumen Anda telah diverifikasi dan sedang dalam proses seleksi dokumen.',
+                'action' => null,
+            ];
+        }
+
+        if ($this->status == 'test') {
             if ($this->test && $this->test->status != 'completed') {
                 return [
-                    'message' => 'Silakan ikuti ujian online sebelum ' . $this->test->end_time->format('d M H:i') . '.',
+                    'message' => 'Silakan ikuti ujian online sebelum ' . ($this->test->end_time ? $this->test->end_time->format('d M H:i') : 'batas waktu yang ditentukan') . '.',
                     'action' => 'Mulai Ujian',
-                    'url' => route('student.exam'), // Asumsi route exam
+                    'url' => route('student.dashboard') . '?tab=exams',
                 ];
             }
             return [
-                'message' => 'Menunggu jadwal ujian online atau wawancara.',
+                'message' => 'Menunggu jadwal ujian online. Anda akan diberitahu via email.',
                 'action' => null,
             ];
         }
 
         if ($this->status == 'interview') {
             return [
-                'message' => 'Jadwal Wawancara: ' . ($this->interview_date ? $this->interview_date->format('d M Y, H:i') : 'Menunggu Jadwal') . '. Lokasi: ' . ($this->interview_location ?? 'Online'),
+                'message' => 'Jadwal Wawancara: ' . ($this->interview_date ? $this->interview_date->format('d M Y, H:i') : 'Menunggu Jadwal') . '. Lokasi: ' . ($this->interview_location ?? 'Akan diinformasikan'),
                 'action' => null,
             ];
         }
 
         if ($this->status == 'accepted') {
             return [
-                'message' => 'Selamat! Anda diterima. Silakan hubungi koordinator lab untuk informasi lebih lanjut.',
+                'message' => 'Selamat! Anda diterima sebagai Asisten Laboratorium. Silakan hubungi koordinator lab untuk informasi lebih lanjut.',
                 'action' => null,
             ];
         }
 
         if ($this->status == 'rejected') {
             return [
-                'message' => 'Mohon maaf, Anda belum lolos seleksi tahap ini. Tetap semangat!',
+                'message' => 'Mohon maaf, Anda belum lolos seleksi tahap ini. Jangan menyerah, coba lagi di kesempatan berikutnya!',
                 'action' => null,
             ];
         }
 
         return [
-            'message' => 'Menunggu update selanjutnya.',
+            'message' => 'Menunggu update selanjutnya dari tim rekrutmen.',
             'action' => null,
         ];
     }
