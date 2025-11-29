@@ -134,6 +134,15 @@ class StudentController extends Controller
                 ->with('error', 'Harap lengkapi profil Anda (CV dan Transkrip) sebelum melamar.');
         }
 
+        // 4. Cek syarat IPK dan Semester
+        if ($profile->ipk < $lowongan->min_ipk) {
+            return redirect()->back()->with('error', 'IPK Anda tidak memenuhi syarat minimum untuk posisi ini.');
+        }
+
+        if ($profile->semester < $lowongan->min_semester) {
+            return redirect()->back()->with('error', 'Semester Anda tidak memenuhi syarat minimum untuk posisi ini.');
+        }
+
         try {
             // Bikin lamaran baru
             Application::create([

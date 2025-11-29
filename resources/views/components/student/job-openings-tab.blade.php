@@ -1,6 +1,9 @@
 @props(['jobs', 'appliedJobIds' => []])
 
-<div class="space-y-6" x-data="{ selectedDivision: 'all', searchQuery: '' }">
+<div class="space-y-6" x-data="{ 
+    selectedDivision: 'all', 
+    searchQuery: ''
+}">
     <!-- Kepala -->
     <div>
         <h1 class="text-slate-900 mb-2 text-2xl font-bold">Lowongan Tersedia</h1>
@@ -135,12 +138,32 @@
 
                         <!-- Aksi-aksi -->
                         <div class="flex items-center gap-3 pt-2">
-                            <x-ui.button class="bg-blue-600 hover:bg-blue-700 text-white">
-                                Lamar Posisi Ini
-                                <!-- Ikon Panah Kanan -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 ml-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                            </x-ui.button>
-                            <x-ui.button variant="outline">
+                            @php
+                                $isApplied = in_array($job->id, $appliedJobIds ?? []);
+                            @endphp
+
+                            @if($isApplied)
+                                <x-ui.button 
+                                    class="bg-slate-200 text-slate-500 cursor-not-allowed hover:bg-slate-200"
+                                    disabled
+                                >
+                                    Sudah Dilamar
+                                </x-ui.button>
+                            @else
+                                <x-ui.button 
+                                    class="bg-blue-600 hover:bg-blue-700 text-white"
+                                    @click="openModal({{ $job->id }})"
+                                >
+                                    Lamar Posisi Ini
+                                    <!-- Ikon Panah Kanan -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 ml-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                </x-ui.button>
+                            @endif
+                            
+                            <x-ui.button 
+                                variant="outline"
+                                @click="openModal({{ $job->id }})"
+                            >
                                 Detail Lengkap
                             </x-ui.button>
                         </div>
@@ -149,4 +172,5 @@
             </div>
         @endforeach
     </div>
+
 </div>

@@ -1,19 +1,6 @@
 @props(['applications', 'availableJobs', 'appliedJobIds' => []])
 
-<div class="space-y-6" x-data="{ 
-    showJobModal: false, 
-    selectedJob: null, 
-    jobs: {{ $availableJobs->toJson() }},
-    formatDate(date) { 
-        if (!date) return '';
-        return new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }); 
-    },
-    openModal(jobId) {
-        this.selectedJob = this.jobs.find(j => j.id === jobId);
-        this.showJobModal = true;
-        console.log('Opening modal for job:', this.selectedJob);
-    }
-}">
+<div class="space-y-6">
     <!-- Bagian Sambutan -->
     <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
         <h1 class="mb-2 text-2xl font-bold">Selamat Datang, {{ Auth::user()->name }}!</h1>
@@ -202,6 +189,4 @@
         </div>
     </div>
 
-    <!-- Modal Detail Lowongan -->
-    @include('components.student.job-detail-modal')
 </div>
