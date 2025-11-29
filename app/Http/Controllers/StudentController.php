@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Models\Lowongan;
 use App\Models\Application;
+use App\Models\Division;
 use App\Models\User;
 
 class StudentController extends Controller
@@ -25,17 +26,21 @@ class StudentController extends Controller
 
         // minta data lowongan yang masih terbuka
         $availableJobs = Lowongan::with(['division', 'recruiter'])
+            ->withCount('applications') // hitung jumlah pelamar
             ->open() // ini scope di model Lowongan
             ->latest() // urutan terbaru dulu
             ->get(); // ambil data
 
         // minta data lowongan yang pernah di lamar
         $appliedJobIds = $applications->pluck('lowongan_id')->toArray();
+
+        // minta data divisi untuk filter dropdown
+        $divisions = Division::active()->get();
         
         // minta data tab yang aktif
         $activeTab = request('tab', 'overview');
 
-        return view('pages.student.dashboard', compact('applications', 'availableJobs', 'appliedJobIds', 'activeTab'));
+        return view('pages.student.dashboard', compact('applications', 'availableJobs', 'appliedJobIds', 'divisions', 'activeTab'));
     }
 
     public function updateProfile(UpdateProfileRequest $request)

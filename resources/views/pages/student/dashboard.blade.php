@@ -7,7 +7,7 @@
         <x-student.overview-tab :applications="$applications" :available-jobs="$availableJobs" :applied-job-ids="$appliedJobIds" />
     </div>
     <div x-show="activeTab === 'openings'" style="display: none;">
-        <x-student.job-openings-tab :jobs="$availableJobs" :applied-job-ids="$appliedJobIds" />
+        <x-student.job-openings-tab :jobs="$availableJobs" :applied-job-ids="$appliedJobIds" :divisions="$divisions" />
     </div>
     <div x-show="activeTab === 'applications'" style="display: none;">
         <x-student.my-applications-tab :applications="$applications" />

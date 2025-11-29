@@ -79,6 +79,12 @@ class Lowongan extends Model
             && $this->close_date >= now();
     }
 
+    // cek lowongan segera tutup (dalam 7 hari)
+    public function isClosingSoon(): bool
+    {
+        return $this->isOpen() && $this->close_date->diffInDays(now()) <= 7;
+    }
+
     // itung sisa kuota
     protected function remainingQuota(): Attribute
     {

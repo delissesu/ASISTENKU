@@ -64,33 +64,25 @@
         </div>
     </div>
 
-    <!-- notif -->
-    <div class="rounded-xl border bg-card text-card-foreground shadow border-l-4 border-l-orange-500">
-        <div class="flex flex-col space-y-1.5 p-6">
-            <div class="flex items-center gap-2">
-                <!--  warning icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5 text-orange-600"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-                <h3 class="font-semibold leading-none tracking-tight">Pemberitahuan Penting</h3>
-            </div>
+    <!-- Pemberitahuan Penting -->
+    <div class="rounded-xl border border-orange-200 bg-white shadow-sm overflow-hidden">
+        <div class="p-4 bg-orange-50 border-b border-orange-100 flex items-center gap-2 text-orange-800">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+            <h3 class="font-semibold">Pemberitahuan Penting</h3>
         </div>
-        <div class="p-6 pt-0 space-y-3">
-            <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="flex-1">
-                        <p class="text-slate-900 mb-1 font-medium">Ujian Online - Asisten Praktikum</p>
-                        <p class="text-sm text-slate-600">
-                            Anda dijadwalkan mengikuti ujian online pada tanggal 15 November 2025, pukul 14:00 WIB
-                        </p>
-                        <p class="text-sm text-orange-600 mt-2 flex items-center">
-                            <!-- icon jam -->
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3 inline mr-1"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                            Tersisa 2 hari lagi
-                        </p>
-                    </div>
-                    <x-ui.button size="sm" class="bg-orange-600 hover:bg-orange-700 text-white" onclick="window.location.href='{{ route('student.exam') }}'">
-                        Mulai Ujian
-                    </x-ui.button>
+        <div class="p-4 space-y-3">
+            <div class="flex items-center justify-between p-3 bg-orange-50/50 rounded-lg border border-orange-100">
+                <div>
+                    <p class="font-medium text-slate-900">Ujian Online - Asisten Praktikum</p>
+                    <p class="text-sm text-slate-600">Anda dijadwalkan mengikuti ujian online pada tanggal 15 November 2025, pukul 14:00 WIB</p>
+                    <p class="text-sm text-orange-600 mt-1 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3 inline mr-1"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        Tersisa 2 hari lagi
+                    </p>
                 </div>
+                <x-ui.button size="sm" class="bg-orange-600 hover:bg-orange-700 text-white" onclick="window.location.href='{{ route('student.exam') }}'">
+                    Mulai Ujian
+                </x-ui.button>
             </div>
         </div>
     </div>
