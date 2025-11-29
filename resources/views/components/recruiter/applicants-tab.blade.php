@@ -8,26 +8,30 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-5 gap-4">
-        <div class="bg-white p-6 rounded-xl border shadow-sm text-center">
-            <p class="text-4xl font-bold text-slate-900 mb-1">{{ $applicantStats['total'] }}</p>
-            <p class="text-sm text-slate-600">Total Pelamar</p>
+    <div class="grid grid-cols-6 gap-4">
+        <div class="bg-white p-5 rounded-xl border shadow-sm text-center">
+            <p class="text-3xl font-bold text-slate-900 mb-1">{{ $applicantStats['total'] }}</p>
+            <p class="text-xs text-slate-600">Total Pelamar</p>
         </div>
-        <div class="bg-white p-6 rounded-xl border shadow-sm text-center">
-            <p class="text-4xl font-bold text-blue-600 mb-1">{{ $applicantStats['verification'] }}</p>
-            <p class="text-sm text-slate-600">Verifikasi</p>
+        <div class="bg-white p-5 rounded-xl border shadow-sm text-center">
+            <p class="text-3xl font-bold text-blue-600 mb-1">{{ $applicantStats['verification'] }}</p>
+            <p class="text-xs text-slate-600">Verifikasi</p>
         </div>
-        <div class="bg-white p-6 rounded-xl border shadow-sm text-center">
-            <p class="text-4xl font-bold text-orange-500 mb-1">{{ $applicantStats['review'] }}</p>
-            <p class="text-sm text-slate-600">Review Dokumen</p>
+        <div class="bg-white p-5 rounded-xl border shadow-sm text-center">
+            <p class="text-3xl font-bold text-orange-500 mb-1">{{ $applicantStats['review'] }}</p>
+            <p class="text-xs text-slate-600">Seleksi Dokumen</p>
         </div>
-        <div class="bg-white p-6 rounded-xl border shadow-sm text-center">
-            <p class="text-4xl font-bold text-purple-600 mb-1">{{ $applicantStats['exam'] }}</p>
-            <p class="text-sm text-slate-600">Ujian</p>
+        <div class="bg-white p-5 rounded-xl border shadow-sm text-center">
+            <p class="text-3xl font-bold text-purple-600 mb-1">{{ $applicantStats['exam'] }}</p>
+            <p class="text-xs text-slate-600">Ujian Online</p>
         </div>
-        <div class="bg-white p-6 rounded-xl border shadow-sm text-center">
-            <p class="text-4xl font-bold text-green-600 mb-1">{{ $applicantStats['accepted'] }}</p>
-            <p class="text-sm text-slate-600">Diterima</p>
+        <div class="bg-white p-5 rounded-xl border shadow-sm text-center">
+            <p class="text-3xl font-bold text-indigo-600 mb-1">{{ $applicantStats['interview'] }}</p>
+            <p class="text-xs text-slate-600">Wawancara</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border shadow-sm text-center">
+            <p class="text-3xl font-bold text-green-600 mb-1">{{ $applicantStats['accepted'] }}</p>
+            <p class="text-xs text-slate-600">Diterima</p>
         </div>
     </div>
 
@@ -49,9 +53,10 @@
                 class="bg-transparent border-none text-slate-600 focus:ring-0 cursor-pointer"
             >
                 <option value="">Semua Status</option>
-                <option value="pending">Verifikasi</option>
-                <option value="verified">Review Dokumen</option>
-                <option value="interview">Ujian</option>
+                <option value="pending">Menunggu Verifikasi</option>
+                <option value="verified">Seleksi Dokumen</option>
+                <option value="test">Ujian Online</option>
+                <option value="interview">Wawancara</option>
                 <option value="accepted">Diterima</option>
                 <option value="rejected">Ditolak</option>
             </select>

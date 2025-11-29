@@ -233,8 +233,10 @@ class RecruiterController extends Controller
             'total' => Application::count(),
             'verification' => Application::where('status', 'pending')->count(),
             'review' => Application::where('status', 'verified')->count(),
-            'exam' => Application::where('status', 'interview')->count(), // Asumsi interview = ujian/wawancara
+            'exam' => Application::where('status', 'test')->count(),
+            'interview' => Application::where('status', 'interview')->count(),
             'accepted' => Application::where('status', 'accepted')->count(),
+            'rejected' => Application::where('status', 'rejected')->count(),
         ];
     }
 
