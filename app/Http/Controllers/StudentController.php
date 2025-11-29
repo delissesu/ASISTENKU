@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\UpdateProfileRequest;
 use App\Models\Lowongan;
 use App\Models\Application;
-use App\Models\User;        
-use App\Models\MahasiswaProfile;
+use App\Models\User;
 
 class StudentController extends Controller
 {
@@ -39,40 +38,22 @@ class StudentController extends Controller
         return view('pages.student.dashboard', compact('applications', 'availableJobs', 'appliedJobIds', 'activeTab'));
     }
 
-    public function updateProfile(Request $request)
+    public function updateProfile(UpdateProfileRequest $request)
     {
-        // validasi update profile
-        // apa nanti validasi di request ya, tp belakangan
-        $validated = $request->validate([
-            // 'name' => 'required|string|max:255', // Dimatiin dulu: Nama ngikut NIM, gabisa diubah
-            'email' => 'required|email|unique:users,email,' . Auth::id(),
-            'phone' => 'nullable|string|max:20',
-            'ipk' => 'nullable|numeric|min:0|max:4',
-            'semester' => 'nullable|integer|min:1|max:14',
-            'skills' => 'nullable|string',
-            'cv' => 'nullable|file|mimes:pdf|max:2048', // Max 2MB
-            'transkrip' => 'nullable|file|mimes:pdf|max:2048', // Max 2MB
-        ]);
+        $validated = $request->validated();
 
         try {
-            // typehinting, gtw buat apa tp suruh nambahin
             /** @var User $user **/
-
             $user = Auth::user();
             
-            // Update tabel user (email doang, nama gabisa diubah soalnya ngikut NIM)
-            $user->update([
-                // 'name' => $validated['name'], // Dimatiin dulu: Nama ngikut NIM
-                'email' => $validated['email'],
-            ]);
+            // Update tabel user (email doang)
+            $user->update(['email' => $validated['email']]);
             
-            // Update tabel profil mahasiswa (create if not exists)
-            $mahasiswaProfile = $user->mahasiswaProfile()->firstOrCreate([
-                'user_id' => $user->id
-            ], [
-                // Default values if creating new
-                'nim' => $request->input('nim', '-'), // Should be from registration, but fallback just in case
-            ]);
+            // Update tabel profil mahasiswa
+            $mahasiswaProfile = $user->mahasiswaProfile()->firstOrCreate(
+                ['user_id' => $user->id],
+                ['nim' => $request->input('nim', '-')]
+            );
 
             $dataToUpdate = [
                 'phone' => $validated['phone'] ?? $mahasiswaProfile->phone,
@@ -83,22 +64,18 @@ class StudentController extends Controller
 
             // Handle upload CV
             if ($request->hasFile('cv')) {
-                // Hapus file lama kalo ada
-                if ($mahasiswaProfile->cv_path && Storage::exists($mahasiswaProfile->cv_path)) {
-                    Storage::delete($mahasiswaProfile->cv_path);
+                if ($mahasiswaProfile->cv_path && Storage::disk('public')->exists($mahasiswaProfile->cv_path)) {
+                    Storage::disk('public')->delete($mahasiswaProfile->cv_path);
                 }
-                $cvPath = $request->file('cv')->store('documents/cv', 'public');
-                $dataToUpdate['cv_path'] = $cvPath;
+                $dataToUpdate['cv_path'] = $request->file('cv')->store('documents/cv', 'public');
             }
 
             // Handle upload Transkrip
             if ($request->hasFile('transkrip')) {
-                // Hapus file lama kalo ada
-                if ($mahasiswaProfile->transkrip_path && Storage::exists($mahasiswaProfile->transkrip_path)) {
-                    Storage::delete($mahasiswaProfile->transkrip_path);
+                if ($mahasiswaProfile->transkrip_path && Storage::disk('public')->exists($mahasiswaProfile->transkrip_path)) {
+                    Storage::disk('public')->delete($mahasiswaProfile->transkrip_path);
                 }
-                $transkripPath = $request->file('transkrip')->store('documents/transkrip', 'public');
-                $dataToUpdate['transkrip_path'] = $transkripPath;
+                $dataToUpdate['transkrip_path'] = $request->file('transkrip')->store('documents/transkrip', 'public');
             }
 
             $mahasiswaProfile->update($dataToUpdate);

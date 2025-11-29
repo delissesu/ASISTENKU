@@ -23,7 +23,18 @@
         }
     }"
 >
-    @include('partials.student.navbar')
+    <x-ui.dashboard-navbar
+        portal-name="Portal Mahasiswa"
+        subtitle="Rekrutmen Asisten Lab"
+        icon="graduation-cap"
+        icon-color="text-blue-600"
+        nav-items-partial="partials.student.nav-items"
+        nav-items-mobile-partial="partials.student.nav-items-mobile"
+    >
+        <x-slot:rightSlot>
+            @include('partials.student.notification-bell')
+        </x-slot:rightSlot>
+    </x-ui.dashboard-navbar>
     
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         @yield('content')   

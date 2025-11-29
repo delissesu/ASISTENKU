@@ -15,90 +15,116 @@ class RecruiterController extends Controller
     {
         $activeTab = $request->query('tab', 'overview');
 
-        $stats = [
+        return view('pages.recruiter.dashboard', [
+            'activeTab' => $activeTab,
+            'stats' => $this->getStats(),
+            'divisionStats' => $this->getDivisionStats(),
+            'recentActivity' => $this->getRecentActivity(),
+            'jobs' => $this->getJobs(),
+            'applicants' => $this->getApplicants(),
+            'exams' => $this->getExams(),
+            'announcements' => $this->getAnnouncements(),
+        ]);
+    }
+
+    private function getStats(): array
+    {
+        return [
             'active_jobs' => Lowongan::open()->count(),
             'total_applicants' => Application::count(),
             'pending_review' => Application::pending()->count(),
             'upcoming_exams' => Test::where('start_time', '>', now())->count(),
         ];
+    }
 
-        $recentActivity = Application::with(['mahasiswa', 'lowongan'])
-            ->latest()
-            ->take(5)
-            ->get();
-
-
-        // Ambil statistik divisi buat kartu di atas
-        $divisionStats = Division::withCount([
-            'lowongans as active_jobs_count' => function($q) {
-                $q->where('status', 'open');
-            }
+    private function getDivisionStats()
+    {
+        return Division::withCount([
+            'lowongans as active_jobs_count' => fn($q) => $q->where('status', 'open')
         ])->with(['lowongans' => function($q) {
             $q->where('status', 'open')->withCount([
                 'applications as total_applicants',
-                'applications as accepted_count' => function($query) {
-                    $query->where('status', 'accepted');
-                }
+                'applications as accepted_count' => fn($query) => $query->where('status', 'accepted')
             ]);
         }])->get();
+    }
 
-
-        $jobs = Lowongan::with('division')->withCount('applications')->latest()->get();
-        
-        $applicants = Application::with(['mahasiswa.mahasiswaProfile', 'lowongan.division', 'test'])
+    private function getRecentActivity()
+    {
+        return Application::with(['mahasiswa', 'lowongan'])
             ->latest()
-            ->get()
-            ->map(function($app) {
-                return [
-                    'id' => $app->id,
-                    'name' => $app->mahasiswa->name,
-                    'nim' => $app->mahasiswa->mahasiswaProfile->nim ?? '-',
-                    'email' => $app->mahasiswa->email,
-                    'phone' => $app->mahasiswa->mahasiswaProfile->phone ?? '-',
-                    'position' => $app->lowongan->title,
-                    'division' => $app->lowongan->division->name ?? '-',
-                    'ipk' => $app->mahasiswa->mahasiswaProfile->ipk ?? '-',
-                    'semester' => $app->mahasiswa->mahasiswaProfile->semester ?? '-',
-                    'appliedDate' => $app->created_at->format('d M Y'),
-                    'status' => ucfirst($app->status),
-                    'statusColor' => match($app->status) {
-                        'pending' => 'bg-slate-100 text-slate-700',
-                        'verified' => 'bg-blue-100 text-blue-700',
-                        'accepted' => 'bg-green-100 text-green-700',
-                        'rejected' => 'bg-red-100 text-red-700',
-                        default => 'bg-slate-100 text-slate-700'
-                    },
-                    'documents' => [
-                        'cv' => !empty($app->mahasiswa->mahasiswaProfile->cv_path),
-                        'transcript' => !empty($app->mahasiswa->mahasiswaProfile->transkrip_path),
-                        'portfolio' => !empty($app->portofolio_url)
-                    ],
-                    'examScore' => $app->test->score ?? null,
-                    'interview' => [
-                        'date' => $app->interview_date ? $app->interview_date->format('Y-m-d\TH:i') : null,
-                        'location' => $app->interview_location,
-                        'notes' => $app->interview_notes
-                    ]
-                ];
-            });
+            ->take(5)
+            ->get();
+    }
 
-        $exams = Test::with(['application.lowongan.division', 'application.mahasiswa'])
+    private function getJobs()
+    {
+        return Lowongan::with('division')
+            ->withCount('applications')
             ->latest()
             ->get();
-
-        $announcements = Announcement::latest()->get();
-
-        return view('pages.recruiter.dashboard', compact(
-            'activeTab',
-            'stats',
-            'divisionStats',
-            'recentActivity',
-            'jobs',
-            'applicants',
-            'exams',
-            'announcements'
-        ));
     }
+
+    private function getApplicants()
+    {
+        return Application::with(['mahasiswa.mahasiswaProfile', 'lowongan.division', 'test'])
+            ->latest()
+            ->get()
+            ->map(fn($app) => $this->formatApplicant($app));
+    }
+
+    private function formatApplicant(Application $app): array
+    {
+        return [
+            'id' => $app->id,
+            'name' => $app->mahasiswa->name,
+            'nim' => $app->mahasiswa->mahasiswaProfile->nim ?? '-',
+            'email' => $app->mahasiswa->email,
+            'phone' => $app->mahasiswa->mahasiswaProfile->phone ?? '-',
+            'position' => $app->lowongan->title,
+            'division' => $app->lowongan->division->name ?? '-',
+            'ipk' => $app->mahasiswa->mahasiswaProfile->ipk ?? '-',
+            'semester' => $app->mahasiswa->mahasiswaProfile->semester ?? '-',
+            'appliedDate' => $app->created_at->format('d M Y'),
+            'status' => ucfirst($app->status),
+            'statusColor' => $this->getStatusColor($app->status),
+            'documents' => [
+                'cv' => !empty($app->mahasiswa->mahasiswaProfile->cv_path),
+                'transcript' => !empty($app->mahasiswa->mahasiswaProfile->transkrip_path),
+                'portfolio' => !empty($app->portofolio_url)
+            ],
+            'examScore' => $app->test->score ?? null,
+            'interview' => [
+                'date' => $app->interview_date?->format('Y-m-d\TH:i'),
+                'location' => $app->interview_location,
+                'notes' => $app->interview_notes
+            ]
+        ];
+    }
+
+    private function getStatusColor(string $status): string
+    {
+        return match($status) {
+            'pending' => 'bg-slate-100 text-slate-700',
+            'verified' => 'bg-blue-100 text-blue-700',
+            'accepted' => 'bg-green-100 text-green-700',
+            'rejected' => 'bg-red-100 text-red-700',
+            default => 'bg-slate-100 text-slate-700'
+        };
+    }
+
+    private function getExams()
+    {
+        return Test::with(['application.lowongan.division', 'application.mahasiswa'])
+            ->latest()
+            ->get();
+    }
+
+    private function getAnnouncements()
+    {
+        return Announcement::latest()->get();
+    }
+
     public function updateStatus(Request $request, Application $application)
     {
         $validated = $request->validate([

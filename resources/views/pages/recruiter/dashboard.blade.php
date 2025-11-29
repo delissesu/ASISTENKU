@@ -4,18 +4,18 @@
 
 @section('content')
     <div x-show="activeTab === 'overview'">
-        @include('partials.recruiter.tabs.overview', ['divisionStats' => $divisionStats, 'recentActivity' => $recentActivity])
+        <x-recruiter.overview-tab :division-stats="$divisionStats" :recent-activity="$recentActivity" />
     </div>
     <div x-show="activeTab === 'jobs'" style="display: none;">
-        @include('partials.recruiter.tabs.jobs', ['jobs' => $jobs])
+        <x-recruiter.jobs-tab :jobs="$jobs" />
     </div>
     <div x-show="activeTab === 'applicants'" style="display: none;">
-        @include('partials.recruiter.tabs.applicants', ['applicants' => $applicants])
+        <x-recruiter.applicants-tab :applicants="$applicants" />
     </div>
     <div x-show="activeTab === 'exams'" style="display: none;">
-        @include('partials.recruiter.tabs.exams', ['exams' => $exams])
+        <x-recruiter.exams-tab :exams="$exams" />
     </div>
     <div x-show="activeTab === 'announcements'" style="display: none;">
-        @include('partials.recruiter.tabs.announcements', ['announcements' => $announcements])
+        <x-recruiter.announcements-tab :announcements="$announcements" />
     </div>
 @endsection

@@ -62,10 +62,9 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'password' => $validated['password'],
             'role' => $validated['role'],
-            'phone' => $validated['phone'],
         ]);
 
-        // bikinin profil kalo dia mahasiswa
+        // bikinin profil kalo dia mahasiswa (phone disimpan di sini)
         if ($validated['role'] === 'mahasiswa') {
             MahasiswaProfile::create([
                 'user_id' => $user->id,
