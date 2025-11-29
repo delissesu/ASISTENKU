@@ -42,6 +42,16 @@ class RecruiterController extends Controller
 
     private function getDivisionStats()
     {
+        // Color and icon mapping based on division name keywords
+        // Icons are matched with student side (job-openings-tab.blade.php)
+        $divisionStyles = [
+            'praktikum' => ['color' => 'green', 'icon' => 'book'],      // Icon Buku
+            'penelitian' => ['color' => 'blue', 'icon' => 'award'],     // Icon Piala
+            'media' => ['color' => 'orange', 'icon' => 'trending'],     // Icon Tren
+            'jaringan' => ['color' => 'purple', 'icon' => 'network'],
+            'database' => ['color' => 'cyan', 'icon' => 'database'],
+        ];
+
         return Division::withCount([
             'lowongans as active_jobs_count' => fn($q) => $q->where('status', 'open')
         ])->with(['lowongans' => function($q) {
@@ -49,10 +59,19 @@ class RecruiterController extends Controller
                 'applications as total_applicants',
                 'applications as accepted_count' => fn($query) => $query->where('status', 'accepted')
             ]);
-        }])->get()->map(function($division) {
+        }])->get()->map(function($division) use ($divisionStyles) {
             // Aggregate counts from lowongans manually since hasManyThrough is tricky with counts on the fly
             $division->total_applicants = $division->lowongans->sum('total_applicants');
             $division->accepted_count = $division->lowongans->sum('accepted_count');
+            
+            // Assign color and icon based on division name
+            $style = collect($divisionStyles)->first(function($style, $keyword) use ($division) {
+                return str_contains(strtolower($division->name), $keyword);
+            }) ?? ['color' => 'slate', 'icon' => 'folder'];
+            
+            $division->badge_color = $style['color'];
+            $division->icon_type = $style['icon'];
+            
             return $division;
         });
     }
