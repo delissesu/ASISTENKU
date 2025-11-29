@@ -34,4 +34,10 @@ Route::middleware(['auth', 'role:recruiter'])->prefix('recruiter')->name('recrui
     Route::get('/dashboard', [RecruiterController::class, 'dashboard'])->name('dashboard');
     Route::put('/applications/{application}/status', [RecruiterController::class, 'updateStatus'])->name('applications.status');
     Route::put('/applications/{application}/interview', [RecruiterController::class, 'scheduleInterview'])->name('applications.interview');
+
+    // CRUD Lowongan
+    Route::get('/lowongan/{lowongan}', [RecruiterController::class, 'showLowongan'])->name('lowongan.show');
+    Route::post('/lowongan', [RecruiterController::class, 'storeLowongan'])->name('lowongan.store');
+    Route::put('/lowongan/{lowongan}', [RecruiterController::class, 'updateLowongan'])->name('lowongan.update');
+    Route::delete('/lowongan/{lowongan}', [RecruiterController::class, 'deleteLowongan'])->name('lowongan.destroy');
 });

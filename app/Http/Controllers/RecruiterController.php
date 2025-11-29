@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\LowonganRequest;
 use App\Models\Lowongan;
 use App\Models\Application;
 use App\Models\Division;
@@ -22,9 +23,77 @@ class RecruiterController extends Controller
             'recentActivity' => $this->getRecentActivity(),
             'jobStats' => $this->getJobStats(),
             'jobs' => $this->getJobs(),
+            'divisions' => Division::active()->get(),
             'applicants' => $this->getApplicants(),
             'exams' => $this->getExams(),
             'announcements' => $this->getAnnouncements(),
+        ]);
+    }
+
+    // =============================================
+    // CRUD LOWONGAN
+    // =============================================
+
+    /**
+     * Get single lowongan for edit modal
+     */
+    public function showLowongan(Lowongan $lowongan)
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $lowongan->load('division')
+        ]);
+    }
+
+    /**
+     * Store new lowongan
+     */
+    public function storeLowongan(LowonganRequest $request)
+    {
+        $validated = $request->validated();
+        $validated['recruiter_id'] = auth()->id();
+
+        $lowongan = Lowongan::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lowongan berhasil dibuat.',
+            'data' => $lowongan->load('division')
+        ]);
+    }
+
+    /**
+     * Update existing lowongan
+     */
+    public function updateLowongan(LowonganRequest $request, Lowongan $lowongan)
+    {
+        $lowongan->update($request->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lowongan berhasil diperbarui.',
+            'data' => $lowongan->load('division')
+        ]);
+    }
+
+    /**
+     * Delete lowongan
+     */
+    public function deleteLowongan(Lowongan $lowongan)
+    {
+        // Check if lowongan has applications
+        if ($lowongan->applications()->count() > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak dapat menghapus lowongan yang sudah memiliki pelamar.'
+            ], 422);
+        }
+
+        $lowongan->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lowongan berhasil dihapus.'
         ]);
     }
 
