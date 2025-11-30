@@ -79,7 +79,7 @@
     <div class="space-y-4">
         @forelse($applicants as $applicant)
         <div 
-            class="bg-white rounded-xl border shadow-sm p-6 transition-all hover:shadow-md"
+            class="bg-white rounded-xl border border-slate-200 p-6 hover:border-slate-300 transition-colors"
             x-show="filterApplicant('{{ strtolower($applicant->mahasiswa->name) }}', '{{ strtolower($applicant->mahasiswa->mahasiswaProfile->nim ?? '') }}', '{{ strtolower($applicant->lowongan->title) }}', '{{ $applicant->status }}', '{{ $applicant->lowongan->division->name }}')"
         >
             <div class="flex items-start justify-between">
@@ -100,25 +100,12 @@
                             {{ $applicant->mahasiswa->mahasiswaProfile->nim ?? '-' }} • IPK: {{ $applicant->mahasiswa->mahasiswaProfile->ipk ?? '-' }} • Semester {{ $applicant->mahasiswa->mahasiswaProfile->semester ?? '-' }}
                         </p>
                         
-                        <div class="mt-4 grid grid-cols-2 gap-x-12 gap-y-2">
-                            <div>
-                                <p class="text-xs text-slate-500 uppercase tracking-wider font-medium mb-1">Posisi Dilamar:</p>
-                                <p class="font-medium text-slate-900">{{ $applicant->lowongan->title }}</p>
-                                <span class="inline-block mt-1 px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded">
-                                    {{ $applicant->lowongan->division->name }}
-                                </span>
-                            </div>
-                            <div>
-                                <p class="text-xs text-slate-500 uppercase tracking-wider font-medium mb-1">Dokumen:</p>
-                                <div class="flex gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded bg-slate-900 text-white text-xs">
-                                        CV <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1"><polyline points="20 6 9 17 4 12"/></svg>
-                                    </span>
-                                    <span class="inline-flex items-center px-2 py-1 rounded bg-slate-900 text-white text-xs">
-                                        Transkrip <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1"><polyline points="20 6 9 17 4 12"/></svg>
-                                    </span>
-                                </div>
-                            </div>
+                        <div class="mt-4">
+                            <p class="text-xs text-slate-500 uppercase tracking-wider font-medium mb-1">Posisi Dilamar:</p>
+                            <p class="font-medium text-slate-900">{{ $applicant->lowongan->title }}</p>
+                            <span class="inline-block mt-1 px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded">
+                                {{ $applicant->lowongan->division->name }}
+                            </span>
                         </div>
                         
                         <div class="mt-4 flex items-center gap-4 text-sm text-slate-500">
@@ -138,23 +125,62 @@
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-2">
-                    <button 
-                        @click="openModal({{ $applicant->id }})"
-                        class="inline-flex items-center justify-center px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                        Detail
-                    </button>
-                    @if($applicant->status === 'pending')
-                    <button 
-                        @click="updateStatus({{ $applicant->id }}, 'verified')"
-                        class="inline-flex items-center justify-center px-4 py-2 bg-green-600 rounded-lg text-sm font-medium text-white hover:bg-green-700 transition-colors"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m22 4-12 12-4-4"/></svg>
-                        Verifikasi
-                    </button>
-                    @endif
+                <!-- Right Side: Documents + Actions -->
+                <div class="flex items-start gap-4">
+                    <!-- Documents -->
+                    <div class="flex items-center gap-2">
+                        {{-- CV Document --}}
+                        @if($applicant->mahasiswa->mahasiswaProfile?->cv_path)
+                        <a href="{{ route('recruiter.applications.download', [$applicant->id, 'cv']) }}" 
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs bg-emerald-50 text-emerald-700 rounded-md hover:bg-emerald-100 transition-colors group"
+                           title="Download CV">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            CV
+                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-50 group-hover:opacity-100"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                        </a>
+                        @else
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs bg-slate-100 text-slate-400 rounded-md" title="CV tidak tersedia">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            CV
+                        </span>
+                        @endif
+                        
+                        {{-- Transkrip Document --}}
+                        @if($applicant->mahasiswa->mahasiswaProfile?->transkrip_path)
+                        <a href="{{ route('recruiter.applications.download', [$applicant->id, 'transkrip']) }}" 
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors group"
+                           title="Download Transkrip">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg>
+                            Transkrip
+                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-50 group-hover:opacity-100"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                        </a>
+                        @else
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs bg-slate-100 text-slate-400 rounded-md" title="Transkrip tidak tersedia">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg>
+                            Transkrip
+                        </span>
+                        @endif
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col gap-2">
+                        <button 
+                            @click="openModal({{ $applicant->id }})"
+                            class="inline-flex items-center justify-center px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                            Detail
+                        </button>
+                        @if($applicant->status === 'pending')
+                        <button 
+                            @click="updateStatus({{ $applicant->id }}, 'verified')"
+                            class="inline-flex items-center justify-center px-4 py-2 bg-green-600 rounded-lg text-sm font-medium text-white hover:bg-green-700 transition-colors"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m22 4-12 12-4-4"/></svg>
+                            Verifikasi
+                        </button>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
