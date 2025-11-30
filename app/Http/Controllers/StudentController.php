@@ -212,6 +212,12 @@ class StudentController extends Controller
         }
         
         $answers = $request->input('answers', []);
+        
+        // Pastikan answers adalah array
+        if (!is_array($answers)) {
+            $answers = [];
+        }
+        
         $divisionId = $test->application->lowongan->division_id;
         
         // Ambil soal yang sama (berdasarkan ID yang dikirim)
