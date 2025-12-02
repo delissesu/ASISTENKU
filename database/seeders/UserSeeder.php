@@ -137,6 +137,7 @@ class UserSeeder extends Seeder
             ],
         ];
 
+        # nambah cuma buat commit ajah hehe
         foreach ($mahasiswas as $data) {
             $user = User::create($data['user']);
             MahasiswaProfile::create(array_merge($data['profile'], ['user_id' => $user->id]));
