@@ -122,7 +122,7 @@
                         {{-- Aksi --}}
                         <td class="p-4 text-center">
                             <button 
-                                @click="$dispatch('open-exam-result-detail-modal', result)"
+                                @click="$dispatch('open-exam-detail-modal', result)"
                                 class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -134,9 +134,6 @@
             </tbody>
         </table>
     </div>
-
-    {{-- Detail Modal --}}
-    @include('components.recruiter.exam-result-detail-modal')
 </div>
 
 {{-- Alpine.js Component --}}
