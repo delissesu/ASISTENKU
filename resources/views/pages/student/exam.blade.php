@@ -2,115 +2,143 @@
 
 @section('page-title', 'Ujian - ' . $test->application->lowongan->title)
 
-@section('content')
-<div class="min-h-screen bg-slate-900 -mx-4 sm:-mx-6 lg:-mx-8 -my-8 px-4 sm:px-6 lg:px-8 py-8" x-data="{
-    currentQuestion: 0,
-    timeLeft: {{ $remainingSeconds }},
-    answers: {},
-    markedQuestions: [],
-    showSubmitModal: false,
-    showTimeWarning: false,
-    showExitWarning: false,
-    isSubmitting: false,
-    examFinished: false,
-    questions: [
-        @foreach($questions as $index => $q)
-        {
-            id: {{ $q->id }},
-            type: 'multiple-choice',
-            question: @js($q->question_text),
-            options: [
-                @js($q->option_a),
-                @js($q->option_b),
-                @js($q->option_c),
-                @js($q->option_d)
-            ]
-        }{{ !$loop->last ? ',' : '' }}
-        @endforeach
-    ],
-    formatTime(seconds) {
-        const h = Math.floor(seconds / 3600);
-        const m = Math.floor((seconds % 3600) / 60);
-        const s = seconds % 60;
-        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-    },
-    get answeredCount() {
-        return Object.keys(this.answers).length;
-    },
-    get unansweredCount() {
-        return this.questions.length - this.answeredCount;
-    },
-    get progressPercent() {
-        return (this.answeredCount / this.questions.length) * 100;
-    },
-    get isTimeWarning() {
-        return this.timeLeft <= 300 && this.timeLeft > 0;
-    },
-    get isTimeCritical() {
-        return this.timeLeft <= 60 && this.timeLeft > 0;
-    },
-    selectAnswer(questionId, answer) {
-        // Map index ke huruf A, B, C, D
-        const letters = ['A', 'B', 'C', 'D'];
-        this.answers[questionId] = letters[answer];
-    },
-    getAnswerIndex(questionId) {
-        const letters = ['A', 'B', 'C', 'D'];
-        return letters.indexOf(this.answers[questionId]);
-    },
-    toggleMark(questionId) {
-        const index = this.markedQuestions.indexOf(questionId);
-        if (index > -1) {
-            this.markedQuestions.splice(index, 1);
-        } else {
-            this.markedQuestions.push(questionId);
-        }
-    },
-    isMarked(questionId) {
-        return this.markedQuestions.includes(questionId);
-    },
-    nextQuestion() {
-        if (this.currentQuestion < this.questions.length - 1) {
-            this.currentQuestion++;
-        }
-    },
-    prevQuestion() {
-        if (this.currentQuestion > 0) {
-            this.currentQuestion--;
-        }
-    },
-    goToQuestion(index) {
-        this.currentQuestion = index;
-        this.showSubmitModal = false;
-    },
-    openSubmitModal() {
-        this.showSubmitModal = true;
-    },
-    submitExam() {
-        this.isSubmitting = true;
-        
-        // Submit form dengan jawaban
-        const form = document.getElementById('exam-form');
-        const answersInput = document.getElementById('answers-input');
-        answersInput.value = JSON.stringify(this.answers);
-        form.submit();
-    }
-}" x-init="
-    setInterval(() => { 
-        if(timeLeft > 0 && !examFinished) {
-            timeLeft--;
-            if(timeLeft === 300) showTimeWarning = true;
-            if(timeLeft === 0) submitExam();
-        }
-    }, 1000);
-    window.onbeforeunload = function() { return examFinished ? null : 'Ujian sedang berlangsung!'; };
-">
+@php
+$questionsJson = $questions->map(function($q) {
+    return [
+        'id' => $q->id,
+        'type' => 'multiple-choice',
+        'question' => $q->question_text,
+        'options' => [$q->option_a, $q->option_b, $q->option_c, $q->option_d]
+    ];
+})->toJson();
+@endphp
 
-    {{-- Hidden Form for Submit --}}
-    <form id="exam-form" action="{{ route('student.exam.submit', $test->id) }}" method="POST" class="hidden">
-        @csrf
-        <input type="hidden" name="answers" id="answers-input">
-    </form>
+@push('scripts')
+<script>
+    function examComponent() {
+        return {
+            currentQuestion: 0,
+            timeLeft: {{ $remainingSeconds }},
+            answers: {},
+            markedQuestions: [],
+            showSubmitModal: false,
+            showTimeWarning: false,
+            showExitWarning: false,
+            isSubmitting: false,
+            examFinished: false,
+            questions: {!! $questionsJson !!},
+            
+            formatTime(seconds) {
+                const h = Math.floor(seconds / 3600);
+                const m = Math.floor((seconds % 3600) / 60);
+                const s = Math.floor(seconds % 60);
+                return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            },
+            
+            get answeredCount() {
+                return Object.keys(this.answers).length;
+            },
+            get unansweredCount() {
+                return this.questions.length - this.answeredCount;
+            },
+            get progressPercent() {
+                return this.questions.length > 0 ? (this.answeredCount / this.questions.length) * 100 : 0;
+            },
+            get isTimeWarning() {
+                return this.timeLeft <= 300 && this.timeLeft > 0;
+            },
+            get isTimeCritical() {
+                return this.timeLeft <= 60 && this.timeLeft > 0;
+            },
+            
+            selectAnswer(questionId, answer) {
+                const letters = ['A', 'B', 'C', 'D'];
+                this.answers[questionId] = letters[answer];
+            },
+            getAnswerIndex(questionId) {
+                const letters = ['A', 'B', 'C', 'D'];
+                return letters.indexOf(this.answers[questionId]);
+            },
+            toggleMark(questionId) {
+                const index = this.markedQuestions.indexOf(questionId);
+                if (index > -1) {
+                    this.markedQuestions.splice(index, 1);
+                } else {
+                    this.markedQuestions.push(questionId);
+                }
+            },
+            isMarked(questionId) {
+                return this.markedQuestions.includes(questionId);
+            },
+            nextQuestion() {
+                if (this.currentQuestion < this.questions.length - 1) {
+                    this.currentQuestion++;
+                }
+            },
+            prevQuestion() {
+                if (this.currentQuestion > 0) {
+                    this.currentQuestion--;
+                }
+            },
+            goToQuestion(index) {
+                this.currentQuestion = index;
+                this.showSubmitModal = false;
+            },
+            openSubmitModal() {
+                this.showSubmitModal = true;
+            },
+            
+            async submitExam() {
+                this.isSubmitting = true;
+                this.showSubmitModal = false;
+                
+                try {
+                    const response = await fetch('{{ route("student.exam.submit", $test->id) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ answers: this.answers })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.examFinished = true;
+                        this.isSubmitting = false;
+                    } else {
+                        alert(data.message || 'Gagal mengumpulkan ujian');
+                        this.isSubmitting = false;
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan. Silakan coba lagi.');
+                    this.isSubmitting = false;
+                }
+            },
+            
+            init() {
+                setInterval(() => { 
+                    if(this.timeLeft > 0 && !this.examFinished) {
+                        this.timeLeft--;
+                        if(this.timeLeft === 300) this.showTimeWarning = true;
+                        if(this.timeLeft === 0) this.submitExam();
+                    }
+                }, 1000);
+                
+                window.onbeforeunload = () => { 
+                    return this.examFinished ? null : 'Ujian sedang berlangsung!'; 
+                };
+            }
+        };
+    }
+</script>
+@endpush
+
+@section('content')
+<div class="min-h-screen bg-slate-900 -mx-4 sm:-mx-6 lg:-mx-8 -my-8 px-4 sm:px-6 lg:px-8 py-8" x-data="examComponent()">
 
     {{-- Header Ujian --}}
     <div class="bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700 py-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 sticky top-0 z-40">
@@ -163,7 +191,7 @@
             <p class="text-slate-400 mb-8">Maaf, belum ada soal yang tersedia untuk ujian ini. Silakan hubungi rekruter.</p>
             
             <a 
-                href="{{ route('student.dashboard', ['tab' => 'my-applications']) }}"
+                href="{{ route('student.dashboard', ['tab' => 'applications']) }}"
                 class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-500 transition-colors"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="m15 18-6-6 6-6"/></svg>
@@ -376,7 +404,7 @@
             </div>
 
             <a 
-                href="{{ route('student.dashboard', ['tab' => 'my-applications']) }}"
+                href="{{ route('student.dashboard', ['tab' => 'applications']) }}"
                 class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-500 transition-colors"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>

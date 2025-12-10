@@ -158,17 +158,17 @@ class StudentController extends Controller
         $availability = $test->exam_availability;
         
         if ($availability === 'waiting') {
-            return redirect()->route('student.dashboard', ['tab' => 'my-applications'])
+            return redirect()->route('student.dashboard', ['tab' => 'applications'])
                 ->with('error', 'Ujian belum dimulai. Jadwal ujian: ' . $test->schedule_info);
         }
         
         if ($availability === 'expired') {
-            return redirect()->route('student.dashboard', ['tab' => 'my-applications'])
+            return redirect()->route('student.dashboard', ['tab' => 'applications'])
                 ->with('error', 'Waktu ujian telah berakhir.');
         }
         
         if ($availability === 'completed') {
-            return redirect()->route('student.dashboard', ['tab' => 'my-applications'])
+            return redirect()->route('student.dashboard', ['tab' => 'applications'])
                 ->with('info', 'Anda sudah menyelesaikan ujian ini. Skor: ' . ($test->score ?? '-'));
         }
         
@@ -188,7 +188,7 @@ class StudentController extends Controller
         // Hitung sisa waktu
         $elapsedSeconds = now()->diffInSeconds($test->start_time);
         $totalSeconds = $test->duration_minutes * 60;
-        $remainingSeconds = max(0, $totalSeconds - $elapsedSeconds);
+        $remainingSeconds = (int) max(0, $totalSeconds - $elapsedSeconds);
         
         return view('pages.student.exam', compact('test', 'questions', 'remainingSeconds'));
     }
@@ -202,63 +202,80 @@ class StudentController extends Controller
         $test->load('application.lowongan.division');
         
         if ($test->application->mahasiswa_id !== $user->id) {
-            abort(403, 'Anda tidak memiliki akses ke ujian ini.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses ke ujian ini.'
+            ], 403);
         }
         
         // Cek apakah sudah submit sebelumnya
-        if ($test->end_time) {
-            return redirect()->route('student.dashboard', ['tab' => 'my-applications'])
-                ->with('info', 'Anda sudah menyelesaikan ujian ini.');
+        if ($test->status === 'completed' || $test->end_time) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda sudah menyelesaikan ujian ini.'
+            ], 422);
         }
         
         $answers = $request->input('answers', []);
+        
+        // Decode JSON jika dikirim sebagai string
+        if (is_string($answers)) {
+            $answers = json_decode($answers, true) ?? [];
+        }
         
         // Pastikan answers adalah array
         if (!is_array($answers)) {
             $answers = [];
         }
         
-        $divisionId = $test->application->lowongan->division_id;
-        
-        // Ambil soal yang sama (berdasarkan ID yang dikirim)
-        $questionIds = array_keys($answers);
-        $questions = QuestionBank::whereIn('id', $questionIds)->get()->keyBy('id');
-        
         $totalScore = 0;
         $maxScore = 0;
         
-        // Simpan jawaban dan hitung skor
-        foreach ($answers as $questionId => $answer) {
-            $question = $questions->get($questionId);
-            if (!$question) continue;
+        // Hanya proses jika ada jawaban
+        if (!empty($answers)) {
+            $questionIds = array_keys($answers);
+            $questions = QuestionBank::whereIn('id', $questionIds)->get()->keyBy('id');
             
-            $isCorrect = strtoupper($answer) === strtoupper($question->correct_answer);
-            $maxScore += $question->points;
-            
-            if ($isCorrect) {
-                $totalScore += $question->points;
+            // Simpan jawaban dan hitung skor
+            foreach ($answers as $questionId => $answer) {
+                $question = $questions->get($questionId);
+                if (!$question) continue;
+                
+                $isCorrect = strtoupper($answer) === strtoupper($question->correct_answer);
+                $maxScore += $question->points;
+                
+                if ($isCorrect) {
+                    $totalScore += $question->points;
+                }
+                
+                // Simpan ke test_answers
+                $test->testAnswers()->create([
+                    'question_id' => $questionId,
+                    'answer' => $answer,
+                    'is_correct' => $isCorrect,
+                ]);
             }
-            
-            // Simpan ke test_answers
-            $test->testAnswers()->create([
-                'question_id' => $questionId,
-                'answer' => $answer,
-                'is_correct' => $isCorrect,
-            ]);
         }
         
         // Hitung persentase skor
         $scorePercent = $maxScore > 0 ? round(($totalScore / $maxScore) * 100, 2) : 0;
         
-        // Update test dengan hasil
+        // Update test dengan hasil - SELALU update status ke completed
         $test->update([
             'end_time' => now(),
             'score' => $scorePercent,
             'status' => 'completed',
         ]);
         
-        return redirect()->route('student.dashboard', ['tab' => 'my-applications'])
-            ->with('success', 'Ujian berhasil diselesaikan! Skor Anda: ' . $scorePercent . '%');
+        return response()->json([
+            'success' => true,
+            'message' => 'Ujian berhasil diselesaikan!',
+            'data' => [
+                'score' => $scorePercent,
+                'answered' => count($answers),
+                'total_questions' => $test->testAnswers()->count()
+            ]
+        ]);
     }
 
     /**
