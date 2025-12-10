@@ -73,7 +73,12 @@
         
         {{-- Footer --}}
         <div x-show="notifications.length > 0" class="px-4 py-2 border-t border-slate-200 bg-slate-50">
-            <a href="#" class="text-sm text-blue-600 hover:text-blue-700 font-medium">Lihat semua</a>
+            <button 
+                @click="open = false; alert('Fitur halaman notifikasi akan segera hadir!')"
+                class="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            >
+                Lihat semua
+            </button>
         </div>
     </div>
 </div>
