@@ -13,7 +13,7 @@
         <x-recruiter.applicants-tab :applicants="$applicants" :applicant-stats="$applicantStats" :divisions="$divisions" />
     </div>
     <div x-show="activeTab === 'exams'" x-cloak>
-        <x-recruiter.exams-tab :exams="$exams" />
+        <x-recruiter.exams-tab :exams="$exams" :divisions="$divisions" />
     </div>
     <div x-show="activeTab === 'announcements'" x-cloak>
         <x-recruiter.announcements-tab :announcements="$announcements" />

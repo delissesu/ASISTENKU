@@ -117,19 +117,30 @@
                                     @endif
                                 </div>
 
+                                @php
+                                    $examData = [
+                                        'id' => $exam->id,
+                                        'status' => $exam->status,
+                                        'scheduled_at' => $exam->scheduled_at ?? $exam->start_time,
+                                        'duration_minutes' => $exam->duration_minutes,
+                                        'applicant_name' => $exam->application->mahasiswa->name ?? 'Mahasiswa',
+                                        'lowongan_title' => $exam->application->lowongan->title ?? 'Lowongan',
+                                        'division_name' => $exam->application->lowongan->division->name ?? 'Divisi',
+                                    ];
+                                @endphp
                                 <div class="flex items-center gap-2">
-                                    <x-ui.button variant="outline" size="sm">
+                                    <x-ui.button variant="outline" size="sm" @click="$dispatch('open-exam-detail-modal', {{ json_encode($examData) }})">
                                         <!-- Ikon Mata -->
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                                         Detail
                                     </x-ui.button>
-                                    <x-ui.button variant="outline" size="sm">
+                                    <x-ui.button variant="outline" size="sm" @click="$dispatch('open-edit-exam-modal', {{ json_encode($examData) }})">
                                         <!-- Ikon Edit -->
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
                                         Edit
                                     </x-ui.button>
                                     @if($exam->status === 'completed')
-                                        <x-ui.button variant="outline" size="sm" class="bg-blue-50">
+                                        <x-ui.button variant="outline" size="sm" class="bg-blue-50" @click="$dispatch('open-exam-detail-modal', {{ json_encode($examData) }})">
                                             <!-- Ikon Grafik -->
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>
                                             Lihat Hasil
@@ -159,7 +170,9 @@
         </div>
     </div>
 
-    <!-- Modal Buat Sesi Ujian -->
+    <!-- Modals -->
     @include('components.recruiter.create-exam-modal', ['divisions' => $divisions ?? []])
+    @include('components.recruiter.edit-exam-modal')
+    @include('components.recruiter.exam-detail-modal')
 </div>
 

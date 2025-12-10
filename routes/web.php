@@ -57,6 +57,7 @@ Route::middleware(['auth', 'role:recruiter'])->prefix('recruiter')->name('recrui
     Route::post('/exams/schedule', [RecruiterController::class, 'scheduleExam'])->name('exams.schedule');
     
     // Exam Session CRUD
+    Route::get('/exams/{test}', [RecruiterController::class, 'showExam'])->name('exams.show');
     Route::post('/exams', [RecruiterController::class, 'storeExamSession'])->name('exams.store');
     Route::put('/exams/{test}', [RecruiterController::class, 'updateExamSession'])->name('exams.update');
     Route::delete('/exams/{test}', [RecruiterController::class, 'deleteExamSession'])->name('exams.destroy');

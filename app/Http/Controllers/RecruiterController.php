@@ -457,6 +457,67 @@ class RecruiterController extends Controller
     // ============================================
 
     /**
+     * Show exam details with statistics
+     */
+    public function showExam(Test $test)
+    {
+        $test->load(['application.mahasiswa', 'application.lowongan.division', 'testAnswers.questionBank']);
+        
+        // Calculate statistics
+        $totalQuestions = $test->testAnswers->count();
+        $answeredQuestions = $test->testAnswers->whereNotNull('answer')->count();
+        $correctAnswers = $test->testAnswers->where('is_correct', true)->count();
+        $wrongAnswers = $answeredQuestions - $correctAnswers;
+        
+        // Calculate points per question (assuming equal distribution)
+        $pointsPerQuestion = $totalQuestions > 0 ? round(100 / $totalQuestions, 1) : 0;
+        
+        // Calculate time used
+        $timeUsed = '-';
+        if ($test->start_time && $test->end_time) {
+            $startTime = \Carbon\Carbon::parse($test->start_time);
+            $endTime = \Carbon\Carbon::parse($test->end_time);
+            $diffMinutes = $startTime->diffInMinutes($endTime);
+            $timeUsed = $diffMinutes . ' menit';
+        } elseif ($test->start_time && $test->status === 'in_progress') {
+            $startTime = \Carbon\Carbon::parse($test->start_time);
+            $diffMinutes = $startTime->diffInMinutes(now());
+            $timeUsed = $diffMinutes . ' menit (berlangsung)';
+        }
+        
+        // Calculate progress
+        $progress = $totalQuestions > 0 ? round(($answeredQuestions / $totalQuestions) * 100) : 0;
+        
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'exam' => [
+                    'id' => $test->id,
+                    'status' => $test->status,
+                    'scheduled_at' => $test->scheduled_at,
+                    'start_time' => $test->start_time,
+                    'end_time' => $test->end_time,
+                    'duration_minutes' => $test->duration_minutes,
+                    'applicant_name' => $test->application->mahasiswa->name ?? 'Mahasiswa',
+                    'lowongan_title' => $test->application->lowongan->title ?? 'Lowongan',
+                    'division_name' => $test->application->lowongan->division->name ?? 'Divisi',
+                ],
+                'stats' => [
+                    'total_questions' => $totalQuestions,
+                    'answered_questions' => $answeredQuestions,
+                    'correct_answers' => $correctAnswers,
+                    'wrong_answers' => $wrongAnswers,
+                    'points_per_question' => $pointsPerQuestion,
+                    'score' => $test->score ?? 0,
+                    'time_used' => $timeUsed,
+                    'progress' => $progress,
+                    'passed' => $test->passed ?? false,
+                ]
+            ]
+        ]);
+    }
+
+    /**
      * Store new exam session (from Create Exam Modal)
      * This creates a session-based exam that can be assigned to multiple verified applicants
      */
