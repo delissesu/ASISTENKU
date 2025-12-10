@@ -208,8 +208,8 @@ class StudentController extends Controller
             ], 403);
         }
         
-        // Cek apakah sudah submit sebelumnya
-        if ($test->status === 'completed' || $test->end_time) {
+        // Cek apakah sudah submit sebelumnya (hanya cek status)
+        if ($test->status === 'completed') {
             return response()->json([
                 'success' => false,
                 'message' => 'Anda sudah menyelesaikan ujian ini.'
