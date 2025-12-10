@@ -64,4 +64,11 @@ Route::middleware(['auth', 'role:recruiter'])->prefix('recruiter')->name('recrui
     
     // Question Bank - helper route
     Route::get('/questions/count/{division}', [RecruiterController::class, 'getQuestionCount'])->name('questions.count');
+    
+    // Question Bank CRUD
+    Route::get('/questions', [RecruiterController::class, 'getQuestions'])->name('questions.index');
+    Route::post('/questions', [RecruiterController::class, 'storeQuestion'])->name('questions.store');
+    Route::put('/questions/{question}', [RecruiterController::class, 'updateQuestion'])->name('questions.update');
+    Route::patch('/questions/{question}/toggle', [RecruiterController::class, 'toggleQuestionActive'])->name('questions.toggle');
+    Route::delete('/questions/{question}', [RecruiterController::class, 'deleteQuestion'])->name('questions.destroy');
 });

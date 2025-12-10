@@ -652,4 +652,128 @@ class RecruiterController extends Controller
             'count' => $count
         ]);
     }
+
+    // =============================================
+    // QUESTION BANK CRUD
+    // =============================================
+
+    /**
+     * Get all questions (with optional division filter)
+     */
+    public function getQuestions(Request $request)
+    {
+        $query = QuestionBank::with('division')->latest();
+        
+        if ($request->has('division_id') && $request->division_id) {
+            $query->forDivision($request->division_id);
+        }
+        
+        $questions = $query->get()->map(function ($q) {
+            return [
+                'id' => $q->id,
+                'division_id' => $q->division_id,
+                'division_name' => $q->division->name ?? 'Tidak ada divisi',
+                'question_text' => $q->question_text,
+                'option_a' => $q->option_a,
+                'option_b' => $q->option_b,
+                'option_c' => $q->option_c,
+                'option_d' => $q->option_d,
+                'correct_answer' => $q->correct_answer,
+                'points' => $q->points,
+                'is_active' => $q->is_active,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $questions
+        ]);
+    }
+
+    /**
+     * Store new question
+     */
+    public function storeQuestion(Request $request)
+    {
+        $validated = $request->validate([
+            'division_id' => 'required|exists:divisions,id',
+            'question_text' => 'required|string',
+            'option_a' => 'required|string',
+            'option_b' => 'required|string',
+            'option_c' => 'required|string',
+            'option_d' => 'required|string',
+            'correct_answer' => 'required|in:a,b,c,d',
+            'points' => 'required|integer|min:1',
+            'is_active' => 'boolean',
+        ]);
+
+        $question = QuestionBank::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Soal berhasil ditambahkan.',
+            'data' => $question
+        ]);
+    }
+
+    /**
+     * Update existing question
+     */
+    public function updateQuestion(Request $request, QuestionBank $question)
+    {
+        $validated = $request->validate([
+            'division_id' => 'required|exists:divisions,id',
+            'question_text' => 'required|string',
+            'option_a' => 'required|string',
+            'option_b' => 'required|string',
+            'option_c' => 'required|string',
+            'option_d' => 'required|string',
+            'correct_answer' => 'required|in:a,b,c,d',
+            'points' => 'required|integer|min:1',
+            'is_active' => 'boolean',
+        ]);
+
+        $question->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Soal berhasil diperbarui.',
+            'data' => $question
+        ]);
+    }
+
+    /**
+     * Toggle question active status
+     */
+    public function toggleQuestionActive(QuestionBank $question)
+    {
+        $question->update(['is_active' => !$question->is_active]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $question->is_active ? 'Soal diaktifkan.' : 'Soal dinonaktifkan.',
+            'data' => $question
+        ]);
+    }
+
+    /**
+     * Delete question
+     */
+    public function deleteQuestion(QuestionBank $question)
+    {
+        // Check if question is used in any test
+        if ($question->testAnswers()->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Soal tidak dapat dihapus karena sudah digunakan dalam ujian.'
+            ], 422);
+        }
+
+        $question->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Soal berhasil dihapus.'
+        ]);
+    }
 }
