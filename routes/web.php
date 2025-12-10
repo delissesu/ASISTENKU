@@ -71,4 +71,8 @@ Route::middleware(['auth', 'role:recruiter'])->prefix('recruiter')->name('recrui
     Route::put('/questions/{question}', [RecruiterController::class, 'updateQuestion'])->name('questions.update');
     Route::patch('/questions/{question}/toggle', [RecruiterController::class, 'toggleQuestionActive'])->name('questions.toggle');
     Route::delete('/questions/{question}', [RecruiterController::class, 'deleteQuestion'])->name('questions.destroy');
+    
+    // Exam Results
+    Route::get('/exam-results', [RecruiterController::class, 'getExamResults'])->name('exam-results.index');
+    Route::get('/exam-results/{test}/detail', [RecruiterController::class, 'getExamResultDetail'])->name('exam-results.detail');
 });

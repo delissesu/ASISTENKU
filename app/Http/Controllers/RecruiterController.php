@@ -768,4 +768,96 @@ class RecruiterController extends Controller
             'message' => 'Soal berhasil dihapus.'
         ]);
     }
+
+    
+    /**
+     * Get all exam results with stats
+     */
+    public function getExamResults()
+    {
+        $tests = Test::with(['application.mahasiswa', 'application.lowongan.division'])
+            ->orderByDesc('created_at')
+            ->get();
+        
+        $results = $tests->map(function ($test) {
+            $mahasiswa = $test->application->mahasiswa ?? null;
+            $lowongan = $test->application->lowongan ?? null;
+            
+            return [
+                'id' => $test->id,
+                'applicant_name' => $mahasiswa->name ?? 'Unknown',
+                'applicant_nim' => $mahasiswa->nim ?? '-',
+                'applicant_initials' => $mahasiswa ? strtoupper(substr($mahasiswa->name, 0, 2)) : 'UN',
+                'lowongan_title' => $lowongan->title ?? 'Unknown',
+                'division_name' => $lowongan->division->name ?? 'Unknown',
+                'status' => $test->status,
+                'score' => $test->score ?? 0,
+                'passed' => $test->passed ?? false,
+                'scheduled_at' => $test->scheduled_at ? \Carbon\Carbon::parse($test->scheduled_at)->format('d M Y') : '-',
+                'completed_at' => $test->end_time ? \Carbon\Carbon::parse($test->end_time)->format('d M Y H:i') : null,
+            ];
+        });
+
+        $stats = [
+            'total' => $tests->count(),
+            'passed' => $tests->where('passed', true)->count(),
+            'failed' => $tests->where('status', 'completed')->where('passed', false)->count(),
+            'pending' => $tests->whereIn('status', ['not_started', 'in_progress'])->count(),
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $results,
+            'stats' => $stats
+        ]);
+    }
+
+    /**
+     * Get exam result detail with all answers
+     */
+    public function getExamResultDetail(Test $test)
+    {
+        $test->load(['application.mahasiswa', 'application.lowongan.division', 'testAnswers.questionBank']);
+        
+        // Calculate stats
+        $totalQuestions = $test->testAnswers->count();
+        $answeredQuestions = $test->testAnswers->whereNotNull('answer')->count();
+        $correctAnswers = $test->testAnswers->where('is_correct', true)->count();
+        $wrongAnswers = $answeredQuestions - $correctAnswers;
+        
+        // Calculate time used
+        $timeUsed = '-';
+        if ($test->start_time && $test->end_time) {
+            $startTime = \Carbon\Carbon::parse($test->start_time);
+            $endTime = \Carbon\Carbon::parse($test->end_time);
+            $diffMinutes = $startTime->diffInMinutes($endTime);
+            $timeUsed = $diffMinutes . ' menit';
+        }
+        
+        // Build answers list with question details
+        $answers = $test->testAnswers->map(function ($answer) {
+            return [
+                'question_text' => $answer->questionBank->question_text ?? 'Question not found',
+                'user_answer' => $answer->answer,
+                'correct_answer' => $answer->questionBank->correct_answer ?? null,
+                'is_correct' => $answer->is_correct,
+                'points' => $answer->questionBank->points ?? 0,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'score' => $test->score ?? 0,
+                'passed' => $test->passed ?? false,
+                'total_questions' => $totalQuestions,
+                'answered_questions' => $answeredQuestions,
+                'correct_answers' => $correctAnswers,
+                'wrong_answers' => $wrongAnswers,
+                'time_used' => $timeUsed,
+                'duration_minutes' => $test->duration_minutes,
+                'answers' => $answers,
+            ]
+        ]);
+    }
 }
