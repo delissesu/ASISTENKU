@@ -453,7 +453,7 @@ class RecruiterController extends Controller
      */
     public function showExam(Test $test)
     {
-        $test->load(['application.mahasiswa', 'application.lowongan.division', 'testAnswers.questionBank']);
+        $test->load(['application.mahasiswa', 'application.lowongan.division', 'testAnswers.question']);
         
         // Calculate statistics
         $totalQuestions = $test->testAnswers->count();
@@ -464,21 +464,37 @@ class RecruiterController extends Controller
         // Calculate points per question (assuming equal distribution)
         $pointsPerQuestion = $totalQuestions > 0 ? round(100 / $totalQuestions, 1) : 0;
         
-        // Calculate time used
+        // Calculate time used with proper formatting
         $timeUsed = '-';
         if ($test->start_time && $test->end_time) {
             $startTime = \Carbon\Carbon::parse($test->start_time);
             $endTime = \Carbon\Carbon::parse($test->end_time);
-            $diffMinutes = $startTime->diffInMinutes($endTime);
-            $timeUsed = $diffMinutes . ' menit';
+            $diffSeconds = $startTime->diffInSeconds($endTime);
+            
+            $hours = floor($diffSeconds / 3600);
+            $minutes = floor(($diffSeconds % 3600) / 60);
+            $seconds = $diffSeconds % 60;
+            
+            if ($hours > 0) {
+                $timeUsed = sprintf('%d jam %d menit %d detik', $hours, $minutes, $seconds);
+            } elseif ($minutes > 0) {
+                $timeUsed = sprintf('%d menit %d detik', $minutes, $seconds);
+            } else {
+                $timeUsed = sprintf('%d detik', $seconds);
+            }
         } elseif ($test->start_time && $test->status === 'in_progress') {
             $startTime = \Carbon\Carbon::parse($test->start_time);
-            $diffMinutes = $startTime->diffInMinutes(now());
+            $diffMinutes = (int) $startTime->diffInMinutes(now());
             $timeUsed = $diffMinutes . ' menit (berlangsung)';
         }
         
         // Calculate progress
         $progress = $totalQuestions > 0 ? round(($answeredQuestions / $totalQuestions) * 100) : 0;
+        
+        // Determine pass/fail status (passing score is 70%)
+        $score = $test->score ?? 0;
+        $passingScore = 70;
+        $passed = $score >= $passingScore;
         
         return response()->json([
             'success' => true,
@@ -500,10 +516,11 @@ class RecruiterController extends Controller
                     'correct_answers' => $correctAnswers,
                     'wrong_answers' => $wrongAnswers,
                     'points_per_question' => $pointsPerQuestion,
-                    'score' => $test->score ?? 0,
+                    'score' => round($score, 2),
+                    'passing_score' => $passingScore,
                     'time_used' => $timeUsed,
                     'progress' => $progress,
-                    'passed' => $test->passed ?? false,
+                    'passed' => $passed,
                 ]
             ]
         ]);
