@@ -55,4 +55,12 @@ Route::middleware(['auth', 'role:recruiter'])->prefix('recruiter')->name('recrui
     // Penjadwalan Ujian
     Route::get('/exams/verified-applicants', [RecruiterController::class, 'getVerifiedApplicants'])->name('exams.verified');
     Route::post('/exams/schedule', [RecruiterController::class, 'scheduleExam'])->name('exams.schedule');
+    
+    // Exam Session CRUD
+    Route::post('/exams', [RecruiterController::class, 'storeExamSession'])->name('exams.store');
+    Route::put('/exams/{test}', [RecruiterController::class, 'updateExamSession'])->name('exams.update');
+    Route::delete('/exams/{test}', [RecruiterController::class, 'deleteExamSession'])->name('exams.destroy');
+    
+    // Question Bank - helper route
+    Route::get('/questions/count/{division}', [RecruiterController::class, 'getQuestionCount'])->name('questions.count');
 });

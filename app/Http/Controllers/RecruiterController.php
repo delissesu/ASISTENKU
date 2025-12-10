@@ -10,6 +10,7 @@ use App\Models\Application;
 use App\Models\Division;
 use App\Models\Announcement;
 use App\Models\Test;
+use App\Models\QuestionBank;
 
 class RecruiterController extends Controller
 {
@@ -31,10 +32,6 @@ class RecruiterController extends Controller
             'announcements' => $this->getAnnouncements(),
         ]);
     }
-
-    // =============================================
-    // CRUD LOWONGAN
-    // =============================================
 
     /**
      * Get single lowongan for edit modal
@@ -453,5 +450,145 @@ class RecruiterController extends Controller
         ]);
 
         return response()->json(['message' => 'Interview scheduled successfully']);
+    }
+
+    // =============================================
+    // EXAM SESSION CRUD
+    // ============================================
+
+    /**
+     * Store new exam session (from Create Exam Modal)
+     * This creates a session-based exam that can be assigned to multiple verified applicants
+     */
+    public function storeExamSession(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'division_id' => 'required|exists:divisions,id',
+            'scheduled_at' => 'required|date|after:now',
+            'duration_minutes' => 'required|integer|min:15|max:180',
+            'question_count' => 'required|integer|min:1|max:100',
+        ]);
+
+        // Get verified applicants for this division who don't have a test yet
+        $applicants = Application::with(['mahasiswa.mahasiswaProfile', 'lowongan'])
+            ->where('status', 'verified')
+            ->whereDoesntHave('test')
+            ->whereHas('lowongan', function($q) use ($validated) {
+                $q->where('division_id', $validated['division_id']);
+            })
+            ->get();
+
+        if ($applicants->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada pelamar verified di divisi ini yang belum memiliki jadwal ujian.'
+            ], 422);
+        }
+
+        // Check if there are enough questions
+        $availableQuestions = QuestionBank::active()
+            ->forDivision($validated['division_id'])
+            ->count();
+
+        if ($availableQuestions < $validated['question_count']) {
+            return response()->json([
+                'success' => false,
+                'message' => "Hanya tersedia {$availableQuestions} soal aktif di divisi ini."
+            ], 422);
+        }
+
+        $createdTests = [];
+
+        // Create test for each verified applicant in this division
+        foreach ($applicants as $application) {
+            $test = Test::create([
+                'application_id' => $application->id,
+                'scheduled_at' => $validated['scheduled_at'],
+                'duration_minutes' => $validated['duration_minutes'],
+                'status' => 'not_started',
+            ]);
+
+            // Update application status to 'test'
+            $application->update(['status' => 'test']);
+            
+            $createdTests[] = $test;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sesi ujian berhasil dibuat untuk ' . count($createdTests) . ' pelamar.',
+            'data' => [
+                'title' => $validated['title'],
+                'total_applicants' => count($createdTests),
+                'scheduled_at' => date('d M Y, H:i', strtotime($validated['scheduled_at'])),
+            ]
+        ]);
+    }
+
+    /**
+     * Update existing exam session
+     */
+    public function updateExamSession(Request $request, Test $test)
+    {
+        $validated = $request->validate([
+            'scheduled_at' => 'required|date|after:now',
+            'duration_minutes' => 'required|integer|min:15|max:180',
+        ]);
+
+        if ($test->status !== 'not_started') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak dapat mengubah jadwal ujian yang sudah dimulai atau selesai.'
+            ], 422);
+        }
+
+        $test->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Jadwal ujian berhasil diperbarui.',
+            'data' => $test
+        ]);
+    }
+
+    /**
+     * Delete exam session
+     */
+    public function deleteExamSession(Test $test)
+    {
+        if ($test->status === 'in_progress') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak dapat menghapus ujian yang sedang berlangsung.'
+            ], 422);
+        }
+
+        // Restore application status to verified if test hadn't started
+        if ($test->status === 'not_started') {
+            $test->application->update(['status' => 'verified']);
+        }
+
+        $test->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Jadwal ujian berhasil dihapus.'
+        ]);
+    }
+
+    /**
+     * Get question count for a division
+     */
+    public function getQuestionCount(Division $division)
+    {
+        $count = QuestionBank::active()
+            ->forDivision($division->id)
+            ->count();
+
+        return response()->json([
+            'success' => true,
+            'count' => $count
+        ]);
     }
 }
