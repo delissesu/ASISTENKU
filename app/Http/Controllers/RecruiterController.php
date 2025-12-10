@@ -263,10 +263,6 @@ class RecruiterController extends Controller
         ]);
     }
 
-    // =============================================
-    // PENJADWALAN UJIAN
-    // =============================================
-
     /**
      * Get pelamar yang sudah verified dan belum punya jadwal ujian
      */
@@ -451,10 +447,6 @@ class RecruiterController extends Controller
 
         return response()->json(['message' => 'Interview scheduled successfully']);
     }
-
-    // =============================================
-    // EXAM SESSION CRUD
-    // ============================================
 
     /**
      * Show exam details with statistics
