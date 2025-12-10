@@ -1,6 +1,6 @@
 @props(['announcements'])
 
-<div class="space-y-6" x-data="{ showCreateDialog: false }">
+<div class="space-y-6" x-data="announcementTab()">
     <!-- Kepala -->
     <div class="flex items-center justify-between">
         <div>
@@ -127,47 +127,20 @@
         </div>
         <div class="p-6 pt-0">
             <div class="grid md:grid-cols-2 gap-4">
-                @php
-                    $templates = [
-                        [
-                            'title' => "Template Penerimaan",
-                            'preview' => "Selamat! Anda diterima sebagai...",
-                            'type' => "Hasil Seleksi"
-                        ],
-                        [
-                            'title' => "Template Penolakan",
-                            'preview' => "Terima kasih atas partisipasi Anda...",
-                            'type' => "Hasil Seleksi"
-                        ],
-                        [
-                            'title' => "Template Jadwal Ujian",
-                            'preview' => "Ujian online akan dilaksanakan pada...",
-                            'type' => "Jadwal"
-                        ],
-                        [
-                            'title' => "Template Wawancara",
-                            'preview' => "Anda dipanggil untuk mengikuti wawancara...",
-                            'type' => "Wawancara"
-                        ]
-                    ];
-                @endphp
-
-                @foreach($templates as $template)
+                <template x-for="(template, index) in templates" :key="index">
                     <div class="rounded-xl border bg-card text-card-foreground shadow cursor-pointer hover:shadow-md transition-shadow">
                         <div class="p-6 pt-6">
                             <div class="flex items-start justify-between mb-2">
-                                <h4 class="text-slate-900 font-medium">{{ $template['title'] }}</h4>
-                                <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground">
-                                    {{ $template['type'] }}
-                                </div>
+                                <h4 class="text-slate-900 font-medium" x-text="template.title"></h4>
+                                <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold text-foreground" x-text="template.type"></div>
                             </div>
-                            <p class="text-sm text-slate-600 mb-3">{{ $template['preview'] }}</p>
-                            <x-ui.button variant="outline" size="sm" class="w-full">
+                            <p class="text-sm text-slate-600 mb-3" x-text="template.preview"></p>
+                            <x-ui.button variant="outline" size="sm" class="w-full" @click="useTemplate(template)">
                                 Gunakan Template
                             </x-ui.button>
                         </div>
                     </div>
-                @endforeach
+                </template>
             </div>
         </div>
     </div>
@@ -188,8 +161,8 @@
             <div class="space-y-4 py-4">
                 <div class="space-y-2">
                     <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="announcement-type">Jenis Pengumuman</label>
-                    <select class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" id="announcement-type">
-                        <option value="" disabled selected>Pilih jenis</option>
+                    <select x-model="form.type" class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" id="announcement-type">
+                        <option value="" disabled>Pilih jenis</option>
                         <option value="hasil">Hasil Seleksi</option>
                         <option value="jadwal">Jadwal Ujian</option>
                         <option value="wawancara">Panggilan Wawancara</option>
@@ -199,8 +172,8 @@
 
                 <div class="space-y-2">
                     <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="recipients">Penerima</label>
-                    <select class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" id="recipients">
-                        <option value="" disabled selected>Pilih penerima</option>
+                    <select x-model="form.recipients" class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" id="recipients">
+                        <option value="" disabled>Pilih penerima</option>
                         <option value="all">Semua Pelamar</option>
                         <option value="accepted">Pelamar Diterima</option>
                         <option value="rejected">Pelamar Ditolak</option>
@@ -209,12 +182,12 @@
 
                 <div class="space-y-2">
                     <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="announcement-title">Judul Pengumuman</label>
-                    <input class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" id="announcement-title" placeholder="Contoh: Pengumuman Hasil Seleksi" />
+                    <input x-model="form.title" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" id="announcement-title" placeholder="Contoh: Pengumuman Hasil Seleksi" />
                 </div>
 
                 <div class="space-y-2">
                     <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="announcement-message">Pesan</label>
-                    <textarea class="flex min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" id="announcement-message" placeholder="Tulis pesan pengumuman..." rows="6"></textarea>
+                    <textarea x-model="form.message" class="flex min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" id="announcement-message" placeholder="Tulis pesan pengumuman..." rows="6"></textarea>
                 </div>
 
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -233,16 +206,130 @@
                 </div>
 
                 <div class="flex gap-3 pt-4">
-                    <x-ui.button class="flex-1 bg-green-600 hover:bg-green-700 text-white" @click="showCreateDialog = false text=">
+                    <x-ui.button 
+                        class="flex-1 bg-green-600 hover:bg-green-700 text-white" 
+                        @click="submitAnnouncement()"
+                        x-bind:disabled="loading"
+                    >
                         <!-- Ikon Kirim -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-                        Kirim Pengumuman
+                        <template x-if="!loading">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                        </template>
+                        <span x-text="loading ? 'Mengirim...' : 'Kirim Pengumuman'"></span>
                     </x-ui.button>
-                    <x-ui.button variant="outline" class="flex-1" @click="showCreateDialog = false">
-                        Simpan Draft
+                    <x-ui.button variant="outline" class="flex-1" @click="showCreateDialog = false; resetForm()">
+                        Batal
                     </x-ui.button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+{{-- Alpine.js Component --}}
+<script>
+function announcementTab() {
+    return {
+        showCreateDialog: false,
+        form: {
+            type: '',
+            recipients: '',
+            title: '',
+            message: ''
+        },
+        templates: [
+            {
+                title: 'Template Penerimaan',
+                preview: 'Selamat! Anda diterima sebagai...',
+                type: 'Hasil Seleksi',
+                typeValue: 'hasil',
+                fullContent: 'Selamat! Anda diterima sebagai Asisten di posisi yang Anda lamar. Silakan hubungi koordinator untuk informasi lebih lanjut mengenai jadwal orientasi.'
+            },
+            {
+                title: 'Template Penolakan',
+                preview: 'Terima kasih atas partisipasi Anda...',
+                type: 'Hasil Seleksi',
+                typeValue: 'hasil',
+                fullContent: 'Terima kasih atas partisipasi Anda dalam proses seleksi. Sayangnya, kami belum dapat menerima Anda pada kesempatan ini. Tetap semangat dan jangan ragu untuk mencoba kembali di periode berikutnya.'
+            },
+            {
+                title: 'Template Jadwal Ujian',
+                preview: 'Ujian online akan dilaksanakan pada...',
+                type: 'Jadwal',
+                typeValue: 'jadwal',
+                fullContent: 'Ujian online akan dilaksanakan pada tanggal [TANGGAL] pukul [WAKTU] WIB. Harap login 15 menit sebelumnya dan pastikan koneksi internet Anda stabil.'
+            },
+            {
+                title: 'Template Wawancara',
+                preview: 'Anda dipanggil untuk mengikuti wawancara...',
+                type: 'Wawancara',
+                typeValue: 'wawancara',
+                fullContent: 'Anda dipanggil untuk mengikuti sesi wawancara pada tanggal [TANGGAL] pukul [WAKTU] WIB di [LOKASI]. Mohon hadir tepat waktu dan membawa dokumen pendukung.'
+            }
+        ],
+
+        useTemplate(template) {
+            this.form.type = template.typeValue;
+            this.form.title = template.title.replace('Template ', 'Pengumuman ');
+            this.form.message = template.fullContent;
+            this.showCreateDialog = true;
+        },
+
+        resetForm() {
+            this.form = { type: '', recipients: '', title: '', message: '' };
+        },
+
+        loading: false,
+        errors: {},
+
+        async submitAnnouncement() {
+            this.errors = {};
+            
+            // Basic validation
+            if (!this.form.type) this.errors.type = 'Pilih jenis pengumuman';
+            if (!this.form.recipients) this.errors.recipients = 'Pilih penerima';
+            if (!this.form.title) this.errors.title = 'Judul pengumuman wajib diisi';
+            if (!this.form.message) this.errors.message = 'Pesan pengumuman wajib diisi';
+            
+            if (Object.keys(this.errors).length > 0) return;
+
+            this.loading = true;
+
+            try {
+                const response = await fetch('/recruiter/announcements', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(this.form)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.dispatchEvent(new CustomEvent('showToast', {
+                        detail: { message: data.message, type: 'success' }
+                    }));
+                    this.showCreateDialog = false;
+                    this.resetForm();
+                    // Reload page to show new announcement
+                    window.location.reload();
+                } else {
+                    window.dispatchEvent(new CustomEvent('showToast', {
+                        detail: { message: data.message || 'Gagal mengirim pengumuman', type: 'error' }
+                    }));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                window.dispatchEvent(new CustomEvent('showToast', {
+                    detail: { message: 'Terjadi kesalahan saat mengirim pengumuman', type: 'error' }
+                }));
+            } finally {
+                this.loading = false;
+            }
+        }
+    };
+}
+</script>

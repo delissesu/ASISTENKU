@@ -75,4 +75,8 @@ Route::middleware(['auth', 'role:recruiter'])->prefix('recruiter')->name('recrui
     // Exam Results
     Route::get('/exam-results', [RecruiterController::class, 'getExamResults'])->name('exam-results.index');
     Route::get('/exam-results/{test}/detail', [RecruiterController::class, 'getExamResultDetail'])->name('exam-results.detail');
+    
+    // Announcements
+    Route::get('/announcements', [RecruiterController::class, 'getAnnouncementsList'])->name('announcements.index');
+    Route::post('/announcements', [RecruiterController::class, 'storeAnnouncement'])->name('announcements.store');
 });

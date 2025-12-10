@@ -856,4 +856,52 @@ class RecruiterController extends Controller
             ]
         ]);
     }
+
+    // =============================================
+    // ANNOUNCEMENTS
+    // =============================================
+
+    /**
+     * Get all announcements
+     */
+    public function getAnnouncementsList()
+    {
+        $announcements = Announcement::orderByDesc('created_at')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $announcements
+        ]);
+    }
+
+    /**
+     * Store a new announcement
+     */
+    public function storeAnnouncement(Request $request)
+    {
+        $validated = $request->validate([
+            'type' => 'required|in:hasil,jadwal,wawancara,info',
+            'recipients' => 'required|in:all,accepted,rejected',
+            'title' => 'required|string|max:255',
+            'message' => 'required|string',
+        ]);
+
+        // Map recipients to valid target_audience enum values
+        // all, accepted, rejected -> all map to 'students' (pelamar/mahasiswa)
+        $targetAudience = 'students';
+
+        $announcement = Announcement::create([
+            'title' => $validated['title'],
+            'content' => $validated['message'],
+            'type' => $validated['type'],
+            'target_audience' => $targetAudience,
+            'is_active' => true,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pengumuman berhasil dikirim.',
+            'data' => $announcement
+        ]);
+    }
 }
