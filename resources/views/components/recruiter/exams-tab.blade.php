@@ -39,7 +39,7 @@
             <div class="flex justify-between items-center">
                 <p class="text-sm text-slate-600">Kelola jadwal dan sesi ujian online</p>
                 
-                <x-ui.button class="bg-green-600 hover:bg-green-700" @click="$dispatch('open-create-exam-modal')">
+                <x-ui.button class="bg-green-600 hover:bg-green-700 text-white" @click="$dispatch('open-create-exam-modal')">
                     <!-- Ikon Tambah -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                     Buat Ujian Baru
@@ -146,7 +146,7 @@
                                             Lihat Hasil
                                         </x-ui.button>
                                     @endif
-                                    <x-ui.button variant="outline" size="sm" class="text-red-600 hover:bg-red-50">
+                                    <x-ui.button variant="outline" size="sm" class="text-red-600 hover:bg-red-50" @click="$dispatch('open-delete-exam-modal', {{ json_encode($examData) }})">
                                         <!-- Ikon Hapus -->
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                                         Hapus
@@ -174,5 +174,6 @@
     @include('components.recruiter.create-exam-modal', ['divisions' => $divisions ?? []])
     @include('components.recruiter.edit-exam-modal')
     @include('components.recruiter.exam-detail-modal')
+    @include('components.recruiter.delete-exam-modal')
 </div>
 
