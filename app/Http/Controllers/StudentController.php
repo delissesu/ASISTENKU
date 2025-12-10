@@ -260,4 +260,30 @@ class StudentController extends Controller
         return redirect()->route('student.dashboard', ['tab' => 'my-applications'])
             ->with('success', 'Ujian berhasil diselesaikan! Skor Anda: ' . $scorePercent . '%');
     }
+
+    /**
+     * Get notifications for student (from announcements)
+     */
+    public function getNotifications()
+    {
+        $notifications = \App\Models\Announcement::where('target_audience', 'students')
+            ->where('is_active', true)
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'title' => $item->title,
+                    'content' => $item->content,
+                    'type' => $item->type,
+                    'created_at' => $item->created_at->diffForHumans(),
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $notifications
+        ]);
+    }
 }

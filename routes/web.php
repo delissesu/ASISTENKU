@@ -33,6 +33,9 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('student')->name('student.
     Route::middleware('profile.complete')->group(function () {
         Route::get('/exam/{test}', [StudentController::class, 'exam'])->name('exam.start');
         Route::post('/exam/{test}/submit', [StudentController::class, 'submitExam'])->name('exam.submit');
+        
+        // Notifications
+        Route::get('/notifications', [StudentController::class, 'getNotifications'])->name('notifications');
     });
 });
 
