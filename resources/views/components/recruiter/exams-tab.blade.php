@@ -4,6 +4,39 @@
     activeTab: 'exams',
     showCreateDialog: false
 }">
+    <!-- Toast Notification -->
+    <div 
+        x-data="{ show: false, message: '', type: 'success' }"
+        x-on:show-toast.window="show = true; message = $event.detail.message; type = $event.detail.type; setTimeout(() => show = false, 4000)"
+        x-show="show"
+        x-cloak
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 transform translate-y-2"
+        x-transition:enter-end="opacity-100 transform translate-y-0"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 transform translate-y-0"
+        x-transition:leave-end="opacity-0 transform translate-y-2"
+        class="fixed bottom-4 right-4 z-[100] max-w-sm"
+    >
+        <div 
+            :class="type === 'success' ? 'bg-green-600' : 'bg-red-600'"
+            class="text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3"
+        >
+            <!-- Success Icon -->
+            <template x-if="type === 'success'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m22 4-12 12-4-4"/></svg>
+            </template>
+            <!-- Error Icon -->
+            <template x-if="type === 'error'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </template>
+            <span x-text="message" class="font-medium"></span>
+            <button @click="show = false" class="ml-auto hover:opacity-80">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+        </div>
+    </div>
+
     <!-- Kepala -->
     <div class="flex items-center justify-between">
         <div>
