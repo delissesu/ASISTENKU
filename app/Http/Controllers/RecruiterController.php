@@ -644,11 +644,7 @@ class RecruiterController extends Controller
             'count' => $count
         ]);
     }
-
-    // =============================================
-    // QUESTION BANK CRUD
-    // =============================================
-
+    
     /**
      * Get all questions (with optional division filter)
      */

@@ -10,7 +10,7 @@
             </p>
         </div>
 
-        <x-ui.button class="bg-green-600 hover:bg-green-700" @click="showCreateDialog = true">
+        <x-ui.button class="bg-green-600 hover:bg-green-700 text-white" @click="showCreateDialog = true">
             <!-- Ikon Tambah -->
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
             Buat Pengumuman
@@ -72,32 +72,50 @@
             <p class="text-sm text-muted-foreground">Pengumuman yang telah dikirim</p>
         </div>
         <div class="p-6 pt-0">
-            <div class="space-y-3">
-                @foreach($announcements as $announcement)
-                    <div class="border border-slate-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="flex-1">
-                                <div class="flex items-start justify-between mb-2">
-                                    <h4 class="text-slate-900 font-semibold">{{ $announcement->title }}</h4>
-                                    <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-green-100 text-green-700">
-                                        Terkirim
+            @if(count($announcements) > 0)
+                <div class="space-y-3">
+                    @foreach($announcements as $announcement)
+                        <div class="border border-slate-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+                            <div class="flex items-start justify-between mb-3">
+                                <div class="flex-1">
+                                    <div class="flex items-start justify-between mb-2">
+                                        <h4 class="text-slate-900 font-semibold">{{ $announcement->title }}</h4>
+                                        <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-green-100 text-green-700">
+                                            Terkirim
+                                        </div>
                                     </div>
-                                </div>
-                                <p class="text-sm text-slate-600 mb-3">
-                                    {{ $announcement->content }}
-                                </p>
-                                <div class="flex items-center gap-4 text-sm text-slate-500">
-                                    <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground">
-                                        {{ ucfirst($announcement->type) }}
+                                    <p class="text-sm text-slate-600 mb-3">
+                                        {{ $announcement->content }}
+                                    </p>
+                                    <div class="flex items-center gap-4 text-sm text-slate-500">
+                                        <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground">
+                                            {{ ucfirst($announcement->type) }}
+                                        </div>
+                                        <span>• Dikirim ke {{ ucfirst($announcement->target_audience) }}</span>
+                                        <span>• {{ $announcement->created_at->format('d M Y') }}</span>
                                     </div>
-                                    <span>• Dikirim ke {{ ucfirst($announcement->target_audience) }}</span>
-                                    <span>• {{ $announcement->created_at->format('d M Y') }}</span>
                                 </div>
                             </div>
                         </div>
+                    @endforeach
+                </div>
+            @else
+                {{-- Empty State --}}
+                <div class="text-center py-12 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
                     </div>
-                @endforeach
-            </div>
+                    <h4 class="text-lg font-medium text-slate-900 mb-1">Belum Ada Pengumuman</h4>
+                    <p class="text-slate-500 mb-4">Belum ada pengumuman yang dikirim ke pelamar.</p>
+                    <button 
+                        @click="showCreateDialog = true"
+                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                        Buat Pengumuman Pertama
+                    </button>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -155,8 +173,13 @@
     </div>
 
     <!-- Dialog Buat Pengumuman -->
-    <div x-show="showCreateDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" style="display: none;">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6" @click.away="showCreateDialog = false">
+    <div x-show="showCreateDialog" x-cloak class="fixed inset-0 z-50 overflow-y-auto">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-black/50" @click="showCreateDialog = false"></div>
+        
+        <!-- Modal Content -->
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="relative bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6" @click.stop>
             <div class="flex flex-col space-y-1.5 text-center sm:text-left mb-4">
                 <h3 class="text-lg font-semibold leading-none tracking-tight">Buat Pengumuman Baru</h3>
                 <p class="text-sm text-muted-foreground">Kirim notifikasi atau pengumuman kepada pelamar</p>
@@ -181,8 +204,6 @@
                         <option value="all">Semua Pelamar</option>
                         <option value="accepted">Pelamar Diterima</option>
                         <option value="rejected">Pelamar Ditolak</option>
-                        <option value="pending">Dalam Proses</option>
-                        <option value="custom">Pilih Manual</option>
                     </select>
                 </div>
 
@@ -212,7 +233,7 @@
                 </div>
 
                 <div class="flex gap-3 pt-4">
-                    <x-ui.button class="flex-1 bg-green-600 hover:bg-green-700" @click="showCreateDialog = false">
+                    <x-ui.button class="flex-1 bg-green-600 hover:bg-green-700 text-white" @click="showCreateDialog = false text=">
                         <!-- Ikon Kirim -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
                         Kirim Pengumuman
