@@ -91,9 +91,15 @@ function notificationBell() {
         loading: false,
         notifications: [],
 
+        init() {
+            // Fetch notifications on component init to show badge count
+            this.fetchNotifications();
+        },
+
         toggleDropdown() {
             this.open = !this.open;
-            if (this.open && this.notifications.length === 0) {
+            if (this.open) {
+                // Refresh notifications when opening dropdown
                 this.fetchNotifications();
             }
         },
