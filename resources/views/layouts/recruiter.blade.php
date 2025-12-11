@@ -5,7 +5,15 @@
 @endsection
 
 @section('body')
-<div class="min-h-screen bg-slate-50" x-data="{ activeTab: '{{ $activeTab ?? 'overview' }}' }">
+<div class="min-h-screen bg-slate-50" x-data="{ 
+    activeTab: '{{ $activeTab ?? 'overview' }}',
+    setTab(tab) {
+        this.activeTab = tab;
+        const url = new URL(window.location);
+        url.searchParams.set('tab', tab);
+        window.history.replaceState({}, '', url);
+    }
+}">
     <x-ui.dashboard-navbar
         portal-name="Portal Recruiter"
         subtitle="Sistem Rekrutmen Asisten Lab"

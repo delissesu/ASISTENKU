@@ -1,6 +1,6 @@
 {{-- Menu navigasi recruiter (versi hp) --}}
 <button
-    @click="activeTab = 'overview'"
+    @click="setTab('overview')"
     :class="activeTab === 'overview' ? 'bg-green-50 text-green-600' : 'text-slate-600 hover:bg-slate-50'"
     class="flex items-center gap-2 px-3 py-2 rounded-lg whitespace-nowrap transition-colors"
 >
@@ -8,7 +8,7 @@
     <span class="text-sm">Dashboard</span>
 </button>
 <button
-    @click="activeTab = 'jobs'"
+    @click="setTab('jobs')"
     :class="activeTab === 'jobs' ? 'bg-green-50 text-green-600' : 'text-slate-600 hover:bg-slate-50'"
     class="flex items-center gap-2 px-3 py-2 rounded-lg whitespace-nowrap transition-colors"
 >
@@ -16,7 +16,7 @@
     <span class="text-sm">Lowongan</span>
 </button>
 <button
-    @click="activeTab = 'applicants'"
+    @click="setTab('applicants')"
     :class="activeTab === 'applicants' ? 'bg-green-50 text-green-600' : 'text-slate-600 hover:bg-slate-50'"
     class="flex items-center gap-2 px-3 py-2 rounded-lg whitespace-nowrap transition-colors"
 >
@@ -24,7 +24,7 @@
     <span class="text-sm">Pelamar</span>
 </button>
 <button
-    @click="activeTab = 'exams'"
+    @click="setTab('exams')"
     :class="activeTab === 'exams' ? 'bg-green-50 text-green-600' : 'text-slate-600 hover:bg-slate-50'"
     class="flex items-center gap-2 px-3 py-2 rounded-lg whitespace-nowrap transition-colors"
 >
@@ -32,7 +32,7 @@
     <span class="text-sm">Ujian</span>
 </button>
 <button
-    @click="activeTab = 'announcements'"
+    @click="setTab('announcements')"
     :class="activeTab === 'announcements' ? 'bg-green-50 text-green-600' : 'text-slate-600 hover:bg-slate-50'"
     class="flex items-center gap-2 px-3 py-2 rounded-lg whitespace-nowrap transition-colors"
 >

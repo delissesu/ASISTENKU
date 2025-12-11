@@ -1,6 +1,6 @@
 {{-- Menu navigasi mahasiswa (versi desktop) --}}
 <button
-    @click="activeTab = 'overview'"
+    @click="setTab('overview')"
     :class="activeTab === 'overview' ? 'bg-blue-50 text-blue-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
     class="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
 >
@@ -8,7 +8,7 @@
     <span>Beranda</span>
 </button>
 <button
-    @click="activeTab = 'openings'"
+    @click="setTab('openings')"
     :class="activeTab === 'openings' ? 'bg-blue-50 text-blue-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
     class="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
 >
@@ -16,7 +16,7 @@
     <span>Lowongan</span>
 </button>
 <button
-    @click="activeTab = 'applications'"
+    @click="setTab('applications')"
     :class="activeTab === 'applications' ? 'bg-blue-50 text-blue-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
     class="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
 >
@@ -24,7 +24,7 @@
     <span>Aplikasi Saya</span>
 </button>
 <button
-    @click="activeTab = 'profile'"
+    @click="setTab('profile')"
     :class="activeTab === 'profile' ? 'bg-blue-50 text-blue-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
     class="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
 >

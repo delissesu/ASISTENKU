@@ -115,7 +115,7 @@ class StudentController extends Controller
         // 3. Cek profil lengkap ga (CV sama Transkrip)
         $profile = $user->mahasiswaProfile;
         if (!$profile || empty($profile->cv_path) || empty($profile->transkrip_path)) {
-            return redirect()->route('student.dashboard')
+            return redirect()->route('student.dashboard', ['tab' => 'profile'])
                 ->with('error', 'Harap lengkapi profil Anda (CV dan Transkrip) sebelum melamar.');
         }
 

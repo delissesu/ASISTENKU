@@ -20,6 +20,12 @@
         openModal(jobId) {
             this.selectedJob = this.jobs.find(j => j.id === jobId);
             this.showJobModal = true;
+        },
+        setTab(tab) {
+            this.activeTab = tab;
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tab);
+            window.history.replaceState({}, '', url);
         }
     }"
 >
