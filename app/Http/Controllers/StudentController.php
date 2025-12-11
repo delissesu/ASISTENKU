@@ -18,29 +18,29 @@ class StudentController extends Controller
     public function dashboard()
     {
         /** @var User $user **/
-        // minta data user yang login
+        // ambil data user yg lagi login
         $user = Auth::user();
         
-        // minta data aplikasi yang pernah di lamar (include test untuk jadwal ujian)
+        // ambil data lamaran dia, sekalian ama tes nya
         $applications = Application::with(['lowongan.division', 'test'])
             ->where('mahasiswa_id', $user->id)
             ->latest()
             ->get();
 
-        // minta data lowongan yang masih terbuka
+        // cari lowongan yang masih buka
         $availableJobs = Lowongan::with(['division', 'recruiter'])
-            ->withCount('applications') // hitung jumlah pelamar
-            ->open() // ini scope di model Lowongan
-            ->latest() // urutan terbaru dulu
-            ->get(); // ambil data
+            ->withCount('applications') // hitung yg ngelamar ada brp
+            ->open() // pake scope biar gampang
+            ->latest() // yg paling baru diatas
+            ->get(); // sikat datanya
 
-        // minta data lowongan yang pernah di lamar
+        // ambil id lowongan yg udh dilamar
         $appliedJobIds = $applications->pluck('lowongan_id')->toArray();
 
-        // minta data divisi untuk filter dropdown
+        // ambil data divisi buat dropdown
         $divisions = Division::active()->get();
         
-        // minta data tab yang aktif
+        // cek tab mana yg aktif
         $activeTab = request('tab', 'overview');
 
         return view('pages.student.dashboard', compact('applications', 'availableJobs', 'appliedJobIds', 'divisions', 'activeTab'));
@@ -54,10 +54,10 @@ class StudentController extends Controller
             /** @var User $user **/
             $user = Auth::user();
             
-            // Update tabel user (email doang)
+            // update email si user
             $user->update(['email' => $validated['email']]);
             
-            // Update tabel profil mahasiswa
+            // update data profil mahasiswanya
             $mahasiswaProfile = $user->mahasiswaProfile()->firstOrCreate(
                 ['user_id' => $user->id],
                 ['nim' => $request->input('nim', '-')]
@@ -70,7 +70,7 @@ class StudentController extends Controller
                 'skills' => $validated['skills'] ?? $mahasiswaProfile->skills,
             ];
 
-            // Handle upload CV
+            // urusin upload CV
             if ($request->hasFile('cv')) {
                 if ($mahasiswaProfile->cv_path && Storage::disk('public')->exists($mahasiswaProfile->cv_path)) {
                     Storage::disk('public')->delete($mahasiswaProfile->cv_path);
@@ -78,7 +78,7 @@ class StudentController extends Controller
                 $dataToUpdate['cv_path'] = $request->file('cv')->store('documents/cv', 'public');
             }
 
-            // Handle upload Transkrip
+            // urusin upload transkrip
             if ($request->hasFile('transkrip')) {
                 if ($mahasiswaProfile->transkrip_path && Storage::disk('public')->exists($mahasiswaProfile->transkrip_path)) {
                     Storage::disk('public')->delete($mahasiswaProfile->transkrip_path);
@@ -98,12 +98,12 @@ class StudentController extends Controller
     {
         $user = Auth::user();
 
-        // 1. Cek lowongannya masih buka ga
+        // 1. cek lowongan buka kaga
         if (!$lowongan->isOpen()) {
             return redirect()->back()->with('error', 'Lowongan ini sudah ditutup.');
         }
 
-        // 2. Cek udah pernah ngelamar belom
+        // 2. cek udh pernah ngelamar blm
         $existingApplication = Application::where('mahasiswa_id', $user->id)
             ->where('lowongan_id', $lowongan->id)
             ->exists();
@@ -112,14 +112,14 @@ class StudentController extends Controller
             return redirect()->back()->with('error', 'Anda sudah melamar di lowongan ini.');
         }
 
-        // 3. Cek profil lengkap ga (CV sama Transkrip)
+        // 3. cek profil lengkap kaga (CV ma Transkrip)
         $profile = $user->mahasiswaProfile;
         if (!$profile || empty($profile->cv_path) || empty($profile->transkrip_path)) {
             return redirect()->route('student.dashboard', ['tab' => 'profile'])
                 ->with('error', 'Harap lengkapi profil Anda (CV dan Transkrip) sebelum melamar.');
         }
 
-        // 4. Cek syarat IPK dan Semester
+        // 4. cek syarat ipk ma semesternya
         if ($profile->ipk < $lowongan->min_ipk) {
             return redirect()->back()->with('error', 'IPK Anda tidak memenuhi syarat minimum untuk posisi ini.');
         }
@@ -129,7 +129,7 @@ class StudentController extends Controller
         }
 
         try {
-            // Bikin lamaran baru
+            // bikin lamaran baru deh
             Application::create([
                 'mahasiswa_id' => $user->id,
                 'lowongan_id' => $lowongan->id,
@@ -147,14 +147,14 @@ class StudentController extends Controller
         /** @var User $user **/
         $user = Auth::user();
         
-        // Validasi: pastikan test ini milik aplikasi user yang login
+        // cek ini tes punya dia bukan
         $test->load('application.lowongan.division');
         
         if ($test->application->mahasiswa_id !== $user->id) {
             abort(403, 'Anda tidak memiliki akses ke ujian ini.');
         }
         
-        // Validasi: cek apakah ujian tersedia (belum expired, waktunya sudah tiba)
+        // cek ujiannya bisa dibuka ga
         $availability = $test->exam_availability;
         
         if ($availability === 'waiting') {
@@ -172,20 +172,20 @@ class StudentController extends Controller
                 ->with('info', 'Anda sudah menyelesaikan ujian ini. Skor: ' . ($test->score ?? '-'));
         }
         
-        // Set start_time jika belum dimulai
+        // set waktu mulai kalo belom
         if (!$test->start_time) {
             $test->update(['start_time' => now()]);
         }
         
-        // Ambil soal dari bank soal berdasarkan divisi lowongan
+        // ambil soal acak dari bank soal
         $divisionId = $test->application->lowongan->division_id;
         $questions = QuestionBank::where('division_id', $divisionId)
             ->active()
             ->inRandomOrder()
-            ->limit(10) // Batasi 10 soal per ujian
+            ->limit(10) // cuma 10 soal aja
             ->get();
         
-        // Hitung sisa waktu
+        // itung sisa waktunya
         $elapsedSeconds = now()->diffInSeconds($test->start_time);
         $totalSeconds = $test->duration_minutes * 60;
         $remainingSeconds = (int) max(0, $totalSeconds - $elapsedSeconds);
@@ -198,7 +198,7 @@ class StudentController extends Controller
         /** @var User $user **/
         $user = Auth::user();
         
-        // Validasi akses
+        // cek akses
         $test->load('application.lowongan.division');
         
         if ($test->application->mahasiswa_id !== $user->id) {
@@ -208,7 +208,7 @@ class StudentController extends Controller
             ], 403);
         }
         
-        // Cek apakah sudah submit sebelumnya (hanya cek status)
+        // cek udh submit belom
         if ($test->status === 'completed') {
             return response()->json([
                 'success' => false,
@@ -218,12 +218,12 @@ class StudentController extends Controller
         
         $answers = $request->input('answers', []);
         
-        // Decode JSON jika dikirim sebagai string
+        // decode json kalo string
         if (is_string($answers)) {
             $answers = json_decode($answers, true) ?? [];
         }
         
-        // Pastikan answers adalah array
+        // pastiin array
         if (!is_array($answers)) {
             $answers = [];
         }
@@ -231,12 +231,12 @@ class StudentController extends Controller
         $totalScore = 0;
         $maxScore = 0;
         
-        // Hanya proses jika ada jawaban
+        // proses kalo ada jawaban doang
         if (!empty($answers)) {
             $questionIds = array_keys($answers);
             $questions = QuestionBank::whereIn('id', $questionIds)->get()->keyBy('id');
             
-            // Simpan jawaban dan hitung skor
+            // simpen jawaban trs itung nilai
             foreach ($answers as $questionId => $answer) {
                 $question = $questions->get($questionId);
                 if (!$question) continue;
@@ -248,7 +248,7 @@ class StudentController extends Controller
                     $totalScore += $question->points;
                 }
                 
-                // Simpan ke test_answers
+                // masukin ke db
                 $test->testAnswers()->create([
                     'question_id' => $questionId,
                     'answer' => $answer,
@@ -257,10 +257,10 @@ class StudentController extends Controller
             }
         }
         
-        // Hitung persentase skor
+        // itung dapet brp persen
         $scorePercent = $maxScore > 0 ? round(($totalScore / $maxScore) * 100, 2) : 0;
         
-        // Update test dengan hasil - SELALU update status ke completed
+        // update hasil tes, status jadi completed
         $test->update([
             'end_time' => now(),
             'score' => $scorePercent,

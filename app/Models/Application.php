@@ -34,43 +34,43 @@ class Application extends Model
         ];
     }
 
-    // banyak lamaran buat satu lowongan
+    // lamaran buat satu lowongan
     public function lowongan(): BelongsTo
     {
         return $this->belongsTo(Lowongan::class);
     }
 
-    // banyak lamaran dari satu mahasiswa
+    // punya satu mahasiswa
     public function mahasiswa(): BelongsTo
     {
         return $this->belongsTo(User::class, 'mahasiswa_id');
     }
 
-    // satu lamaran cuma satu ujian
+    // ujiannya cuma satu
     public function test(): HasOne
     {
         return $this->hasOne(Test::class);
     }
 
-    // filter lamaran pake status
+    // filter status
     public function scopeByStatus($query, string $status)
     {
         return $query->where('status', $status);
     }
 
-    // filter yang masih pending
+    // nyari yg pending
     public function scopePending($query)
     {
         return $query->where('status', 'pending');
     }
 
-    // filter yang udah diverifikasi
+    // nyari yg udh verified
     public function scopeVerified($query)
     {
         return $query->where('status', 'verified');
     }
 
-    // Accessor untuk progress bar (return int 0-100)
+    // buat progress bar
     public function getProgressAttribute(): int
     {
         return match ($this->status) {
@@ -83,7 +83,7 @@ class Application extends Model
         };
     }
 
-    // Accessor untuk label status yang user-friendly
+    // label status biar kebaca
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
@@ -97,7 +97,7 @@ class Application extends Model
         };
     }
 
-    // Accessor untuk warna badge status
+    // warna warni status
     public function getStatusColorAttribute(): string
     {
         return match ($this->status) {
@@ -111,7 +111,7 @@ class Application extends Model
         };
     }
 
-    // Accessor untuk Timeline Seleksi
+    // buat timeline
     public function getTimelineAttribute(): array
     {
         $statusOrder = ['pending', 'verified', 'test', 'interview', 'accepted', 'rejected'];
@@ -153,7 +153,7 @@ class Application extends Model
         return $steps;
     }
 
-    // Accessor untuk Langkah Selanjutnya (Next Step Box)
+    // langkah selanjutnya ngapain
     public function getNextStepAttribute(): array
     {
         if ($this->status == 'pending') {
@@ -237,7 +237,7 @@ class Application extends Model
     }
 
     /**
-     * Keterangan jadwal ujian untuk tab aplikasi
+     * info jadwal ujian
      */
     public function getExamScheduleLabelAttribute(): ?string
     {
@@ -252,7 +252,7 @@ class Application extends Model
     }
 
     /**
-     * Status ketersediaan ujian
+     * status ujiannya
      */
     public function getExamStatusAttribute(): ?string
     {
@@ -264,7 +264,7 @@ class Application extends Model
     }
 
     /**
-     * Label status ujian yang user-friendly
+     * label status ujian
      */
     public function getExamStatusLabelAttribute(): ?string
     {
@@ -284,7 +284,7 @@ class Application extends Model
     }
 
     /**
-     * Warna untuk status ujian
+     * warna status ujian
      */
     public function getExamStatusColorAttribute(): ?string
     {

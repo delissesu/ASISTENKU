@@ -34,7 +34,7 @@ class RecruiterController extends Controller
     }
 
     /**
-     * Get single lowongan for edit modal
+     * tarik data lowongan buat diedit
      */
     public function showLowongan(Lowongan $lowongan)
     {
@@ -45,7 +45,7 @@ class RecruiterController extends Controller
     }
 
     /**
-     * Store new lowongan
+     * simpen lowongan baru
      */
     public function storeLowongan(LowonganRequest $request)
     {
@@ -62,7 +62,7 @@ class RecruiterController extends Controller
     }
 
     /**
-     * Update existing lowongan
+     * update lowongan yg udh ada
      */
     public function updateLowongan(LowonganRequest $request, Lowongan $lowongan)
     {
@@ -76,11 +76,11 @@ class RecruiterController extends Controller
     }
 
     /**
-     * Delete lowongan
+     * apus lowongan
      */
     public function deleteLowongan(Lowongan $lowongan)
     {
-        // Check if lowongan has applications
+        // cek ada yg ngelamar ga
         if ($lowongan->applications()->count() > 0) {
             return response()->json([
                 'success' => false,
@@ -111,8 +111,8 @@ class RecruiterController extends Controller
 
     private function getDivisionStats()
     {
-        // Color and icon mapping based on division name keywords
-        // Icons are matched with student side (job-openings-tab.blade.php)
+        // mapping warna ama ikon biar cakep
+        // ikon disamain ama yg di student
         $divisionStyles = [
             'praktikum' => ['color' => 'green', 'icon' => 'book'],      // Icon Buku
             'penelitian' => ['color' => 'blue', 'icon' => 'award'],     // Icon Piala
@@ -132,7 +132,7 @@ class RecruiterController extends Controller
             $division->total_applicants = $division->lowongans->sum('total_applicants');
             $division->accepted_count = $division->lowongans->sum('accepted_count');
             
-            // Assign color and icon based on division name
+            // tentuin warna ama ikon sesuai divisi
             $style = collect($divisionStyles)->first(function($style, $keyword) use ($division) {
                 return str_contains(strtolower($division->name), $keyword);
             }) ?? ['color' => 'slate', 'icon' => 'folder'];
@@ -148,7 +148,7 @@ class RecruiterController extends Controller
     {
         $activities = collect();
 
-        // 1. New Applications
+        // 1. lamaran baru
         $applications = Application::with(['mahasiswa', 'lowongan'])
             ->latest()
             ->take(5)
@@ -163,7 +163,7 @@ class RecruiterController extends Controller
             ]);
         $activities = $activities->merge($applications);
 
-        // 2. Completed Exams
+        // 2. ujian selesai
         $tests = Test::with(['application.mahasiswa', 'application.lowongan'])
             ->completed()
             ->latest()
@@ -179,7 +179,7 @@ class RecruiterController extends Controller
             ]);
         $activities = $activities->merge($tests);
 
-        // 3. New Jobs
+        // 3. lowongan baru
         $jobs = Lowongan::latest()
             ->take(5)
             ->get()
@@ -193,7 +193,7 @@ class RecruiterController extends Controller
             ]);
         $activities = $activities->merge($jobs);
 
-        // 4. Verified Documents
+        // 4. dokumen verified
         $verified = Application::where('status', 'verified')
             ->with(['mahasiswa', 'lowongan'])
             ->latest('updated_at')
@@ -264,7 +264,7 @@ class RecruiterController extends Controller
     }
 
     /**
-     * Get pelamar yang sudah verified dan belum punya jadwal ujian
+     * ambil pelamar verified yg blm ujian
      */
     public function getVerifiedApplicants()
     {
@@ -291,7 +291,7 @@ class RecruiterController extends Controller
     }
 
     /**
-     * Jadwalkan ujian untuk pelamar
+     * bikin jadwal ujian buat pelamar
      */
     public function scheduleExam(Request $request)
     {
@@ -303,7 +303,7 @@ class RecruiterController extends Controller
 
         $application = Application::findOrFail($validated['application_id']);
 
-        // Cek apakah sudah punya test
+        // cek udh punya jadwal blm
         if ($application->test) {
             return response()->json([
                 'success' => false,
@@ -311,7 +311,7 @@ class RecruiterController extends Controller
             ], 422);
         }
 
-        // Buat test record
+        // bikin record test baru
         $test = Test::create([
             'application_id' => $application->id,
             'scheduled_at' => $validated['scheduled_at'],
@@ -319,7 +319,7 @@ class RecruiterController extends Controller
             'status' => 'not_started',
         ]);
 
-        // Update status aplikasi ke 'test'
+        // update status jd test
         $application->update(['status' => 'test']);
 
         return response()->json([
@@ -343,15 +343,15 @@ class RecruiterController extends Controller
 
     private function getApplicants()
     {
-        // Return Collection of Application models (bukan formatted array)
-        // Supaya accessor status_label dan status_color bisa digunakan langsung di blade
+        // balikin collection, bukan array biasa
+        // biar bisa pake accessor di blade
         return Application::with(['mahasiswa.mahasiswaProfile', 'lowongan.division', 'test'])
             ->latest()
             ->get();
     }
 
     /**
-     * Download dokumen pelamar (CV atau Transkrip)
+     * download cv atau transkrip
      */
     public function downloadDocument(Application $application, string $type)
     {
@@ -408,7 +408,7 @@ class RecruiterController extends Controller
         $oldStatus = $application->status;
         $application->update(['status' => $validated['status']]);
         
-        // Reload untuk mendapatkan accessor terbaru
+        // reload biar dapet data baru
         $application->refresh();
         $application->load(['mahasiswa.mahasiswaProfile', 'lowongan.division']);
 
@@ -449,22 +449,22 @@ class RecruiterController extends Controller
     }
 
     /**
-     * Show exam details with statistics
+     * liat detail ujian ama statistik
      */
     public function showExam(Test $test)
     {
         $test->load(['application.mahasiswa', 'application.lowongan.division', 'testAnswers.question']);
         
-        // Calculate statistics
+        // itung statistik
         $totalQuestions = $test->testAnswers->count();
         $answeredQuestions = $test->testAnswers->whereNotNull('answer')->count();
         $correctAnswers = $test->testAnswers->where('is_correct', true)->count();
         $wrongAnswers = $answeredQuestions - $correctAnswers;
         
-        // Calculate points per question (assuming equal distribution)
+        // itung poin per soal (rata)
         $pointsPerQuestion = $totalQuestions > 0 ? round(100 / $totalQuestions, 1) : 0;
         
-        // Calculate time used with proper formatting
+        // itung waktu yg dipake
         $timeUsed = '-';
         if ($test->start_time && $test->end_time) {
             $startTime = \Carbon\Carbon::parse($test->start_time);
@@ -488,10 +488,10 @@ class RecruiterController extends Controller
             $timeUsed = $diffMinutes . ' menit (berlangsung)';
         }
         
-        // Calculate progress
+        // itung progress
         $progress = $totalQuestions > 0 ? round(($answeredQuestions / $totalQuestions) * 100) : 0;
         
-        // Determine pass/fail status (passing score is 70%)
+        // tentuin lulus kaga (KKM 70)
         $score = $test->score ?? 0;
         $passingScore = 70;
         $passed = $score >= $passingScore;
@@ -527,8 +527,8 @@ class RecruiterController extends Controller
     }
 
     /**
-     * Store new exam session (from Create Exam Modal)
-     * This creates a session-based exam that can be assigned to multiple verified applicants
+     * bikin sesi ujian baru
+     * ini bikin ujian buat rame2 sekaligus
      */
     public function storeExamSession(Request $request)
     {
@@ -540,7 +540,7 @@ class RecruiterController extends Controller
             'question_count' => 'required|integer|min:1|max:100',
         ]);
 
-        // Get verified applicants for this division who don't have a test yet
+        // cari pelamar division ini yg blm tes
         $applicants = Application::with(['mahasiswa.mahasiswaProfile', 'lowongan'])
             ->where('status', 'verified')
             ->whereDoesntHave('test')
@@ -556,7 +556,7 @@ class RecruiterController extends Controller
             ], 422);
         }
 
-        // Check if there are enough questions
+        // cek soalnya cukup ga
         $availableQuestions = QuestionBank::active()
             ->forDivision($validated['division_id'])
             ->count();
@@ -570,7 +570,7 @@ class RecruiterController extends Controller
 
         $createdTests = [];
 
-        // Create test for each verified applicant in this division
+        // bikinin tes buat masing2 pelamar
         foreach ($applicants as $application) {
             $test = Test::create([
                 'application_id' => $application->id,
@@ -579,7 +579,7 @@ class RecruiterController extends Controller
                 'status' => 'not_started',
             ]);
 
-            // Update application status to 'test'
+            // update status jd test
             $application->update(['status' => 'test']);
             
             $createdTests[] = $test;
@@ -597,7 +597,7 @@ class RecruiterController extends Controller
     }
 
     /**
-     * Update existing exam session
+     * update jadwal ujian
      */
     public function updateExamSession(Request $request, Test $test)
     {
@@ -623,7 +623,7 @@ class RecruiterController extends Controller
     }
 
     /**
-     * Delete exam session
+     * apus jadwal ujian
      */
     public function deleteExamSession(Test $test)
     {
@@ -634,7 +634,7 @@ class RecruiterController extends Controller
             ], 422);
         }
 
-        // Restore application status to verified if test hadn't started
+        // balikin status verify kalo blm mulai
         if ($test->status === 'not_started') {
             $test->application->update(['status' => 'verified']);
         }
@@ -648,7 +648,7 @@ class RecruiterController extends Controller
     }
 
     /**
-     * Get question count for a division
+     * itung soal per divisi
      */
     public function getQuestionCount(Division $division)
     {
@@ -663,7 +663,7 @@ class RecruiterController extends Controller
     }
     
     /**
-     * Get all questions (with optional division filter)
+     * ambil semua soal (bisa filter)
      */
     public function getQuestions(Request $request)
     {
@@ -696,7 +696,7 @@ class RecruiterController extends Controller
     }
 
     /**
-     * Store new question
+     * simpen soal baru
      */
     public function storeQuestion(Request $request)
     {
@@ -722,7 +722,7 @@ class RecruiterController extends Controller
     }
 
     /**
-     * Update existing question
+     * update soal
      */
     public function updateQuestion(Request $request, QuestionBank $question)
     {
@@ -748,7 +748,7 @@ class RecruiterController extends Controller
     }
 
     /**
-     * Toggle question active status
+     * ganti status aktif soal
      */
     public function toggleQuestionActive(QuestionBank $question)
     {
@@ -762,11 +762,11 @@ class RecruiterController extends Controller
     }
 
     /**
-     * Delete question
+     * apus soal
      */
     public function deleteQuestion(QuestionBank $question)
     {
-        // Check if question is used in any test
+        // cek soal lagi dipake ga
         if ($question->testAnswers()->exists()) {
             return response()->json([
                 'success' => false,
@@ -784,7 +784,7 @@ class RecruiterController extends Controller
 
     
     /**
-     * Get all exam results with stats
+     * ambil hasil ujian
      */
     public function getExamResults()
     {
@@ -826,19 +826,19 @@ class RecruiterController extends Controller
     }
 
     /**
-     * Get exam result detail with all answers
+     * liat detail hasil ujian
      */
     public function getExamResultDetail(Test $test)
     {
         $test->load(['application.mahasiswa', 'application.lowongan.division', 'testAnswers.questionBank']);
         
-        // Calculate stats
+        // itung statistik
         $totalQuestions = $test->testAnswers->count();
         $answeredQuestions = $test->testAnswers->whereNotNull('answer')->count();
         $correctAnswers = $test->testAnswers->where('is_correct', true)->count();
         $wrongAnswers = $answeredQuestions - $correctAnswers;
         
-        // Calculate time used
+        // itung waktu
         $timeUsed = '-';
         if ($test->start_time && $test->end_time) {
             $startTime = \Carbon\Carbon::parse($test->start_time);
@@ -847,7 +847,7 @@ class RecruiterController extends Controller
             $timeUsed = $diffMinutes . ' menit';
         }
         
-        // Build answers list with question details
+        // susun list jawaban
         $answers = $test->testAnswers->map(function ($answer) {
             return [
                 'question_text' => $answer->questionBank->question_text ?? 'Question not found',
@@ -879,7 +879,7 @@ class RecruiterController extends Controller
     // =============================================
 
     /**
-     * Get all announcements
+     * ambil semua pengumuman
      */
     public function getAnnouncementsList()
     {
@@ -892,7 +892,7 @@ class RecruiterController extends Controller
     }
 
     /**
-     * Store a new announcement
+     * bikin pengumuman baru
      */
     public function storeAnnouncement(Request $request)
     {
@@ -905,10 +905,10 @@ class RecruiterController extends Controller
             'selected_applicants.*' => 'exists:applications,id',
         ]);
 
-        // Map recipients to valid target_audience enum values
+        // mapping penerima ke enum
         $targetAudience = 'students';
         
-        // Store recipient info for tracking
+        // simpen info penerima
         $recipientInfo = $validated['recipients'];
         if ($validated['recipients'] === 'specific' && !empty($validated['selected_applicants'])) {
             $recipientInfo = 'specific:' . implode(',', $validated['selected_applicants']);
@@ -922,7 +922,7 @@ class RecruiterController extends Controller
             'is_active' => true,
         ]);
 
-        // Count recipients for response message
+        // itung penerima buat respons
         $recipientCount = 0;
         if ($validated['recipients'] === 'specific' && !empty($validated['selected_applicants'])) {
             $recipientCount = count($validated['selected_applicants']);

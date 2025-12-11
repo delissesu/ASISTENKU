@@ -15,7 +15,7 @@ use Carbon\Carbon;
 
 class AuthController extends Controller
 {
-    // ngurusin login user
+    // fungsi buat login, biar bisa masuk
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -28,7 +28,7 @@ class AuthController extends Controller
 
             $user = Auth::user();
             
-            // lempar user sesuai role-nya
+            // cek dia siapa, terus lempar ke kandangnya
             if ($user->role === 'mahasiswa') {
                 return redirect()->intended(route('student.dashboard'));
             } elseif ($user->role === 'recruiter') {
@@ -43,7 +43,7 @@ class AuthController extends Controller
         ], 'login')->onlyInput('email');
     }
 
-    // ngurusin daftar user baru
+    // buat bikin akun baru
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -53,14 +53,14 @@ class AuthController extends Controller
             'role' => 'required|in:mahasiswa,recruiter',
             'phone' => 'required|string|max:20',
             
-            // validasi khusus buat mahasiswa
+            // cek kelengkapan data mahasiswa
             'nim' => 'required_if:role,mahasiswa|nullable|string|unique:mahasiswa_profiles,nim',
             'program_studi' => 'required_if:role,mahasiswa|nullable|string|max:255',
             'angkatan' => 'required_if:role,mahasiswa|nullable|integer|min:2000|max:' . (date('Y') + 1),
             'ipk' => 'required_if:role,mahasiswa|nullable|numeric|min:0|max:4',
         ]);
 
-        // bikin user baru di db
+        // simpen user ke database
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -68,7 +68,7 @@ class AuthController extends Controller
             'role' => $validated['role'],
         ]);
 
-        // bikinin profil kalo dia mahasiswa (phone disimpan di sini)
+        // kalo mahasiswa, bikinin profilnya skalian
         if ($validated['role'] === 'mahasiswa') {
             MahasiswaProfile::create([
                 'user_id' => $user->id,
@@ -81,10 +81,10 @@ class AuthController extends Controller
             ]);
         }
 
-        // langsung login abis daftar
+        // abis daftar langsung loginin aja
         Auth::login($user);
 
-        // lempar ke dashboard sesuai role
+        // arahin ke dashboard masing-masing
         if ($user->role === 'mahasiswa') {
             return redirect()->route('student.dashboard')->with('success', 'Registrasi berhasil! Silakan lengkapi profil Anda.');
         } elseif ($user->role === 'recruiter') {
@@ -94,7 +94,7 @@ class AuthController extends Controller
         return redirect('/');
     }
 
-    // ngurusin logout
+    // buat keluar dari sistem
     public function logout(Request $request)
     {
         Auth::logout();
@@ -105,13 +105,13 @@ class AuthController extends Controller
         return redirect()->route('landing')->with('success', 'Anda telah logout.');
     }
 
-    // tampilkan form lupa password
+    // form buat yang lupa password
     public function showForgotPasswordForm()
     {
         return view('pages.auth.forgot-password');
     }
 
-    // kirim email reset password
+    // kirim link buat reset password ke email
     public function sendResetLink(Request $request)
     {
         $request->validate([
@@ -144,7 +144,7 @@ class AuthController extends Controller
         return back()->with('success', 'Link reset password telah dikirim ke email Anda. Silakan cek inbox atau folder spam.');
     }
 
-    // tampilkan form reset password
+    // halaman buat masukin password baru
     public function showResetPasswordForm(Request $request, $token)
     {
         return view('pages.auth.reset-password', [
@@ -153,7 +153,7 @@ class AuthController extends Controller
         ]);
     }
 
-    // proses reset password
+    // aksi ganti passwordnya
     public function resetPassword(Request $request)
     {
         $request->validate([
