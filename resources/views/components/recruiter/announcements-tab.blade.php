@@ -119,13 +119,26 @@ function toastHandler() {
     <!-- Pengumuman Terakhir -->
     <div class="rounded-xl border bg-card text-card-foreground shadow">
         <div class="flex flex-col space-y-1.5 p-6">
-            <h3 class="font-semibold leading-none tracking-tight">Riwayat Pengumuman</h3>
-            <p class="text-sm text-muted-foreground">Pengumuman yang telah dikirim</p>
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="font-semibold leading-none tracking-tight">Riwayat Pengumuman</h3>
+                    <p class="text-sm text-muted-foreground mt-1">Pengumuman yang telah dikirim</p>
+                </div>
+                @if(count($announcements) > 5)
+                    <button 
+                        @click="showAllAnnouncements = !showAllAnnouncements"
+                        class="text-sm text-green-600 hover:text-green-700 font-medium flex items-center gap-1"
+                    >
+                        <span x-text="showAllAnnouncements ? 'Tampilkan Sedikit' : 'Lihat Semua ({{ count($announcements) }})'"></span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" :class="showAllAnnouncements ? 'rotate-180' : ''" class="transition-transform"><path d="m6 9 6 6 6-6"/></svg>
+                    </button>
+                @endif
+            </div>
         </div>
         <div class="p-6 pt-0">
             @if(count($announcements) > 0)
                 <div class="space-y-3">
-                    @foreach($announcements as $announcement)
+                    @foreach($announcements->take(5) as $announcement)
                         <div class="border border-slate-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
                             <div class="flex items-start justify-between mb-3">
                                 <div class="flex-1">
@@ -149,6 +162,36 @@ function toastHandler() {
                             </div>
                         </div>
                     @endforeach
+                    
+                    {{-- Additional announcements (hidden by default) --}}
+                    @if(count($announcements) > 5)
+                        <div x-show="showAllAnnouncements" x-cloak x-transition class="space-y-3">
+                            @foreach($announcements->skip(5) as $announcement)
+                                <div class="border border-slate-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+                                    <div class="flex items-start justify-between mb-3">
+                                        <div class="flex-1">
+                                            <div class="flex items-start justify-between mb-2">
+                                                <h4 class="text-slate-900 font-semibold">{{ $announcement->title }}</h4>
+                                                <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-green-100 text-green-700">
+                                                    Terkirim
+                                                </div>
+                                            </div>
+                                            <p class="text-sm text-slate-600 mb-3">
+                                                {{ $announcement->content }}
+                                            </p>
+                                            <div class="flex items-center gap-4 text-sm text-slate-500">
+                                                <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground">
+                                                    {{ ucfirst($announcement->type) }}
+                                                </div>
+                                                <span>• Dikirim ke {{ ucfirst($announcement->target_audience) }}</span>
+                                                <span>• {{ $announcement->created_at->format('d M Y') }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             @else
                 {{-- Empty State --}}
@@ -320,6 +363,7 @@ function toastHandler() {
 function announcementTab(applicantsData = []) {
     return {
         showCreateDialog: false,
+        showAllAnnouncements: false,
         applicants: applicantsData,
         form: {
             type: '',
