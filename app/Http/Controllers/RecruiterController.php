@@ -898,14 +898,21 @@ class RecruiterController extends Controller
     {
         $validated = $request->validate([
             'type' => 'required|in:hasil,jadwal,wawancara,info',
-            'recipients' => 'required|in:all,accepted,rejected',
+            'recipients' => 'required|in:all,accepted,rejected,specific',
             'title' => 'required|string|max:255',
             'message' => 'required|string',
+            'selected_applicants' => 'nullable|array',
+            'selected_applicants.*' => 'exists:applications,id',
         ]);
 
         // Map recipients to valid target_audience enum values
-        // all, accepted, rejected -> all map to 'students' (pelamar/mahasiswa)
         $targetAudience = 'students';
+        
+        // Store recipient info for tracking
+        $recipientInfo = $validated['recipients'];
+        if ($validated['recipients'] === 'specific' && !empty($validated['selected_applicants'])) {
+            $recipientInfo = 'specific:' . implode(',', $validated['selected_applicants']);
+        }
 
         $announcement = Announcement::create([
             'title' => $validated['title'],
@@ -915,9 +922,21 @@ class RecruiterController extends Controller
             'is_active' => true,
         ]);
 
+        // Count recipients for response message
+        $recipientCount = 0;
+        if ($validated['recipients'] === 'specific' && !empty($validated['selected_applicants'])) {
+            $recipientCount = count($validated['selected_applicants']);
+        } elseif ($validated['recipients'] === 'all') {
+            $recipientCount = Application::count();
+        } elseif ($validated['recipients'] === 'accepted') {
+            $recipientCount = Application::where('status', 'accepted')->count();
+        } elseif ($validated['recipients'] === 'rejected') {
+            $recipientCount = Application::where('status', 'rejected')->count();
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Pengumuman berhasil dikirim.',
+            'message' => "Pengumuman berhasil dikirim ke {$recipientCount} pelamar.",
             'data' => $announcement
         ]);
     }

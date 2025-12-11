@@ -16,7 +16,7 @@
         <x-recruiter.exams-tab :exams="$exams" :divisions="$divisions" />
     </div>
     <div x-show="activeTab === 'announcements'" x-cloak>
-        <x-recruiter.announcements-tab :announcements="$announcements" />
+        <x-recruiter.announcements-tab :announcements="$announcements" :applicants="$applicants" />
     </div>
 
     {{-- Modal Penjadwalan Ujian --}}

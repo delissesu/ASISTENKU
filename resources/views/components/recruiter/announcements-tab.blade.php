@@ -1,6 +1,57 @@
-@props(['announcements'])
+@props(['announcements', 'applicants'])
 
-<div class="space-y-6" x-data="announcementTab()">
+<!-- Toast Notification -->
+<div 
+    x-data="toastHandler()"
+    x-init="checkStoredToast()"
+    x-on:showToast.window="showToast($event.detail.message, $event.detail.type)"
+    x-show="show"
+    x-cloak
+    x-transition:enter="transform ease-out duration-300 transition"
+    x-transition:enter-start="translate-y-2 opacity-0"
+    x-transition:enter-end="translate-y-0 opacity-100"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="fixed bottom-4 right-4 z-[60] px-6 py-3 rounded-lg shadow-lg flex items-center gap-3"
+    :class="type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'"
+>
+    <template x-if="type === 'success'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m22 4-12 12-4-4"/></svg>
+    </template>
+    <template x-if="type === 'error'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" x2="9" y1="9" y2="15"/><line x1="9" x2="15" y1="9" y2="15"/></svg>
+    </template>
+    <span x-text="message"></span>
+</div>
+
+<script>
+function toastHandler() {
+    return {
+        show: false,
+        message: '',
+        type: 'success',
+        
+        showToast(msg, t = 'success') {
+            this.message = msg;
+            this.type = t;
+            this.show = true;
+            setTimeout(() => this.show = false, 3000);
+        },
+        
+        checkStoredToast() {
+            const stored = sessionStorage.getItem('announcementToast');
+            if (stored) {
+                const data = JSON.parse(stored);
+                sessionStorage.removeItem('announcementToast');
+                setTimeout(() => this.showToast(data.message, data.type), 100);
+            }
+        }
+    };
+}
+</script>
+
+<div class="space-y-6" x-data="announcementTab({{ Js::from($applicants->map(fn($a) => ['id' => $a->id, 'name' => $a->mahasiswa->name ?? 'Mahasiswa', 'lowongan' => $a->lowongan->title ?? 'Lowongan', 'status' => $a->status])) }})">
     <!-- Kepala -->
     <div class="flex items-center justify-between">
         <div>
@@ -172,12 +223,50 @@
 
                 <div class="space-y-2">
                     <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" for="recipients">Penerima</label>
-                    <select x-model="form.recipients" class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" id="recipients">
+                    <select x-model="form.recipients" @change="onRecipientsChange()" class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" id="recipients">
                         <option value="" disabled>Pilih penerima</option>
                         <option value="all">Semua Pelamar</option>
                         <option value="accepted">Pelamar Diterima</option>
                         <option value="rejected">Pelamar Ditolak</option>
+                        <option value="specific">Pelamar Tertentu</option>
                     </select>
+                </div>
+
+                <!-- Pilih Pelamar Tertentu -->
+                <div x-show="form.recipients === 'specific'" x-cloak class="space-y-2">
+                    <label class="text-sm font-medium leading-none">Pilih Pelamar</label>
+                    <div class="border border-input rounded-md max-h-48 overflow-y-auto">
+                        <template x-for="applicant in applicants" :key="applicant.id">
+                            <label class="flex items-center gap-3 px-3 py-2 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0">
+                                <input 
+                                    type="checkbox" 
+                                    :value="applicant.id" 
+                                    x-model="form.selectedApplicants"
+                                    class="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                                />
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-slate-900 truncate" x-text="applicant.name"></p>
+                                    <p class="text-xs text-slate-500 truncate" x-text="applicant.lowongan"></p>
+                                </div>
+                                <span 
+                                    class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                                    :class="{
+                                        'bg-yellow-100 text-yellow-700': applicant.status === 'pending',
+                                        'bg-blue-100 text-blue-700': applicant.status === 'verified',
+                                        'bg-green-100 text-green-700': applicant.status === 'accepted',
+                                        'bg-red-100 text-red-700': applicant.status === 'rejected'
+                                    }"
+                                    x-text="applicant.status.charAt(0).toUpperCase() + applicant.status.slice(1)"
+                                ></span>
+                            </label>
+                        </template>
+                        <template x-if="applicants.length === 0">
+                            <p class="px-3 py-4 text-sm text-slate-500 text-center">Tidak ada pelamar tersedia</p>
+                        </template>
+                    </div>
+                    <p class="text-xs text-slate-500" x-show="form.selectedApplicants.length > 0">
+                        <span x-text="form.selectedApplicants.length"></span> pelamar dipilih
+                    </p>
                 </div>
 
                 <div class="space-y-2">
@@ -228,14 +317,16 @@
 
 {{-- Alpine.js Component --}}
 <script>
-function announcementTab() {
+function announcementTab(applicantsData = []) {
     return {
         showCreateDialog: false,
+        applicants: applicantsData,
         form: {
             type: '',
             recipients: '',
             title: '',
-            message: ''
+            message: '',
+            selectedApplicants: []
         },
         templates: [
             {
@@ -268,6 +359,13 @@ function announcementTab() {
             }
         ],
 
+        onRecipientsChange() {
+            // Reset selected applicants when switching away from 'specific'
+            if (this.form.recipients !== 'specific') {
+                this.form.selectedApplicants = [];
+            }
+        },
+
         useTemplate(template) {
             this.form.type = template.typeValue;
             this.form.title = template.title.replace('Template ', 'Pengumuman ');
@@ -276,7 +374,7 @@ function announcementTab() {
         },
 
         resetForm() {
-            this.form = { type: '', recipients: '', title: '', message: '' };
+            this.form = { type: '', recipients: '', title: '', message: '', selectedApplicants: [] };
         },
 
         loading: false,
@@ -291,7 +389,19 @@ function announcementTab() {
             if (!this.form.title) this.errors.title = 'Judul pengumuman wajib diisi';
             if (!this.form.message) this.errors.message = 'Pesan pengumuman wajib diisi';
             
-            if (Object.keys(this.errors).length > 0) return;
+            // Validate specific recipients
+            if (this.form.recipients === 'specific' && this.form.selectedApplicants.length === 0) {
+                this.errors.selectedApplicants = 'Pilih minimal satu pelamar';
+            }
+            
+            if (Object.keys(this.errors).length > 0) {
+                // Show first error
+                const firstError = Object.values(this.errors)[0];
+                window.dispatchEvent(new CustomEvent('showToast', {
+                    detail: { message: firstError, type: 'error' }
+                }));
+                return;
+            }
 
             this.loading = true;
 
@@ -303,19 +413,29 @@ function announcementTab() {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify(this.form)
+                    body: JSON.stringify({
+                        type: this.form.type,
+                        recipients: this.form.recipients,
+                        title: this.form.title,
+                        message: this.form.message,
+                        selected_applicants: this.form.selectedApplicants
+                    })
                 });
 
                 const data = await response.json();
 
                 if (data.success) {
-                    window.dispatchEvent(new CustomEvent('showToast', {
-                        detail: { message: data.message, type: 'success' }
-                    }));
                     this.showCreateDialog = false;
                     this.resetForm();
-                    // Reload page to show new announcement
-                    window.location.reload();
+                    // Store toast for after page reload
+                    sessionStorage.setItem('announcementToast', JSON.stringify({
+                        message: data.message,
+                        type: 'success'
+                    }));
+                    // Update URL to stay on announcements tab and reload
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('tab', 'announcements');
+                    window.location.href = url.toString();
                 } else {
                     window.dispatchEvent(new CustomEvent('showToast', {
                         detail: { message: data.message || 'Gagal mengirim pengumuman', type: 'error' }
