@@ -537,7 +537,7 @@ class RecruiterController extends Controller
             'division_id' => 'required|exists:divisions,id',
             'scheduled_at' => 'required|date|after:now',
             'duration_minutes' => 'required|integer|min:15|max:180',
-            'question_count' => 'required|integer|min:1|max:100',
+                        'question_count' => 'required|integer|min:1|max:100',
         ]);
 
         // cari pelamar division ini yg blm tes
@@ -873,10 +873,6 @@ class RecruiterController extends Controller
             ]
         ]);
     }
-
-    // =============================================
-    // ANNOUNCEMENTS
-    // =============================================
 
     /**
      * ambil semua pengumuman

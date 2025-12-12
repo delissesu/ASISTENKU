@@ -46,7 +46,7 @@ class Application extends Model
         return $this->belongsTo(User::class, 'mahasiswa_id');
     }
 
-    // ujiannya cuma satu
+// ujiannya cuma satu
     public function test(): HasOne
     {
         return $this->hasOne(Test::class);

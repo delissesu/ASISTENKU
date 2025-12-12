@@ -1,4 +1,5 @@
-@props(['applicants', 'applicantStats', 'divisions' => collect()])
+@
+\`props(['applicants', 'applicantStats', 'divisions' => collect()])
 
 <div x-data="applicantsManager()" class="space-y-6">
     <!-- Header -->

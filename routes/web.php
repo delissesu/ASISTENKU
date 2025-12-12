@@ -14,7 +14,7 @@ Route::get('/login', function() {
     return redirect()->route('auth');
 })->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
-Route::post('/register', [AuthController::class, 'register'])->name('register');
+Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 // reset password
@@ -23,7 +23,7 @@ Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name(
 Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('password.reset');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
-// jalur khusus mahasiswa
+// mahasiswa
 Route::middleware(['auth', 'role:mahasiswa'])->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
     Route::put('/profile', [StudentController::class, 'updateProfile'])->name('profile.update');
@@ -39,7 +39,7 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('student')->name('student.
     });
 });
 
-// jalur bos recruiter
+// recruiter
 Route::middleware(['auth', 'role:recruiter'])->prefix('recruiter')->name('recruiter.')->group(function () {
     Route::get('/dashboard', [RecruiterController::class, 'dashboard'])->name('dashboard');
     

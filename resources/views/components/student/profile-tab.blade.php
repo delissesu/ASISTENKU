@@ -175,7 +175,7 @@
 
                 <!-- Skill & Kompetensi -->
                 <div class="rounded-xl border bg-card text-card-foreground shadow">
-                    <div class="flex flex-col space-y-1.5 p-6 border-b">
+                    <div class="flex flex-col space-y-10 p-6 border-b">
                         <h3 class="font-semibold leading-none tracking-tight">Skill & Kompetensi</h3>
                         <p class="text-sm text-muted-foreground">Keahlian teknis yang Anda kuasai</p>
                     </div>

@@ -28,7 +28,7 @@ class AuthController extends Controller
 
             $user = Auth::user();
             
-            // cek dia siapa, terus lempar ke kandangnya
+            // cek dia siapa
             if ($user->role === 'mahasiswa') {
                 return redirect()->intended(route('student.dashboard'));
             } elseif ($user->role === 'recruiter') {
