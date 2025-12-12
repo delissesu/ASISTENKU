@@ -12,9 +12,60 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Carbon\Carbon;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
+    // Redirect to Google
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    // Handle Google Callback
+    public function handleGoogleCallback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
+            
+            // Cek apakah user sudah ada berdasarkan google_id
+            $finduser = User::where('google_id', $googleUser->id)->first();
+            
+            if($finduser){
+                Auth::login($finduser);
+                return redirect()->intended(route('student.dashboard'));
+            }else{
+                // Cek email kalau belum pernah login pake google tapi email sama
+                $existingUser = User::where('email', $googleUser->email)->first();
+                
+                if($existingUser){
+                    $existingUser->update([
+                        'google_id' => $googleUser->id
+                    ]);
+                    Auth::login($existingUser);
+                    return redirect()->intended(route('student.dashboard'));
+                }
+                
+                // Buat user baru (default mahasiswa)
+                $newUser = User::create([
+                    'name' => $googleUser->name,
+                    'email' => $googleUser->email,
+                    'google_id' => $googleUser->id,
+                    'password' => Hash::make(Str::random(16)), // Random password
+                    'role' => 'mahasiswa'
+                ]);
+
+                // Login
+                Auth::login($newUser);
+                
+                // Redirect ke dashboard (nanti di dashboard diingetin lengkapi profil)
+                return redirect()->route('student.dashboard')->with('success', 'Login berhasil! Silakan lengkapi profil Anda.');
+            }
+        } catch (\Exception $e) {
+            return redirect()->route('auth')->withErrors(['email' => 'Gagal login dengan Google. Silakan coba lagi.']);
+        }
+    }
+
     // fungsi buat login, biar bisa masuk
     public function login(Request $request)
     {
