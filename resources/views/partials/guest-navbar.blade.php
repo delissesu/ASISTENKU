@@ -1,9 +1,8 @@
-{{-- Navbar tamu dengan Style Reference --}}
 <nav 
-    x-data="{ scrolled: false, mobileMenu: false }"
+    x-data="{ scrolled: false, mobileMenu: false, active: 'home' }"
     @scroll.window="scrolled = (window.pageYOffset > 20)"
-    :class="scrolled ? 'bg-white shadow-md py-2' : 'bg-white/50 backdrop-blur-sm py-4'"
-    class="fixed top-0 inset-x-0 z-50 transition-all duration-300"
+    :class="scrolled ? 'bg-white/80 backdrop-blur-md shadow-sm' : 'bg-white/50 backdrop-blur-sm'"
+    class="fixed top-0 inset-x-0 z-50 transition-colors duration-300 py-4"
 >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center">
@@ -17,22 +16,17 @@
 
             <!-- 2. Navigation Links (Center) -->
             <div class="hidden md:flex items-center gap-8">
-                <a href="#" class="relative text-base font-semibold text-brand-primary py-2 group">
+                <a href="#" @click.prevent="active = 'home'; window.scrollTo({top: 0, behavior: 'smooth'})" class="relative text-base font-semibold py-2 group transition-colors" :class="active === 'home' ? 'text-brand-primary' : 'text-slate-500 hover:text-brand-primary'">
                     Beranda
-                    <!-- Active Indicator (Underline) -->
-                    <span class="absolute bottom-0 left-0 w-full h-0.5 bg-brand-primary rounded-full transform scale-x-100 transition-transform duration-300"></span>
+                    <span class="absolute bottom-0 left-0 w-full h-0.5 bg-brand-primary rounded-full transform transition-transform duration-300" :class="active === 'home' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'"></span>
                 </a>
-                <a href="#divisions" class="relative text-base font-medium text-slate-500 hover:text-brand-primary py-2 group transition-colors">
+                <a href="#divisions" @click="active = 'divisions'" class="relative text-base font-medium py-2 group transition-colors" :class="active === 'divisions' ? 'text-brand-primary font-semibold' : 'text-slate-500 hover:text-brand-primary'">
                     Divisi
-                    <span class="absolute bottom-0 left-0 w-full h-0.5 bg-brand-primary rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                    <span class="absolute bottom-0 left-0 w-full h-0.5 bg-brand-primary rounded-full transform transition-transform duration-300" :class="active === 'divisions' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'"></span>
                 </a>
-                <a href="#process" class="relative text-base font-medium text-slate-500 hover:text-brand-primary py-2 group transition-colors">
+                <a href="#process" @click="active = 'process'" class="relative text-base font-medium py-2 group transition-colors" :class="active === 'process' ? 'text-brand-primary font-semibold' : 'text-slate-500 hover:text-brand-primary'">
                     Alur
-                    <span class="absolute bottom-0 left-0 w-full h-0.5 bg-brand-primary rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-                </a>
-                <a href="#" class="relative text-base font-medium text-slate-500 hover:text-brand-primary py-2 group transition-colors">
-                    Testimoni
-                    <span class="absolute bottom-0 left-0 w-full h-0.5 bg-brand-primary rounded-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                    <span class="absolute bottom-0 left-0 w-full h-0.5 bg-brand-primary rounded-full transform transition-transform duration-300" :class="active === 'process' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'"></span>
                 </a>
             </div>
 

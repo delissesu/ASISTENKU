@@ -1,6 +1,11 @@
 {{-- Footer Modern Universitas Jember Theme (Redesigned - White Version) --}}
 <footer class="bg-white text-slate-600 py-12 border-t border-slate-200">
-    <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div 
+        class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-700 ease-out"
+        x-data="{ shown: false }"
+        x-intersect.once="shown = true"
+        :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'"
+    >
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12 mb-12">
             <!-- Brand & Identity (Spans 4 columns) -->
             <div class="lg:col-span-4 space-y-4">
@@ -8,7 +13,7 @@
                     <img src="{{ asset('images/logo.png') }}" alt="ASISTENKU Logo" class="h-12 w-auto p-1">
                     <div>
                         <h3 class="text-brand-dark font-bold text-lg leading-tight">Universitas Jember</h3>
-                        <p class="text-xs text-brand-gold font-bold tracking-wide">FAKULTAS ILMU KOMPUTER</p>
+                        <p class="text-xs text-brand-dark font-bold tracking-wide">FAKULTAS ILMU KOMPUTER</p>
                     </div>
                 </div>
                 <p class="text-slate-500 text-sm leading-relaxed max-w-sm">

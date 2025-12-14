@@ -7,7 +7,12 @@
         <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-[600px] h-[600px] bg-brand-accent/20 rounded-full blur-3xl"></div>
     </div>
 
-    <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+    <div 
+        class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white transition-all duration-700 ease-out"
+        x-data="{ shown: false }"
+        x-intersect.once="shown = true"
+        :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'"
+    >
         <h2 class="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
             Siap Memulai Perjalanan Karirmu?
         </h2>
@@ -25,7 +30,7 @@
             </a>
         </div>
 
-        <p class="mt-8 text-sm text-brand-accent">
+        <p class="mt-8 text-sm text-white/80">
             Pendaftaran ditutup pada <span class="text-brand-gold font-bold">31 Agustus 2024</span>
         </p>
     </div>

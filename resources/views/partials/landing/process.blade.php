@@ -1,7 +1,12 @@
 {{-- Bagian Proses Modern --}}
 <section id="process" class="py-24 bg-white relative overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
+        <div 
+            class="text-center mb-16 transition-all duration-700 ease-out"
+            x-data="{ shown: false }"
+            x-intersect.once="shown = true"
+            :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'"
+        >
             <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Alur Pendaftaran</h2>
             <p class="text-slate-600 text-lg max-w-2xl mx-auto">
                 Ikuti langkah-langkah berikut untuk menjadi bagian dari tim kami
