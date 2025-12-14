@@ -1,6 +1,6 @@
 {{-- Bagian Proses Modern --}}
-<section id="process" class="py-24 bg-white relative overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<section id="process" class="py-24 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div 
             class="text-center mb-16 transition-all duration-700 ease-out"
             x-data="{ shown: false }"
@@ -14,8 +14,8 @@
         </div>
 
         <div class="relative">
-            <!-- Connecting Line (Desktop) -->
-            <div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2 z-0"></div>
+            <!-- Connecting Line (Desktop) - Removed or made subtle -->
+            <div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-brand-primary/10 -translate-y-1/2 z-0 border-t-2 border-dashed border-brand-primary/20 bg-transparent"></div>
 
             <div class="grid md:grid-cols-4 gap-8 relative z-10">
                 @foreach([
@@ -49,8 +49,8 @@
         </div>
         
         <div class="mt-16 text-center">
-            <div class="inline-flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-200 rounded-full text-sm text-slate-600">
-                <x-heroicon-o-information-circle class="w-5 h-5 text-blue-600" />
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/50 border border-brand-primary/20 rounded-full text-sm text-slate-600 backdrop-blur-sm">
+                <x-heroicon-o-information-circle class="w-5 h-5 text-brand-primary" />
                 <span>Hasil seleksi akan diumumkan melalui dashboard & email</span>
             </div>
         </div>

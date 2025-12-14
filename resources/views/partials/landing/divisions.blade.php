@@ -1,8 +1,5 @@
 {{-- Bagian Divisi --}}
-<section id="divisions" class="py-24 bg-slate-50 relative overflow-hidden">
-    <!-- Decorative Pattern -->
-    <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(#4b5563 1px, transparent 1px); background-size: 32px 32px;"></div>
-
+<section id="divisions" class="py-24 relative">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div 
             class="text-center mb-16 transition-all duration-700 ease-out"

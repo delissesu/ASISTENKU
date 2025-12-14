@@ -1,12 +1,5 @@
 {{-- Bagian Hero Modern with Brand Colors --}}
-<section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-    <!-- Background Elements -->
-    <div class="absolute inset-0 bg-brand-yellow/30">
-        <div class="absolute inset-0 bg-gradient-to-br from-brand-yellow/50 via-white to-brand-accent/10"></div>
-        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-[600px] h-[600px] bg-brand-primary/5 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-[600px] h-[600px] bg-brand-gold/10 rounded-full blur-3xl animate-pulse delay-75"></div>
-    </div>
-
+<section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32">
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" x-data="{ loaded: false }" x-init="setTimeout(() => loaded = true, 100)">
         <div class="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
             <!-- Text Content -->
