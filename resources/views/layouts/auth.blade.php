@@ -21,9 +21,7 @@
         <!-- Content -->
         <div class="relative z-10">
             <div class="flex items-center gap-3 text-2xl font-bold mb-2">
-                <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                    <x-heroicon-o-cube-transparent class="w-6 h-6" />
-                </div>
+                <img src="{{ asset('images/logo.png') }}" alt="ASISTENKU Logo" class="h-12 w-auto bg-white/20 backdrop-blur-sm rounded-lg p-1">
                 ASISTENKU
             </div>
             <p class="text-blue-100 mt-2">Sistem Rekrutmen Asisten Lab</p>

@@ -1,29 +1,53 @@
-{{-- Bagian Proses --}}
-<section class="py-20 bg-slate-50">
+{{-- Bagian Proses Modern --}}
+<section id="process" class="py-24 bg-white relative overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-            <h2 class="text-slate-900 mb-4 text-3xl font-bold">Proses Rekrutmen</h2>
-            <p class="text-slate-600 max-w-2xl mx-auto">
-                Sistem yang transparan dan efisien untuk seleksi asisten laboratorium
+        <div class="text-center mb-16">
+            <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Alur Pendaftaran</h2>
+            <p class="text-slate-600 text-lg max-w-2xl mx-auto">
+                Ikuti langkah-langkah berikut untuk menjadi bagian dari tim kami
             </p>
         </div>
 
-        <div class="grid md:grid-cols-5 gap-4">
-            @foreach([
-                ['step' => '1', 'title' => 'Registrasi', 'desc' => 'Daftar akun dan lengkapi profil'],
-                ['step' => '2', 'title' => 'Upload Dokumen', 'desc' => 'CV, transkrip, portofolio'],
-                ['step' => '3', 'title' => 'Seleksi Administrasi', 'desc' => 'Verifikasi dokumen'],
-                ['step' => '4', 'title' => 'Ujian Online', 'desc' => 'Tes kemampuan'],
-                ['step' => '5', 'title' => 'Pengumuman', 'desc' => 'Hasil akhir']
-            ] as $item)
-                <div class="bg-white rounded-lg p-6 text-center">
-                    <div class="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3">
-                        {{ $item['step'] }}
+        <div class="relative">
+            <!-- Connecting Line (Desktop) -->
+            <div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2 z-0"></div>
+
+            <div class="grid md:grid-cols-4 gap-8 relative z-10">
+                @foreach([
+                    ['step' => '1', 'icon' => 'user-plus', 'title' => 'Registrasi Akun', 'desc' => 'Buat akun dan lengkapi data diri Anda'],
+                    ['step' => '2', 'icon' => 'document-arrow-up', 'title' => 'Upload Berkas', 'desc' => 'Unggah CV, Transkrip, dan Portofolio'],
+                    ['step' => '3', 'icon' => 'computer-desktop', 'title' => 'Tes Online', 'desc' => 'Kerjakan tes kompetensi sesuai divisi'],
+                    ['step' => '4', 'icon' => 'chat-bubble-left-right', 'title' => 'Wawancara', 'desc' => 'Sesi interview dengan tim rekrutmen']
+                ] as $index => $item)
+                    <div 
+                        class="group relative bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                        x-data="{ show: false }"
+                        x-intersect="show = true"
+                        :class="show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'"
+                        style="transition-delay: {{ $index * 150 }}ms;"
+                    >
+                        <div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform duration-300 mx-auto md:mx-0">
+                        <x-dynamic-component :component="'heroicon-o-' . $item['icon']" class="w-7 h-7" />
                     </div>
-                    <h4 class="text-slate-900 mb-2 font-bold">{{ $item['title'] }}</h4>
-                    <p class="text-sm text-slate-600">{{ $item['desc'] }}</p>
-                </div>
-            @endforeach
+                        
+                        <div class="absolute top-6 right-6 text-4xl font-bold text-slate-300 -z-10 group-hover:text-blue-100 transition-colors">
+                            0{{ $item['step'] }}
+                        </div>
+
+                        <h3 class="text-lg font-bold text-slate-900 mb-2 text-center md:text-left">{{ $item['title'] }}</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed text-center md:text-left">
+                            {{ $item['desc'] }}
+                        </p>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        
+        <div class="mt-16 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-200 rounded-full text-sm text-slate-600">
+                <x-heroicon-o-information-circle class="w-5 h-5 text-blue-600" />
+                <span>Hasil seleksi akan diumumkan melalui dashboard & email</span>
+            </div>
         </div>
     </div>
 </section>
