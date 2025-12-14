@@ -2,22 +2,22 @@
 @php
     $colors = [
         'blue' => [
-            'bg' => 'hover:shadow-blue-500/10 hover:border-blue-200', 
-            'icon-bg' => 'bg-blue-600', 
-            'light-bg' => 'bg-blue-50',
-            'check' => 'text-blue-600'
+            'bg' => 'hover:shadow-brand-primary/10 hover:border-brand-primary/30', 
+            'icon-bg' => 'bg-brand-primary', 
+            'light-bg' => 'bg-brand-primary/5',
+            'check' => 'text-brand-primary'
         ],
         'emerald' => [
-            'bg' => 'hover:shadow-emerald-500/10 hover:border-emerald-200', 
-            'icon-bg' => 'bg-emerald-600', 
-            'light-bg' => 'bg-emerald-50',
-            'check' => 'text-emerald-600'
+            'bg' => 'hover:shadow-brand-accent/10 hover:border-brand-accent/30', 
+            'icon-bg' => 'bg-brand-accent', 
+            'light-bg' => 'bg-brand-accent/5',
+            'check' => 'text-brand-accent'
         ],
         'purple' => [
-            'bg' => 'hover:shadow-purple-500/10 hover:border-purple-200', 
-            'icon-bg' => 'bg-purple-600', 
-            'light-bg' => 'bg-purple-50',
-            'check' => 'text-purple-600'
+            'bg' => 'hover:shadow-brand-gold/10 hover:border-brand-gold/50', 
+            'icon-bg' => 'bg-brand-dark', 
+            'light-bg' => 'bg-brand-gold/10',
+            'check' => 'text-brand-dark'
         ],
     ];
     // fallback 'green' diubah ke 'emerald' di parent, tapi handle jaga2

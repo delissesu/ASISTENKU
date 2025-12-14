@@ -26,15 +26,15 @@
                         :class="show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'"
                         style="transition-delay: {{ $index * 150 }}ms;"
                     >
-                        <div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform duration-300 mx-auto md:mx-0">
+                        <div class="w-14 h-14 bg-brand-primary text-white rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-brand-primary/20 group-hover:scale-110 transition-transform duration-300 mx-auto md:mx-0">
                         <x-dynamic-component :component="'heroicon-o-' . $item['icon']" class="w-7 h-7" />
                     </div>
                         
-                        <div class="absolute top-6 right-6 text-4xl font-bold text-slate-300 -z-10 group-hover:text-blue-100 transition-colors">
+                        <div class="absolute top-6 right-6 text-4xl font-bold text-slate-100 -z-10 group-hover:text-brand-gold/20 transition-colors">
                             0{{ $item['step'] }}
                         </div>
 
-                        <h3 class="text-lg font-bold text-slate-900 mb-2 text-center md:text-left">{{ $item['title'] }}</h3>
+                        <h3 class="text-lg font-bold text-brand-dark mb-2 text-center md:text-left">{{ $item['title'] }}</h3>
                         <p class="text-slate-600 text-sm leading-relaxed text-center md:text-left">
                             {{ $item['desc'] }}
                         </p>
