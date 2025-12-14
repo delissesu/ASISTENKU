@@ -23,6 +23,16 @@
                     fontFamily: {
                         sans: ['DM Sans', 'sans-serif'],
                     },
+                    colors: {
+                        brand: {
+                            dark: '#0B2447',    // Deepest Blue
+                            primary: '#19376D', // Main Brand Blue
+                            accent: '#576CBC',  // Lighter Blue
+                            gold: '#FFD966',    // Main Gold/Yellow HIGHLIGHT
+                            yellow: '#F5E9CF',  // Cream/Light Yellow BACKGROUND
+                            orange: '#F4B183',  // Orange ACCENT
+                        }
+                    }
                 }
             }
         }

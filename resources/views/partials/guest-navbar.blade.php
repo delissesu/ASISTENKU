@@ -1,25 +1,25 @@
-{{-- Navbar tamu dengan Glassmorphism --}}
+{{-- Navbar tamu dengan Brand Colors --}}
 <nav 
     x-data="{ scrolled: false }"
     @scroll.window="scrolled = (window.pageYOffset > 20)"
-    :class="scrolled ? 'bg-white/80 backdrop-blur-md shadow-sm border-slate-200/50' : 'bg-transparent border-transparent'"
+    :class="scrolled ? 'bg-brand-primary/95 backdrop-blur-md shadow-md border-brand-accent/30' : 'bg-transparent border-transparent'"
     class="fixed top-0 inset-x-0 z-50 border-b transition-all duration-300"
 >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-20">
             <!-- Logo Section -->
             <div class="flex items-center gap-3">
-                <img src="{{ asset('images/logo.png') }}" alt="ASISTENKU Logo" class="h-12 w-auto">
+                <img src="{{ asset('images/logo.png') }}" alt="ASISTENKU Logo" class="h-12 w-auto bg-white rounded-lg p-1 shadow-sm">
                 <div>
-                    <span class="block text-slate-900 font-bold text-lg leading-none">ASISTENKU</span>
-                    <span class="block text-slate-500 text-xs font-medium mt-0.5">Lab Assistant Recruitment</span>
+                    <span class="block text-brand-dark font-bold text-lg leading-none" :class="scrolled ? 'text-white' : 'text-brand-dark'">ASISTENKU</span>
+                    <span class="block text-brand-accent text-xs font-medium mt-0.5" :class="scrolled ? 'text-brand-yellow' : 'text-brand-accent'">Lab Assistant Recruitment</span>
                 </div>
             </div>
 
             <!-- Action Button -->
             <a 
                 href="{{ route('auth') }}" 
-                class="group relative inline-flex items-center justify-center px-6 py-2.5 font-semibold text-white transition-all duration-200 bg-blue-600 rounded-full hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 focus:ring-offset-white"
+                class="group relative inline-flex items-center justify-center px-6 py-2.5 font-bold text-brand-dark transition-all duration-200 bg-brand-gold rounded-full hover:bg-brand-orange hover:shadow-lg hover:shadow-brand-gold/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-gold focus:ring-offset-white"
             >
                 <span class="mr-2">Masuk Portal</span>
                 <x-heroicon-o-arrow-right class="size-4 group-hover:translate-x-1 transition-transform" />
