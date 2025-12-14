@@ -36,7 +36,7 @@
             <div class="flex items-center justify-between p-6 border-b">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-600"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                        <x-heroicon-o-trash class="w-5 h-5 text-red-600" />
                     </div>
                     <div>
                         <h3 class="text-lg font-semibold text-slate-900">Hapus Jadwal Ujian</h3>
@@ -44,7 +44,7 @@
                     </div>
                 </div>
                 <button @click="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    <x-heroicon-o-x-mark class="w-6 h-6" />
                 </button>
             </div>
 
@@ -64,7 +64,7 @@
                 {{-- Warning for in_progress --}}
                 <div x-show="exam?.status === 'in_progress'" class="bg-amber-50 border border-amber-200 rounded-xl p-4">
                     <div class="flex gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-600 shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                        <x-heroicon-o-exclamation-circle class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                         <p class="text-sm text-amber-800">Ujian yang sedang berlangsung tidak dapat dihapus.</p>
                     </div>
                 </div>
@@ -72,7 +72,7 @@
                 {{-- Info for completed --}}
                 <div x-show="exam?.status === 'completed'" class="bg-blue-50 border border-blue-200 rounded-xl p-4">
                     <div class="flex gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600 shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        <x-heroicon-o-information-circle class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                         <p class="text-sm text-blue-800">Menghapus ujian yang sudah selesai akan menghapus semua data jawaban.</p>
                     </div>
                 </div>

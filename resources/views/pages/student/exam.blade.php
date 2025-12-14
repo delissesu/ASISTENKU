@@ -145,7 +145,7 @@ $questionsJson = $questions->map(function($q) {
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-4">
                 <div class="p-2 bg-blue-600/20 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5 text-blue-400"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                    <x-heroicon-o-clipboard-document-check class="size-5 text-blue-400" />
                 </div>
                 <div>
                     <h1 class="text-white font-semibold">Ujian Seleksi - {{ $test->application->lowongan->title }}</h1>
@@ -185,7 +185,7 @@ $questionsJson = $questions->map(function($q) {
     <div class="max-w-2xl mx-auto py-16 text-center">
         <div class="bg-slate-800/50 backdrop-blur rounded-3xl border border-slate-700/50 p-10">
             <div class="w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="size-10 text-white"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <x-heroicon-o-exclamation-triangle class="size-10 text-white" stroke-width="3" />
             </div>
             <h2 class="text-3xl font-bold text-white mb-3">Soal Belum Tersedia</h2>
             <p class="text-slate-400 mb-8">Maaf, belum ada soal yang tersedia untuk ujian ini. Silakan hubungi rekruter.</p>
@@ -194,7 +194,7 @@ $questionsJson = $questions->map(function($q) {
                 href="{{ route('student.dashboard', ['tab' => 'applications']) }}"
                 class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-500 transition-colors"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="m15 18-6-6 6-6"/></svg>
+                <x-heroicon-o-arrow-left class="size-4" />
                 Kembali ke Dashboard
             </a>
         </div>
@@ -208,7 +208,7 @@ $questionsJson = $questions->map(function($q) {
                 <div class="bg-slate-800/50 backdrop-blur rounded-2xl p-5 lg:sticky lg:top-24 border border-slate-700/50">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-white font-medium flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 text-slate-400"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+                            <x-heroicon-o-squares-2x2 class="size-4 text-slate-400" />
                             Navigasi Soal
                         </h3>
                     </div>
@@ -271,7 +271,7 @@ $questionsJson = $questions->map(function($q) {
                         @click="openSubmitModal"
                         class="w-full mt-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-500 transition-all flex items-center justify-center gap-2"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                        <x-heroicon-o-paper-airplane class="size-4" />
                         Kumpulkan Ujian
                     </button>
                 </div>
@@ -293,7 +293,7 @@ $questionsJson = $questions->map(function($q) {
                             class="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors text-sm"
                             :class="isMarked(questions[currentQuestion].id) ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-700 text-slate-400 hover:bg-slate-600'"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4" :class="isMarked(questions[currentQuestion].id) ? 'fill-amber-400' : ''"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+                            <x-heroicon-o-bookmark class="size-4" :class="isMarked(questions[currentQuestion].id) ? 'fill-amber-400' : ''" />
                             <span x-text="isMarked(questions[currentQuestion].id) ? 'Ditandai' : 'Tandai'"></span>
                         </button>
                     </div>
@@ -324,11 +324,7 @@ $questionsJson = $questions->map(function($q) {
                                                     x-text="['A', 'B', 'C', 'D'][optIndex]"
                                                 ></span>
                                                 <span class="text-white flex-1" x-text="option"></span>
-                                                <svg 
-                                                    x-show="getAnswerIndex(q.id) === optIndex"
-                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
-                                                    class="size-5 text-blue-400"
-                                                ><path d="M20 6 9 17l-5-5"/></svg>
+                                                <x-heroicon-o-check class="size-5 text-blue-400" />
                                             </div>
                                         </button>
                                     </template>
@@ -345,7 +341,7 @@ $questionsJson = $questions->map(function($q) {
                             class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all"
                             :class="currentQuestion === 0 ? 'bg-slate-700/50 text-slate-500 cursor-not-allowed' : 'bg-slate-700 text-white hover:bg-slate-600'"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="m15 18-6-6 6-6"/></svg>
+                            <x-heroicon-o-arrow-left class="size-4" />
                             Sebelumnya
                         </button>
                         
@@ -369,7 +365,7 @@ $questionsJson = $questions->map(function($q) {
                             :class="currentQuestion === questions.length - 1 ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-blue-600 text-white hover:bg-blue-500'"
                         >
                             <span x-text="currentQuestion === questions.length - 1 ? 'Kumpulkan' : 'Selanjutnya'"></span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="m9 18 6-6-6-6"/></svg>
+                            <x-heroicon-o-arrow-right class="size-4" />
                         </button>
                     </div>
                 </div>
@@ -381,7 +377,7 @@ $questionsJson = $questions->map(function($q) {
     <div x-show="examFinished" x-transition class="max-w-2xl mx-auto py-16 text-center">
         <div class="bg-slate-800/50 backdrop-blur rounded-3xl border border-slate-700/50 p-10">
             <div class="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="size-10 text-white"><path d="M20 6 9 17l-5-5"/></svg>
+                <x-heroicon-o-check class="size-10 text-white" stroke-width="3" />
             </div>
             <h2 class="text-3xl font-bold text-white mb-3">Ujian Berhasil Dikumpulkan!</h2>
             <p class="text-slate-400 mb-8">Terima kasih telah menyelesaikan ujian. Hasil akan diumumkan dalam beberapa hari.</p>
@@ -407,7 +403,7 @@ $questionsJson = $questions->map(function($q) {
                 href="{{ route('student.dashboard', ['tab' => 'applications']) }}"
                 class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-500 transition-colors"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <x-heroicon-o-home class="size-4" />
                 Kembali ke Dashboard
             </a>
         </div>
@@ -441,7 +437,7 @@ $questionsJson = $questions->map(function($q) {
             <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
                 <div class="flex items-center gap-4">
                     <div class="p-3 bg-white/20 rounded-xl">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                        <x-heroicon-o-paper-airplane class="size-6" />
                     </div>
                     <div>
                         <h3 class="text-lg font-semibold">Kumpulkan Ujian?</h3>
@@ -472,7 +468,7 @@ $questionsJson = $questions->map(function($q) {
                 <div x-show="unansweredCount > 0" class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-6">
                     <div class="flex items-start gap-3">
                         <div class="p-1.5 bg-amber-500/20 rounded-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 text-amber-400"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            <x-heroicon-o-exclamation-triangle class="size-4 text-amber-400" />
                         </div>
                         <div>
                             <p class="text-amber-400 font-medium text-sm">Masih ada soal yang belum dijawab!</p>
@@ -527,13 +523,13 @@ $questionsJson = $questions->map(function($q) {
                 >
                     <template x-if="!isSubmitting">
                         <span class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                            <x-heroicon-o-paper-airplane class="size-4" />
                             Ya, Kumpulkan
                         </span>
                     </template>
                     <template x-if="isSubmitting">
                         <span class="flex items-center gap-2">
-                            <svg class="animate-spin size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <x-heroicon-o-arrow-path class="animate-spin size-4" />
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
@@ -559,14 +555,14 @@ $questionsJson = $questions->map(function($q) {
     >
         <div class="bg-amber-600 text-white px-5 py-4 rounded-xl shadow-lg flex items-center gap-4">
             <div class="p-2 bg-white/20 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <x-heroicon-o-clock class="size-5" />
             </div>
             <div>
                 <p class="font-semibold">Waktu hampir habis!</p>
                 <p class="text-sm text-amber-100">Tersisa kurang dari 5 menit</p>
             </div>
             <button @click="showTimeWarning = false" class="p-1 hover:bg-white/20 rounded-lg transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                <x-heroicon-o-x-mark class="size-4" />
             </button>
         </div>
     </div>

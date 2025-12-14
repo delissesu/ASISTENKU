@@ -11,7 +11,7 @@
             </p>
             <a href="{{ route('auth') }}" class="inline-flex items-center justify-center rounded-md text-sm font-medium h-11 px-8 bg-white text-blue-600 hover:bg-blue-50 transition-colors">
                 Mulai Melamar
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5 ml-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                <x-heroicon-o-arrow-right class="size-5 ml-2" />
             </a>
         </div>
     </div>

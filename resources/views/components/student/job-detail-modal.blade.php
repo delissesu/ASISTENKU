@@ -28,11 +28,11 @@
                     @click="showJobModal = false" 
                     class="absolute top-4 right-4 p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    <x-heroicon-o-x-mark class="size-5" />
                 </button>
                 <div class="flex items-start gap-4">
                     <div class="p-3 bg-white/20 rounded-xl shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-6"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                        <x-heroicon-o-briefcase class="size-6" />
                     </div>
                     <div class="flex-1 min-w-0 pr-8">
                         <div class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-white/20 text-white mb-2" x-text="selectedJob?.division?.name"></div>
@@ -50,7 +50,7 @@
                 <div x-show="userIpk < selectedJob?.min_ipk || userSemester < selectedJob?.min_semester" 
                      class="bg-red-50 border border-red-200 rounded-xl p-4 flex gap-3 animate-in fade-in slide-in-from-top-2">
                     <div class="p-2 bg-red-100 rounded-lg shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 text-red-600"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                        <x-heroicon-o-x-circle class="size-4 text-red-600" />
                     </div>
                     <div>
                         <h4 class="font-medium text-red-900 text-sm">Tidak Memenuhi Syarat</h4>
@@ -92,7 +92,7 @@
                 <!-- Deskripsi -->
                 <div>
                     <h3 class="font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 text-blue-600"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                        <x-heroicon-o-document-text class="size-4 text-blue-600" />
                         Deskripsi Pekerjaan
                     </h3>
                     <p class="text-slate-600 leading-relaxed whitespace-pre-line" x-text="selectedJob?.description"></p>
@@ -101,7 +101,7 @@
                 <!-- Peringatan Syarat -->
                 <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3">
                     <div class="p-2 bg-amber-100 rounded-lg shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 text-amber-600"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        <x-heroicon-o-information-circle class="size-4 text-amber-600" />
                     </div>
                     <div>
                         <h4 class="font-medium text-amber-900 text-sm">Persyaratan Dokumen</h4>
@@ -135,19 +135,19 @@
                     >
                         <template x-if="userIpk < selectedJob?.min_ipk || userSemester < selectedJob?.min_semester">
                             <span class="flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><circle cx="12" cy="12" r="10"/><line x1="15" x2="9" y1="9" y2="15"/><line x1="9" x2="15" y1="9" y2="15"/></svg>
+                                <x-heroicon-o-no-symbol class="size-4 mr-2" />
                                 Tidak Memenuhi Syarat
                             </span>
                         </template>
                         <template x-if="!(userIpk < selectedJob?.min_ipk || userSemester < selectedJob?.min_semester) && !isSubmitting">
                             <span class="flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 mr-2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                                <x-heroicon-o-paper-airplane class="size-4 mr-2" />
                                 Kirim Lamaran
                             </span>
                         </template>
                         <template x-if="isSubmitting">
                             <span class="flex items-center">
-                                <svg class="animate-spin size-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <x-heroicon-o-arrow-path class="animate-spin size-4 mr-2" />
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
